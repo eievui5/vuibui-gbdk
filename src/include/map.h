@@ -2,7 +2,7 @@
 
 #include <stdint.h>
 
-#include "include/vector.h"
+#include "vector.h"
 
 extern vec16 camera_position;
 

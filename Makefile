@@ -9,7 +9,7 @@
 #                                              #
 ################################################
 
-LCC	= lcc -Wa-l -Wl-m
+LCC	= lcc -Wa-l -Wl-m -Wb-ext=.rel -autobank
 
 SRCDIR := src
 OBJDIR := obj
@@ -55,3 +55,8 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.s
 $(ROM): $(OBJS)
 	@mkdir -p $(@D)
 	$(LCC) -Wm-yn$(TITLE) $(COMPAT) -Wl-yt$(MBCTYPE) -Wl-yo$(ROMBANKS) -Wl-ya$(RAMBANKS) -o $(ROM) $(OBJS)
+ifneq ($(OS),Windows_NT)
+	./tools/romusage $(BINDIR)/$(ROMNAME).map -g
+else
+	./tools/romusage.exe $(BINDIR)/$(ROMNAME).map -g
+endif
