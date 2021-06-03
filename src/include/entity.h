@@ -3,11 +3,17 @@
 #include <stdint.h>
 #include "vector.h"
 
-// This shouldn't go over 20, as there are only 40 sprite slots and all entities
-// should be able to be displayed in a single screen.
-#define MAX_ENTITIES 16
+#define MAX_ALLIES 3
+#define MAX_ENTITIES 5
 
-typedef struct{
+#define PLAYER player_array[active_player]
+
+typedef enum {
+	NO_ACTION,
+	MOVE_ACTION
+} ACTION;
+
+typedef struct {
 	uint8_t tile_left;
 	unsigned char attr_left;
 	uint8_t tile_right;
@@ -33,17 +39,23 @@ typedef struct {
  * 
  * @param data	A pointer to the entity's constant data. If this is set to null 
  * the entity is considered inactive.
- * @param x	16x16 grid-locked 16-bit X position
- * @param y	16x16 grid-locked 16-bit Y position
+ * @param x	16x16 grid-locked 16-bit X position.
+ * @param y	16x16 grid-locked 16-bit Y position.
+ * @param action
+ * @param direction	Used to determine which direction the entity is facing.
  * @param frame	Used to index into the entity's metasprite array to display a
  * given frame.
 */
 typedef struct {
-	entity_data *data;
+	const entity_data *data;
 	uint16_t x, y;
-	uint8_t frame;
+	ACTION action;
+	uint8_t direction;
 } entity;
 
+extern uint8_t active_player;
+extern entity player_array[MAX_ALLIES];
 extern entity entity_array[MAX_ENTITIES];
 
+void process_entity_array(void);
 void render_entity_array(void);
