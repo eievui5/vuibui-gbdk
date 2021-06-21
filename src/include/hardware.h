@@ -1,0 +1,12 @@
+#pragma once
+
+#include <gb/hardware.h>
+
+#define LCDC_ENABLE 		0b10000000u
+#define LCDC_WINDOW_SCRN1 	0b01000000u
+#define LCDC_WINDOW_ENABLE 	0b00100000u
+#define LCDC_BGTILES_8000 	0b00010000u
+#define LCDC_BG_SCRN1 		0b00001000u
+#define LCDC_OBJ_16 		0b00000100u
+#define LCDC_OBJ_ENABLE 	0b00000010u
+#define LCDC_BG_ENABLE 		0b00000001u
