@@ -2,31 +2,32 @@
 #include <rand.h>
 #include <string.h>
 
+#include "include/bank.h"
 #include "include/entity.h"
 #include "include/hardware.h"
 #include "include/rendering.h"
 
-const unsigned char tile[] = {
-	0x00, 0xFF, 0xFF, 0x00, 
-	0x00, 0xFF, 0xFF, 0x00, 
-	0x00, 0xFF, 0xFF, 0x00, 
-	0x00, 0xFF, 0xFF, 0x00
-};
-
-const unsigned char tile2[] = {
-	0xFF, 0xFF, 0x00, 0xFF, 
-	0xFF, 0xFF, 0x00, 0xFF, 
-	0xFF, 0xFF, 0x00, 0xFF, 
-	0xFF, 0xFF, 0x00, 0xFF
-};
+#include "../res/gfx/sprites/gfx_luvui.h"
 
 const char debug_metasprite[] = {
+	// Idle.
 	0, 0,
-	0, 0
+	2, 0,
+	// Idle Flip.
+	4, 0,
+	6, 0,
+	// Step
+	8, 0,
+	10, 0,
+	// Step Flip.
+	12, 0,
+	14, 0,
 };
 
 const entity_data debug_entity_data = {
-	.metasprites = debug_metasprite
+	.metasprites = debug_metasprite,
+	.graphics = gfx_luvui,
+	.gfx_bank = bank_gfx_luvui
 };
 
 u8 cur_keys = 0;
@@ -34,22 +35,19 @@ u8 new_keys;
 u8 rel_keys;
 u8 last_keys;
 
+void lcd_memcpy(size_t len, const unsigned char *src, unsigned char *dest) NONBANKED;
+
 void main()
 {
 	initrand(0);
 	LCDC_REG = LCDC_ENABLE | LCDC_BG_ENABLE | LCDC_OBJ_ENABLE | LCDC_OBJ_16;
 	memset(&entities, 0, sizeof(entity) * NB_ENTITIES);
-	for (u8 i = 0; i < NB_ENTITIES; i++) {
+	for (u8 i = 0; i < 1; i++) {
 		entities.array[i].data = &debug_entity_data;
 		entities.array[i].x_pos = 1 + i;
 		entities.array[i].y_pos = 1 + i;
-		if (i & 1) {
-			set_sprite_data(i * 2, 1, tile);
-			set_sprite_data(i * 2 + 1, 1, tile);
-		} else {
-			set_sprite_data(i * 2, 1, tile2);
-			set_sprite_data(i * 2 + 1, 1, tile2);
-		}
+		SET_BANK(bank_gfx_luvui);
+		set_sprite_data(i * NB_ENTITY_TILES, NB_ENTITY_TILES, gfx_luvui);
 	}
 	move_entities();
 	while(1) {
@@ -59,36 +57,24 @@ void main()
 		rel_keys = last_keys & ~cur_keys;
 
 		if (cur_keys & (J_DOWN | J_UP | J_LEFT | J_RIGHT)) {
-			u16 target_x = entities.player.x_pos;
-			u16 target_y = entities.player.y_pos;
+			bool moved = false;
 			if (cur_keys & J_DOWN) {
-				target_y += 1;
+				moved = try_step(0, DIR_DOWN);
 			}
 			else if (cur_keys & J_UP) {
-				target_y -= 1;
+				moved = try_step(0, DIR_UP);
 			}
 			else if (cur_keys & J_RIGHT) {
-				target_x += 1;
+				moved = try_step(0, DIR_RIGHT);
 			}
 			else if (cur_keys & J_LEFT) {
-				target_x -= 1;
+				moved = try_step(0, DIR_LEFT);
 			}
-			if (!check_collision(0, target_x, target_y)) {
-				entities.player.x_pos = target_x;
-				entities.player.y_pos = target_y;
-				switch (rand() & 0b11) {
-				case 0:
-					entities.allies[1].y_pos += 1;
-					break;
-				case 1:
-					entities.allies[1].y_pos -= 1;
-					break;
-				case 2:
-					entities.allies[1].x_pos += 1;
-					break;
-				case 3:
-					entities.allies[1].x_pos -= 1;
-					break;
+			
+			if (moved) {
+				for (u8 i = 1; i < NB_ENTITIES; i++) {
+					if (entities.array[i].data)
+						try_step(i, rand() & 0b11);
 				}
 				move_entities();
 			}

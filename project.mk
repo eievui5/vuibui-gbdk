@@ -12,7 +12,7 @@ ROMEXT  = gb
 # Your ROM's 15-character Title. This must be within quotes.
 TITLE = "VUIBUI-GBDK"
 
-# System Compatability Flag. 
+# System Compatability Flag.
 # Leave Blank for DMG-only
 # -Wm-yc : Game Boy Color compatible
 # -Wm-yC : Game Boy Color only
@@ -32,10 +32,25 @@ ROMBANKS := A
 # equivalent to 8KiBs of RAM. This should be a power of 2
 RAMBANKS := 1
 
-# List of C source directories. 
+# List of C source directories.
 # Add a new $(wildcard $(SRCDIR)/<directory>*.c) when more directories are needed.
 CSRC 	:= $(wildcard $(SRCDIR)/*.c)
 
-# List of ASM source directories. 
+# List of ASM source directories.
 # Add a new $(wildcard $(SRCDIR)/<directory>*.s) when more directories are needed.
 SSRC	:= $(wildcard $(SRCDIR)/*.s)
+
+# List of binary source directories. These files will be converted to C sources
+# and headers to be included in the program.
+# Add a new $(wildcard $(SRCDIR)/<directory>*.bin) when more directories are needed.
+BINSRC	:= 
+
+# List of PNG source directories. These files will be converted to C sources
+# and headers to be included in the program.
+# Add a new $(wildcard $(SRCDIR)/<directory>*.png) when more directories are needed.
+GFXSRC	:= $(wildcard $(SRCDIR)/gfx/tiles/*.png)
+
+# List of tall PNG source directories, for 8x16 sprites. These files will be 
+# converted to C sources and headers to be included in the program.
+# Add a new $(wildcard $(SRCDIR)/<directory>*.png) when more directories are needed.
+TALLSRC := $(wildcard $(SRCDIR)/gfx/sprites/*.png)

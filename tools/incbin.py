@@ -98,7 +98,7 @@ def main():
 	# .c
 	output_c.write(C_MESSAGE)
 	if bank:
-		output_c.write("\n#pragma bank " + str(bank) + "\nconst void __at(255) __bank_" + out_name + ";\n\n")
+		output_c.write("\n#pragma bank " + str(bank) + "\nconst void __at(" + str(bank) + ") __bank_" + out_name + ";\n\n")
 	output_c.write("const unsigned char " + out_name + "[] = {\n")
 	lines = 0
 	for i in input_array:
@@ -111,7 +111,7 @@ def main():
 	# .h
 	output_h.write(H_MESSAGE)
 	if bank:
-		output_h.write("#define bank_" + out_name + " (unsigned char)&__bank_" + out_name + "\n\n")
+		output_h.write("#define bank_" + out_name + " ((unsigned char)&__bank_" + out_name + ")\n\n")
 		output_h.write("extern const void __bank_" + out_name + ";")
 	output_h.write("\nextern const unsigned char " + out_name + "[];")
 
