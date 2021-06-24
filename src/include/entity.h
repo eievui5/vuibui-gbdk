@@ -2,7 +2,7 @@
 
 #include <stdbool.h>
 
-#include "int.h"
+#include "include/int.h"
 
 #define NB_ALLIES 3
 #define NB_ENEMIES 5
@@ -20,12 +20,10 @@
  * 
  * @param metasprites	A pointer to the entity's metasprites.
  * @param graphics	A pointer to the entity's graphics.
- * @param gfx_bank	Bank of the entiy's graphics.
 */
 typedef struct {
 	const char *metasprites;
 	const char *graphics;
-	const u8 gfx_bank;
 } entity_data;
 
 /**
@@ -46,8 +44,8 @@ typedef struct {
 typedef struct {
 	const entity_data *data;
 	u8 bank;
-	u16 x_pos;
-	u16 y_pos;
+	u8 x_pos;
+	u8 y_pos;
 	u16 x_spr;
 	u16 y_spr;
 	u8 direction;
@@ -80,5 +78,5 @@ extern entity_array entities;
 
 bool try_step(u8 i, u8 dir);
 void move_entities();
-entity *check_collision(u8 ignore, u16 x, u16 y);
+bool check_collision(u8 ignore, u8 x, u8 y);
 void render_entities();

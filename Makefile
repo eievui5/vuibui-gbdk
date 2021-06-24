@@ -9,7 +9,7 @@
 #                                              #
 ################################################
 
-LCC	= lcc -Wa-l -Wl-m -Wb-ext=.rel -autobank
+LCC	= lcc -Wa-l -Wa--vc -Wl-m -Isrc -Wb-ext=.rel -autobank 
 
 ifeq ($(OS),Windows_NT)
 	ROMUSAGE := ./tools/romusage.exe
@@ -26,16 +26,10 @@ BINDIR := bin
 
 ROM 	= $(BINDIR)/$(ROMNAME).$(ROMEXT)
 
-GFXS	= $(patsubst $(SRCDIR)%.png, $(RESDIR)%.2bpp, $(GFXSRC)) \
-	  $(patsubst $(SRCDIR)%.png, $(RESDIR)%.tall, $(TALLSRC))
-
-BINS	= $(patsubst $(SRCDIR)%.bin, $(RESDIR)%.c, $(BINSRC))
+GFXS	= $(patsubst $(SRCDIR)%.png, $(RESDIR)%.2bpp, $(GFXSRC))
 
 OBJS	= $(patsubst $(SRCDIR)/%.c, $(OBJDIR)/%.o, $(CSRC)) \
-	  $(patsubst $(SRCDIR)/%.s, $(OBJDIR)/%.o, $(SSRC)) \
-	  $(patsubst $(RESDIR)/%.c, $(OBJDIR)/%.o, $(BINS)) \
-	  $(patsubst $(RESDIR)/%.2bpp, $(OBJDIR)/%.o, $(GFXS)) \
-	  $(patsubst $(RESDIR)/%.tall, $(OBJDIR)/%.o, $(GFXS))
+	  $(patsubst $(SRCDIR)/%.s, $(OBJDIR)/%.o, $(SSRC))
 
 
 include project.mk
@@ -75,19 +69,21 @@ $(OBJDIR)/%.o: $(RESDIR)/%.c
 	@mkdir -p $(@D)
 	$(LCC) -c -o $@ $<
 
-# Convert .png files to .2bpp graphics and C source files.
+$(OBJDIR)/%.b.o: $(SRCDIR)/%.b.c
+	@mkdir -p $(@D)
+	$(LCC) -c -Wf-ba0 -o $@ $<
+
+# Convert .png files to .2bpp graphics.
 $(RESDIR)/%.2bpp: $(SRCDIR)/%.png
 	@mkdir -p $(@D)
 	$(SUPERFAMICONV) tiles -i $< -d $@ -M gbc -R -D -F
-	py tools/incbin.py -o $(patsubst $(RESDIR)%.2bpp, $(RESDIR)%.c, $@) -i $@ -s
 
-# Convert .png files to .2bpp graphics and C source files.
-$(RESDIR)/%.tall: $(SRCDIR)/%.png
+# Convert .png files to .2bpp graphics.
+$(RESDIR)/%.h.2bpp: $(SRCDIR)/%.h.png
 	@mkdir -p $(@D)
 	$(SUPERFAMICONV) tiles -i $< -d $@ -M gbc -H 16 -R -D -F
-	py tools/incbin.py -o $(patsubst $(RESDIR)%.tall, $(RESDIR)%.c, $@) -i $@ -s -a
 
-$(ROM): $(GFXS) $(BINS) $(OBJS)
+$(ROM): $(GFXS) $(OBJS)
 	@mkdir -p $(@D)
 	$(LCC) -Wm-yn$(TITLE) $(COMPAT) -Wl-yt$(MBCTYPE) -Wl-yo$(ROMBANKS) -Wl-ya$(RAMBANKS) -o $(ROM) $(OBJS)
 	$(ROMUSAGE) $(BINDIR)/$(ROMNAME).map -g

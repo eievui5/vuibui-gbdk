@@ -1,12 +1,10 @@
 #include <gb/gb.h>
 #include <stdbool.h>
 
-#include "include/bank.h"
 #include "include/entity.h"
 #include "include/int.h"
+#include "include/map.h"
 #include "include/rendering.h"
-
-#include "../res/gfx/sprites/gfx_luvui.h"
 
 u8 anim_timer = 0;
 entity_array entities;
@@ -62,10 +60,13 @@ void move_entities()
 			} else
 				progress++;
 		}
+
+		update_camera(entities.player.x_spr, entities.player.y_spr);
+
 		if (progress == NB_ENTITIES)
 			return;
+
 		render_entities();
-		clean_oam();
 		wait_vbl_done();
 	}
 }
@@ -79,7 +80,7 @@ void move_entities()
  * 
  * @returns		The detected entity. NULL if no entity is found.
 */
-entity *check_collision(u8 ignore, u16 x, u16 y)
+entity *check_entity_collision(u8 ignore, u8 x, u8 y)
 {
 	for (u8 i = 0; i < NB_ENTITIES; i++) {
 		if (i == ignore)
@@ -90,6 +91,15 @@ entity *check_collision(u8 ignore, u16 x, u16 y)
 			return &entities.array[i];
 	}
 	return NULL;
+}
+
+bool check_collision(u8 ignore, u8 x, u8 y)
+{
+	if (map[y][x])
+		return true;
+	else if (check_entity_collision(ignore, x, y))
+		return true;
+	return false;
 }
 
 /**
@@ -104,11 +114,13 @@ void render_entities()
 			// Update the entity's graphics if needed.
 			if (entities.array[i].direction != entities.array[i].prev_dir) {
 				entities.array[i].prev_dir = entities.array[i].direction;
-				set_sprite_data(i * NB_ENTITY_TILES, 16, &gfx_luvui[entities.array[i].direction * 256]);
-				goto reload_frame;
-			} else if (entities.array[i].spr_frame && (entities.array[i].spr_frame != entities.array[i].prev_frame)) {
-				reload_frame:
-				entities.array[i].prev_frame = entities.array[i].spr_frame;
+				SWITCH_ROM_MBC1(entities.array[i].bank);
+				set_sprite_data(
+					i * NB_ENTITY_TILES, NB_ENTITY_TILES,
+					&entities.array[i].data->graphics[
+						entities.array[i].direction * 256
+					]
+				);
 			}
 			const char *metasprite = &entities.array[i].data->metasprites[entities.array[i].spr_frame];
 			if (anim_timer & 0b10000)
@@ -127,4 +139,5 @@ void render_entities()
 		}
 	}
 	anim_timer++;
+	clean_oam();
 }

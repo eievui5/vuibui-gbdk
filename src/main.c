@@ -1,33 +1,21 @@
+#include <gb/cgb.h>
 #include <gb/gb.h>
 #include <rand.h>
 #include <string.h>
 
-#include "include/bank.h"
+#include "entities/luvui.h"
+
 #include "include/entity.h"
 #include "include/hardware.h"
+#include "include/int.h"
+#include "include/map.h"
 #include "include/rendering.h"
 
-#include "../res/gfx/sprites/gfx_luvui.h"
-
-const char debug_metasprite[] = {
-	// Idle.
-	0, 0,
-	2, 0,
-	// Idle Flip.
-	4, 0,
-	6, 0,
-	// Step
-	8, 0,
-	10, 0,
-	// Step Flip.
-	12, 0,
-	14, 0,
-};
-
-const entity_data debug_entity_data = {
-	.metasprites = debug_metasprite,
-	.graphics = gfx_luvui,
-	.gfx_bank = bank_gfx_luvui
+const unsigned char tiles[] = {
+	0x00, 0xFF, 0xFF, 0x00, 0x00, 0xFF, 0xFF, 0x00,
+	0x00, 0xFF, 0xFF, 0x00, 0x00, 0xFF, 0xFF, 0x00,
+	0xFF, 0xFF, 0x00, 0xFF, 0xFF, 0xFF, 0x00, 0xFF,
+	0xFF, 0xFF, 0x00, 0xFF, 0xFF, 0xFF, 0x00, 0xFF,
 };
 
 u8 cur_keys = 0;
@@ -35,19 +23,29 @@ u8 new_keys;
 u8 rel_keys;
 u8 last_keys;
 
-void lcd_memcpy(size_t len, const unsigned char *src, unsigned char *dest) NONBANKED;
-
 void main()
 {
+	add_VBL(&vblank);
+	if (_cpu == CGB_TYPE) {
+		cpu_fast();
+		cgb_compatibility(); // Temporarily init first two pals to grey.
+	}
 	initrand(0);
 	LCDC_REG = LCDC_ENABLE | LCDC_BG_ENABLE | LCDC_OBJ_ENABLE | LCDC_OBJ_16;
 	memset(&entities, 0, sizeof(entity) * NB_ENTITIES);
-	for (u8 i = 0; i < 1; i++) {
-		entities.array[i].data = &debug_entity_data;
+	memset(map, 0, sizeof(map));
+	generate_map();
+	set_bkg_data(0, 2, tiles);
+	for (u8 i = 0; i < NB_ENTITIES; i++) {
+		entities.array[i].data = &luvui_data;
+		entities.array[i].bank = bank_luvui;
 		entities.array[i].x_pos = 1 + i;
 		entities.array[i].y_pos = 1 + i;
-		SET_BANK(bank_gfx_luvui);
-		set_sprite_data(i * NB_ENTITY_TILES, NB_ENTITY_TILES, gfx_luvui);
+		SWITCH_ROM_MBC1(entities.array[i].bank);
+		set_sprite_data(
+			i * NB_ENTITY_TILES, NB_ENTITY_TILES,
+			entities.array[i].data->graphics
+		);
 	}
 	move_entities();
 	while(1) {
@@ -79,9 +77,8 @@ void main()
 				move_entities();
 			}
 		}
-
+		
 		render_entities();
-		clean_oam();
 		wait_vbl_done();
 	}
 }

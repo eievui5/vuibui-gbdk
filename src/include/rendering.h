@@ -1,7 +1,8 @@
 #pragma once
 
-#include "int.h"
+#include "include/int.h"
 
 extern u8 oam_index;
 
+void vblank();
 void clean_oam();

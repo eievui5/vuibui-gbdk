@@ -17,7 +17,7 @@ TITLE = "VUIBUI-GBDK"
 # -Wm-yc : Game Boy Color compatible
 # -Wm-yC : Game Boy Color only
 # -Wm-ys : Super Game Boy compatible
-COMPAT = 
+COMPAT = -Wm-yc
 
 # MBC type, tells which hardware is in the cart
 # See https://gbdev.io/pandocs/#_0147-cartridge-type for a list of MBC types
@@ -34,7 +34,9 @@ RAMBANKS := 1
 
 # List of C source directories.
 # Add a new $(wildcard $(SRCDIR)/<directory>*.c) when more directories are needed.
-CSRC 	:= $(wildcard $(SRCDIR)/*.c)
+CSRC 	:= $(wildcard $(SRCDIR)/*.c) \
+	   $(wildcard $(SRCDIR)/entities/*.c)
+
 
 # List of ASM source directories.
 # Add a new $(wildcard $(SRCDIR)/<directory>*.s) when more directories are needed.
@@ -45,12 +47,7 @@ SSRC	:= $(wildcard $(SRCDIR)/*.s)
 # Add a new $(wildcard $(SRCDIR)/<directory>*.bin) when more directories are needed.
 BINSRC	:= 
 
-# List of PNG source directories. These files will be converted to C sources
-# and headers to be included in the program.
+# List of PNG source directories. These files will be converted to 2bpp binary
+# files.
 # Add a new $(wildcard $(SRCDIR)/<directory>*.png) when more directories are needed.
-GFXSRC	:= $(wildcard $(SRCDIR)/gfx/tiles/*.png)
-
-# List of tall PNG source directories, for 8x16 sprites. These files will be 
-# converted to C sources and headers to be included in the program.
-# Add a new $(wildcard $(SRCDIR)/<directory>*.png) when more directories are needed.
-TALLSRC := $(wildcard $(SRCDIR)/gfx/sprites/*.png)
+GFXSRC	:= $(wildcard $(SRCDIR)/gfx/sprites/*.png)
