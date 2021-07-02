@@ -5,10 +5,10 @@
 
 #define WAIT_VRAM \
 __asm \
-	waitVRAM$: \
+	00001$: \
 		ld a, (_STAT_REG) \
 		and a, #2 \
-		jr nz, waitVRAM$ \
+		jr nz, 00001$ \
 __endasm
 #define VCAM_OFF 16
 

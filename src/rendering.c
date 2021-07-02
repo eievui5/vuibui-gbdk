@@ -8,10 +8,7 @@ u8 oam_index = 0;
 
 void vblank()
 {
-	SCX_REG = camera_x;
-	SCY_REG = camera_y;
-	// Reset the LCDC register
-	LCDC_REG = lcdc_buffer;
+	show_hud();
 }
 
 /**

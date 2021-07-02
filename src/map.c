@@ -257,8 +257,7 @@ void generate_exit() BANKED
 	while (1) {
 		u8 x = rand() & 0b111111;
 		u8 y = rand() & 0b111111;
-		if (!(
-			map[y][x]     || map[y][x + 1]	   || map[y][x - 1] ||
+		if (!(  map[y][x]     || map[y][x + 1]	   || map[y][x - 1] ||
 			map[y + 1][x] || map[y + 1][x + 1] || map[y + 1][x - 1] ||
 			map[y - 1][x] || map[y - 1][x + 1] || map[y - 1][x - 1]
 		)) {

@@ -27,9 +27,7 @@ void main()
 	wait_vbl_done();
 	LCDC_REG = LCDC_WINDOW_SCRN1;
 	add_VBL(&vblank);
-	add_LCD(&show_hud);
 	set_interrupts(VBL_IFLAG | LCD_IFLAG);
-	LYC_REG = SCREENHEIGHT - 33;
 	STAT_REG = STATF_LYC;
 	BGP_REG = 0b11100100;
 	OBP0_REG = 0b11010000;
@@ -85,14 +83,6 @@ void main()
 						try_step(i, rand() & 0b11);
 				}
 				move_entities();
-				char buf[MESSAGE_SIZE];
-				sprintf(
-					buf,
-					"Current Position:\n%u, %u", 
-					entities.player.x_pos, 
-					entities.player.y_pos
-				);
-				print_hud(buf);
 			}
 		}
 		
