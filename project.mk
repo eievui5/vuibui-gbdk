@@ -35,8 +35,8 @@ RAMBANKS := 1
 # List of C source directories.
 # Add a new $(wildcard $(SRCDIR)/<directory>*.c) when more directories are needed.
 CSRC 	:= $(wildcard $(SRCDIR)/*.c) \
-	   $(wildcard $(SRCDIR)/entities/*.c)
-
+	   $(wildcard $(SRCDIR)/entities/*.c) \
+	   $(wildcard $(SRCDIR)/mapdata/*.c)
 
 # List of ASM source directories.
 # Add a new $(wildcard $(SRCDIR)/<directory>*.s) when more directories are needed.
@@ -50,4 +50,5 @@ BINSRC	:=
 # List of PNG source directories. These files will be converted to 2bpp binary
 # files.
 # Add a new $(wildcard $(SRCDIR)/<directory>*.png) when more directories are needed.
-GFXSRC	:= $(wildcard $(SRCDIR)/gfx/sprites/*.png)
+GFXSRC	:= $(wildcard $(SRCDIR)/gfx/sprites/*.png) \
+	   $(wildcard $(SRCDIR)/gfx/ui/*.png)

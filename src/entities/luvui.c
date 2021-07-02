@@ -1,7 +1,6 @@
 #pragma bank 255
 
 #include <gb/incbin.h>
-
 #include "entities/luvui.h"
 #include "include/entity.h"
 
@@ -16,7 +15,7 @@ const char luvui_metasprite[] = {
 	// Idle Flip.
 	4, 0,
 	6, 0,
-	// Step
+	// Step.
 	8, 0,
 	10, 0,
 	// Step Flip.

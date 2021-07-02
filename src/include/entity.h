@@ -1,5 +1,6 @@
 #pragma once
 
+#include <gb/gb.h>
 #include <stdbool.h>
 
 #include "include/int.h"
@@ -10,13 +11,8 @@
 
 #define NB_ENTITY_TILES 16
 
-#define DIR_DOWN 0
-#define DIR_UP 1
-#define DIR_RIGHT 2
-#define DIR_LEFT 3
-
 /**
- * Contians constant data for entities.
+ * Contains constant data for entities.
  * 
  * @param metasprites	A pointer to the entity's metasprites.
  * @param graphics	A pointer to the entity's graphics.
@@ -76,7 +72,8 @@ typedef union {
 
 extern entity_array entities;
 
-bool try_step(u8 i, u8 dir);
-void move_entities();
-bool check_collision(u8 ignore, u8 x, u8 y);
-void render_entities();
+void render_entities() NONBANKED;
+void move_entities() NONBANKED;
+
+bool try_step(u8 i, u8 dir) BANKED;
+bool check_collision(u8 ignore, u8 x, u8 y) BANKED;

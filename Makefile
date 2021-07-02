@@ -9,7 +9,7 @@
 #                                              #
 ################################################
 
-LCC	= lcc -Wa-l -Wa--vc -Wl-m -Isrc -Wb-ext=.rel -autobank 
+LCC	= lcc -Wa-l -Wa--vc -Wl-m -Isrc -Wb-ext=.rel -autobank -debug
 
 ifeq ($(OS),Windows_NT)
 	ROMUSAGE := ./tools/romusage.exe
@@ -74,6 +74,11 @@ $(OBJDIR)/%.b.o: $(SRCDIR)/%.b.c
 	$(LCC) -c -Wf-ba0 -o $@ $<
 
 # Convert .png files to .2bpp graphics.
+$(RESDIR)/%.1bpp.2bpp: $(SRCDIR)/%.1bpp.png
+	@mkdir -p $(@D)
+	$(SUPERFAMICONV) tiles -i $< -d $@ -M gbc -R -D -F -B 1
+
+# Convert .png files to .2bpp graphics.
 $(RESDIR)/%.2bpp: $(SRCDIR)/%.png
 	@mkdir -p $(@D)
 	$(SUPERFAMICONV) tiles -i $< -d $@ -M gbc -R -D -F
@@ -86,4 +91,4 @@ $(RESDIR)/%.h.2bpp: $(SRCDIR)/%.h.png
 $(ROM): $(GFXS) $(OBJS)
 	@mkdir -p $(@D)
 	$(LCC) -Wm-yn$(TITLE) $(COMPAT) -Wl-yt$(MBCTYPE) -Wl-yo$(ROMBANKS) -Wl-ya$(RAMBANKS) -o $(ROM) $(OBJS)
-	$(ROMUSAGE) $(BINDIR)/$(ROMNAME).map -g
+	$(ROMUSAGE) $(BINDIR)/$(ROMNAME).map -g -e:STACK:DEFF:100 -e:SHADOW_OAM:C000:A0
