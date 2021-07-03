@@ -2,43 +2,39 @@
 
 #include <gb/gb.h>
 #include <gb/incbin.h>
+#include "gfx/ui/vwf_font.h"
 #include "include/hardware.h"
 #include "include/hud.h"
 #include "include/map.h"
 #include "include/rendering.h"
+#include "libs/vwf.h"
 
 INCBIN(font_tiles, res/gfx/ui/font.1bpp.2bpp)
-INCBIN(health_tiles, res/gfx/ui/health_bar.2bpp)
-INCBIN(hud_tiles, res/gfx/ui/hud_tiles.2bpp)
+INCBIN(hud_tiles, res/gfx/ui/hud.2bpp)
+
+#define FONT_TILE (0x80 + SIZE(hud_tiles) / 16 + 1)
+#define FONT_SPACE ((void *)(0x8800 + FONT_TILE * 16))
 
 const unsigned char hud[] = {
-	0xBB, 0xBD, 0xBE, 0xBF, 0xBF, 0xBF, 0xBF, 0xBF, 0xBF, 0xBF, 0xBF, 0xBF, 0xBF, 0xBF, 0xC0, 0xC2, 0xC3, 0xC4, 0xBC, 0xC1
+	0x80, 0x82, 0x83, 0x84, 0x84, 0x84, 0x84, 0x84, 0x84, 0x84, 0x84, 0x84, 0x84, 0x84, 0x85, 0x87, 0x88, 0x89, 0x81, 0x86
 };
 
 void init_hud() BANKED
 {
 	u8 i;
 	set_bkg_data(0x80, SIZE(hud_tiles) / 16, hud_tiles);
-	vmemset((void *)(0x8850), 0, MESSAGE_SIZE * 16);
-	set_bkg_data(0xBB, SIZE(health_tiles) / 16, health_tiles);
-	
+	vmemset(FONT_SPACE, 0, MESSAGE_SIZE * 16);
+
+	// vmemcpy
 	for (i = 0; i < 20; i++)
 		set_vram_byte((void *)(0x9F60 + i), hud[i]);
 
-	set_vram_byte((void *)(0x9C00 + 28 * 32), 0x80);
-	set_vram_byte((void *)(0x9C00 + 28 * 32 + 19), 0x82);
-	for (i = 1; i < 19; i++)
-		set_vram_byte((void *)(0x9C00 + 28 * 32 + i), 0x81);
-	u8 font_tile = 0x85;
+	vmemset((void *)(0x9F80), 0x8A, 20);
 	for (i = 0; i < 3; i++) {
-		set_vram_byte((void *)(0x9C00 + (29 + i) * 32), 0x83);
-		set_vram_byte((void *)(0x9C00 + (29 + i) * 32 + 19), 0x84);
-		for (u8 j = 1; j < 19; j++)
-			set_vram_byte(
-				(void *)(0x9C00 + (29 + i) * 32 + j),
-				font_tile++
-			);
+		vmemset((void *)(0x9FA0 + i * 32), 0x8B, MESSAGE_SIZE / 3);
 	}
+
+	vwf_load_font(0, vwf_font, bank_vwf_font);
 }
 
 // Need to declare this...
@@ -82,20 +78,24 @@ void show_game() NONBANKED
 
 void print_hud(const char *src) BANKED
 {
-	u8 c = 0;
-	for (u8 i = 0; src[i] != 0; i++, c++) {
-		if (src[i] == '\n') {
-			// Clear the remaining tiles on this line.
-			vmemset(
-				(void *)(0x8850 + c * 16), 
-				0, 
-				((c + (MESSAGE_SIZE / 3 - c % (MESSAGE_SIZE / 3))) - c) * 16
-			);
-			// Jump to the next line.
-			c += MESSAGE_SIZE / 3 - c % (MESSAGE_SIZE / 3);
-			i++;
-		}
-		set_bkg_1bit_data(0x85 + c, 1, &font_tiles[(src[i] - ' ') * 8], 3);
-	}
-	vmemset((void *)(0x8850 + c * 16), 0, (MESSAGE_SIZE - c) * 16);
+	for (u8 i = 0; i < 3; i++)
+		vmemset((void *)(0x9FA1 + i * 32), FONT_TILE - 1, MESSAGE_SIZE / 3);
+	vwf_activate_font(0);
+	vwf_draw_text(0x01, 0x1D, FONT_TILE, src);
+	//u8 c = 0;
+	//for (u8 i = 0; src[i] != 0; i++, c++) {
+	//	if (src[i] == '\n') {
+	//		// Clear the remaining tiles on this line.
+	//		vmemset(
+	//			(void *)(0x8850 + c * 16), 
+	//			0, 
+	//			((c + (MESSAGE_SIZE / 3 - c % (MESSAGE_SIZE / 3))) - c) * 16
+	//		);
+	//		// Jump to the next line.
+	//		c += MESSAGE_SIZE / 3 - c % (MESSAGE_SIZE / 3);
+	//		i++;
+	//	}
+	//	set_bkg_1bit_data(0x85 + c, 1, &font_tiles[(src[i] - ' ') * 8], 3);
+	//}
+	//vmemset((void *)(0x8850 + c * 16), 0, (MESSAGE_SIZE - c) * 16);
 }

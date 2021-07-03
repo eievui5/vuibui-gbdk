@@ -10,7 +10,7 @@ __asm \
 		and a, #2 \
 		jr nz, 00001$ \
 __endasm
-#define VCAM_OFF 16
+#define VCAM_OFF 12 // + 16 for the text, -4 for the HUD
 
 extern u8 lcdc_buffer;
 extern u8 oam_index;

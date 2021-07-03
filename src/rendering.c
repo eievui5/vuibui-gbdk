@@ -1,7 +1,6 @@
 #include <gb/gb.h>
-#include "include/hardware.h"
+#include "include/hud.h"
 #include "include/int.h"
-#include "include/map.h"
 
 u8 lcdc_buffer;
 u8 oam_index = 0;

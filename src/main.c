@@ -11,6 +11,7 @@
 #include "include/int.h"
 #include "include/map.h"
 #include "include/rendering.h"
+#include "libs/vwf.h"
 #include "mapdata/debug_mapdata.h"
 
 u8 cur_keys = 0;
@@ -25,7 +26,13 @@ void main()
 		cgb_compatibility(); // Temporarily init first two pals to grey.
 	}
 	wait_vbl_done();
-	LCDC_REG = LCDC_WINDOW_SCRN1;
+
+	//init_hud();
+	//char buf[] = "T h e q u i c k b r o w n fox jumped over the lazy dog.";
+	//vwf_wrap_str(18 * 8, buf);
+	//return;
+
+	LCDC_REG = 0;
 	add_VBL(&vblank);
 	set_interrupts(VBL_IFLAG | LCD_IFLAG);
 	STAT_REG = STATF_LYC;
@@ -53,7 +60,7 @@ void main()
 	generate_map();
 	move_entities();
 	force_render_map();
-	
+
 	lcdc_buffer = LCDC_ENABLE | LCDC_BG_ENABLE | LCDC_OBJ_ENABLE | LCDC_OBJ_16;
 	LCDC_REG = LCDC_ENABLE | LCDC_BG_ENABLE | LCDC_OBJ_ENABLE | LCDC_OBJ_16;
 	while(1) {
@@ -83,6 +90,10 @@ void main()
 						try_step(i, rand() & 0b11);
 				}
 				move_entities();
+				char buf[] = "Luviu used Attack. It's super effective! Critical hit! Enemy took 65535 damage and was defeated.";
+				vwf_activate_font(0);
+				vwf_wrap_str(144, buf);
+				print_hud(buf);
 			}
 		}
 		

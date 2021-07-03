@@ -1,6 +1,6 @@
 #include <gb/incbin.h>
 
-#define MESSAGE_SIZE 54
+#define MESSAGE_SIZE 60
 
 INCBIN_EXTERN(hud_tiles)
 INCBIN_EXTERN(font_tiles)
