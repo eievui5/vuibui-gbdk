@@ -34,16 +34,11 @@ RAMBANKS := 1
 
 # List of C source directories.
 # Add a new $(wildcard $(SRCDIR)/<directory>*.c) when more directories are needed.
-CSRC 	:= $(wildcard $(SRCDIR)/*.c) \
-	   $(wildcard $(SRCDIR)/libs/*.c) \
-	   $(wildcard $(SRCDIR)/entities/*.c) \
-	   $(wildcard $(SRCDIR)/mapdata/*.c) \
-	   $(SRCDIR)/gfx/ui/vwf_font.c
+CSRC 	:= $(shell find $(SRCDIR) -name *.c)
 
 # List of ASM source directories.
 # Add a new $(wildcard $(SRCDIR)/<directory>*.s) when more directories are needed.
-SSRC	:= $(wildcard $(SRCDIR)/*.s) \
-	   $(wildcard $(SRCDIR)/libs/*.s)
+SSRC	:= $(shell find $(SRCDIR) -name *.s)
 
 
 # List of binary source directories. These files will be converted to C sources
@@ -54,5 +49,4 @@ BINSRC	:=
 # List of PNG source directories. These files will be converted to 2bpp binary
 # files.
 # Add a new $(wildcard $(SRCDIR)/<directory>*.png) when more directories are needed.
-GFXSRC	:= $(wildcard $(SRCDIR)/gfx/sprites/*.png) \
-	   $(wildcard $(SRCDIR)/gfx/ui/*.png)
+GFXSRC	:= $(shell find $(SRCDIR) -name *.png)

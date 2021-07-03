@@ -31,7 +31,6 @@ GFXS	= $(patsubst $(SRCDIR)%.png, $(RESDIR)%.2bpp, $(GFXSRC))
 OBJS	= $(patsubst $(SRCDIR)/%.c, $(OBJDIR)/%.o, $(CSRC)) \
 	  $(patsubst $(SRCDIR)/%.s, $(OBJDIR)/%.o, $(SSRC))
 
-
 include project.mk
 
 ################################################
