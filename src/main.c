@@ -41,13 +41,13 @@ void main()
 	init_hud();
 	initrand(0);
 	memset(&entities, 0, sizeof(entity) * NB_ENTITIES);
-	for (u8 i = 0; i < 3; i++) {
+	for (u8 i = 0; i < 4; i++) {
 		entities.array[i].data = &luvui_data;
 		entities.array[i].bank = bank_luvui;
-		entities.array[i].x_pos = 32 + i * 2;
-		entities.array[i].y_pos = 32 + i * 2;
-		entities.array[i].x_spr = (32 + i * 2) * 16;
-		entities.array[i].y_spr = (32 + i * 2) * 16;
+		entities.array[i].x_pos = 28 + (i * 2);
+		entities.array[i].y_pos = 32 + i;
+		entities.array[i].x_spr = (32 + i) * 16;
+		entities.array[i].y_spr = (32 + i) * 16;
 		SWITCH_ROM_MBC1(entities.array[i].bank);
 		set_sprite_data(
 			i * NB_ENTITY_TILES, NB_ENTITY_TILES,
@@ -68,16 +68,20 @@ void main()
 		if (cur_keys & (J_DOWN | J_UP | J_LEFT | J_RIGHT)) {
 			bool moved = false;
 			if (cur_keys & J_DOWN) {
-				moved = try_step(&entities.player, 0, DIR_DOWN);
+				entities.player.direction = DIR_DOWN;
+				moved = player_try_step();
 			}
 			else if (cur_keys & J_UP) {
-				moved = try_step(&entities.player, 0, DIR_UP);
+				entities.player.direction = DIR_UP;
+				moved = player_try_step();
 			}
 			else if (cur_keys & J_RIGHT) {
-				moved = try_step(&entities.player, 0, DIR_RIGHT);
+				entities.player.direction = DIR_RIGHT;
+				moved = player_try_step();
 			}
 			else if (cur_keys & J_LEFT) {
-				moved = try_step(&entities.player, 0, DIR_LEFT);
+				entities.player.direction = DIR_LEFT;
+				moved = player_try_step();
 			}
 			
 			if (moved) {

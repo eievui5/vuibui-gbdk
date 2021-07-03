@@ -14,6 +14,9 @@
 #define mspd 1
 
 entity_array entities;
+// The index of an ally which has been forced to move by the player. This ally
+// loses their turn
+u8 ignore_ally = 0;
 
 /**
  * Renders two 8x16 sprites at each entity's position. The tile is chosen based
@@ -102,31 +105,71 @@ void move_entities() NONBANKED
 	}
 }
 
-bool try_step(entity *self, u8 i, u8 dir) BANKED
+bool try_step(entity *self, u8 dir) BANKED
 {
 	self->direction = dir;
-	u16 target_x = self->x_pos;
-	u16 target_y = self->y_pos;
+	u8 target_x = self->x_pos;
+	u8 target_y = self->y_pos;
 	switch (dir) {
-	case DIR_DOWN:
-		target_y++;
-		break;
 	case DIR_UP:
 		target_y--;
 		break;
 	case DIR_RIGHT:
 		target_x++;
 		break;
+	case DIR_DOWN:
+		target_y++;
+		break;
 	case DIR_LEFT:
 		target_x--;
 		break;
 	}
-	if (!check_collision(i, target_x, target_y)) {
+	if (!check_collision(target_x, target_y)) {
 		self->x_pos = target_x;
 		self->y_pos = target_y;
 		return true;
 	}
 	return false;
+}
+
+bool player_try_step() BANKED
+{
+	u8 target_x = entities.player.x_pos;
+	u8 target_y = entities.player.y_pos;
+	switch (entities.player.direction) {
+	case DIR_UP:
+		target_y--;
+		break;
+	case DIR_RIGHT:
+		target_x++;
+		break;
+	case DIR_DOWN:
+		target_y++;
+		break;
+	case DIR_LEFT:
+		target_x--;
+		break;
+	}
+	if (get_collision(target_x, target_y))
+		return false;
+	for (u8 i = 1; i < NB_ALLIES; i++) {
+		if (!entities.allies[i].data)
+			continue;
+		if (entities.allies[i].x_pos == target_x && entities.allies[i].y_pos == target_y) {
+			entities.allies[i].x_pos = entities.player.x_pos;
+			entities.allies[i].y_pos = entities.player.y_pos;
+			entities.allies[i].direction = FLIP(entities.player.direction);
+			ignore_ally = i;
+			goto move;
+		}
+	}
+	for (u8 i = 0; i < NB_ENEMIES; i++)
+		if (entities.array[i].x_pos == target_x && entities.array[i].y_pos == target_y)
+			return false;
+	move:
+	entities.player.x_pos = target_x;
+	entities.player.y_pos = target_y;
+	return true;
 }
 
 /**
@@ -138,11 +181,9 @@ bool try_step(entity *self, u8 i, u8 dir) BANKED
  * 
  * @returns		The detected entity. NULL if no entity is found.
 */
-entity *check_entity_collision(u8 ignore, u8 x, u8 y) BANKED
+entity *check_entity_collision(u8 x, u8 y) BANKED
 {
 	for (u8 i = 0; i < NB_ENTITIES; i++) {
-		if (i == ignore)
-			continue;
 		if (!entities.array[i].data)
 			continue;
 		if (entities.array[i].x_pos == x && entities.array[i].y_pos == y)
@@ -151,16 +192,16 @@ entity *check_entity_collision(u8 ignore, u8 x, u8 y) BANKED
 	return NULL;
 }
 
-bool check_collision(u8 ignore, u8 x, u8 y) BANKED
+bool check_collision(u8 x, u8 y) BANKED
 {
 	if (get_collision(x, y))
 		return true;
-	else if (check_entity_collision(ignore, x, y))
+	else if (check_entity_collision(x, y))
 		return true;
 	return false;
 }
 
-void pathfind(entity *self, u8 i, u8 target_x, u8 target_y) {
+void pathfind(entity *self, u8 target_x, u8 target_y) BANKED {
 	i8 dist_x = target_x - self->x_pos;
 	i8 dist_y = target_y - self->y_pos;
 	i8 dir = -1;
@@ -187,21 +228,25 @@ void pathfind(entity *self, u8 i, u8 target_x, u8 target_y) {
 				dir2 = DIR_LEFT;
 	}
 	if (dir != -1)
-		if (!try_step(self, i, dir))
+		if (!try_step(self, dir))
 			if (dir2 != -1)
-				try_step(self, i, dir2);
+				try_step(self, dir2);
 	else if (dir2 != -1)
-		try_step(self, i, dir2);
+		try_step(self, dir2);
 
 }
 
 // Handle ally and enemy AI
-void do_turn()
+void do_turn() BANKED
 {
 	for (u8 i = 1; i < NB_ALLIES; i++) {
+		if (i == ignore_ally) {
+			ignore_ally = 0;
+			continue;
+		}
 		if (entities.allies[i].data) {
 			pathfind(
-				&entities.allies[i], i,
+				&entities.allies[i],
 				entities.player.x_pos,
 				entities.player.y_pos
 			);
@@ -209,7 +254,7 @@ void do_turn()
 	}
 	for (u8 i = 0; i < NB_ENEMIES; i++) {
 		if (entities.enemies[i].data)
-			try_step(&entities.enemies[i], i, rand() & 0b11);
+			try_step(&entities.enemies[i], DIR_LEFT);
 	}
 	move_entities();
 }
