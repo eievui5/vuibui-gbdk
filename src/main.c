@@ -8,6 +8,7 @@
 #include "include/entity.h"
 #include "include/hardware.h"
 #include "include/hud.h"
+#include "include/input.h"
 #include "include/int.h"
 #include "include/map.h"
 #include "include/rendering.h"
@@ -19,6 +20,10 @@ u8 new_keys;
 u8 rel_keys;
 u8 last_keys;
 
+const char test_string[] = \
+"Luvui used Attack. It's super effective! Critical hit! Enemy took 65535 \
+damage and was defeated.";
+
 void main()
 {
 	if (_cpu == CGB_TYPE) {
@@ -26,12 +31,6 @@ void main()
 		cgb_compatibility(); // Temporarily init first two pals to grey.
 	}
 	wait_vbl_done();
-
-	//init_hud();
-	//char buf[] = "T h e q u i c k b r o w n fox jumped over the lazy dog.";
-	//vwf_wrap_str(18 * 8, buf);
-	//return;
-
 	LCDC_REG = 0;
 	add_VBL(&vblank);
 	set_interrupts(VBL_IFLAG | LCD_IFLAG);
@@ -42,13 +41,13 @@ void main()
 	init_hud();
 	initrand(0);
 	memset(&entities, 0, sizeof(entity) * NB_ENTITIES);
-	for (u8 i = 0; i < 1; i++) {
+	for (u8 i = 0; i < 3; i++) {
 		entities.array[i].data = &luvui_data;
 		entities.array[i].bank = bank_luvui;
-		entities.array[i].x_pos = 32 + i;
-		entities.array[i].y_pos = 32 + i;
-		entities.array[i].x_spr = (32 + i) * 16;
-		entities.array[i].y_spr = (32 + i) * 16;
+		entities.array[i].x_pos = 32 + i * 2;
+		entities.array[i].y_pos = 32 + i * 2;
+		entities.array[i].x_spr = (32 + i * 2) * 16;
+		entities.array[i].y_spr = (32 + i * 2) * 16;
 		SWITCH_ROM_MBC1(entities.array[i].bank);
 		set_sprite_data(
 			i * NB_ENTITY_TILES, NB_ENTITY_TILES,
@@ -64,36 +63,25 @@ void main()
 	lcdc_buffer = LCDC_ENABLE | LCDC_BG_ENABLE | LCDC_OBJ_ENABLE | LCDC_OBJ_16;
 	LCDC_REG = LCDC_ENABLE | LCDC_BG_ENABLE | LCDC_OBJ_ENABLE | LCDC_OBJ_16;
 	while(1) {
-		last_keys = cur_keys;
-		cur_keys = joypad();
-		new_keys = ~last_keys & cur_keys;
-		rel_keys = last_keys & ~cur_keys;
+		update_input();
 
 		if (cur_keys & (J_DOWN | J_UP | J_LEFT | J_RIGHT)) {
 			bool moved = false;
 			if (cur_keys & J_DOWN) {
-				moved = try_step(0, DIR_DOWN);
+				moved = try_step(&entities.player, 0, DIR_DOWN);
 			}
 			else if (cur_keys & J_UP) {
-				moved = try_step(0, DIR_UP);
+				moved = try_step(&entities.player, 0, DIR_UP);
 			}
 			else if (cur_keys & J_RIGHT) {
-				moved = try_step(0, DIR_RIGHT);
+				moved = try_step(&entities.player, 0, DIR_RIGHT);
 			}
 			else if (cur_keys & J_LEFT) {
-				moved = try_step(0, DIR_LEFT);
+				moved = try_step(&entities.player, 0, DIR_LEFT);
 			}
 			
 			if (moved) {
-				for (u8 i = 1; i < NB_ENTITIES; i++) {
-					if (entities.array[i].data)
-						try_step(i, rand() & 0b11);
-				}
-				move_entities();
-				char buf[] = "Luviu used Attack. It's super effective! Critical hit! Enemy took 65535 damage and was defeated.";
-				vwf_activate_font(0);
-				vwf_wrap_str(144, buf);
-				print_hud(buf);
+				do_turn();
 			}
 		}
 		

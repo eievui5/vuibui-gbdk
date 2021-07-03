@@ -1,7 +1,10 @@
 #pragma bank 255
 
 #include <gb/gb.h>
+#include <rand.h>
 #include <stdbool.h>
+#include <stdlib.h>
+
 #include "include/dir.h"
 #include "include/entity.h"
 #include "include/int.h"
@@ -24,10 +27,10 @@ void render_entities() NONBANKED
 		if (entities.array[i].data) {
 
 			if (!(
-				entities.array[i].x_spr + 16 >= camera_x &&
-				entities.array[i].x_spr <= camera_x + 160 &&
-				entities.array[i].y_spr + 16 >= camera_y &&
-				entities.array[i].y_spr <= camera_y + 144
+				entities.array[i].x_spr + 16 >= camera.x &&
+				entities.array[i].x_spr <= camera.x + 160 &&
+				entities.array[i].y_spr + 16 >= camera.y &&
+				entities.array[i].y_spr <= camera.y + 144
 			)) continue;
 
 			// Update the entity's graphics if needed.
@@ -45,13 +48,13 @@ void render_entities() NONBANKED
 			if (anim_timer & 0b10000)
 				metasprite += 4;
 
-			shadow_OAM[oam_index].y = 16 + entities.array[i].y_spr - camera_y;
-			shadow_OAM[oam_index].x = 8 + entities.array[i].x_spr - camera_x;
+			shadow_OAM[oam_index].y = 16 + entities.array[i].y_spr - camera.y;
+			shadow_OAM[oam_index].x = 8 + entities.array[i].x_spr - camera.x;
 			shadow_OAM[oam_index].tile = metasprite[0] + i * NB_ENTITY_TILES;
 			shadow_OAM[oam_index].prop = metasprite[1];
 			oam_index++;
-			shadow_OAM[oam_index].y = 16 + entities.array[i].y_spr - camera_y;
-			shadow_OAM[oam_index].x = 16 + entities.array[i].x_spr - camera_x;
+			shadow_OAM[oam_index].y = 16 + entities.array[i].y_spr - camera.y;
+			shadow_OAM[oam_index].x = 16 + entities.array[i].x_spr - camera.x;
 			shadow_OAM[oam_index].tile = metasprite[2] + i * NB_ENTITY_TILES;
 			shadow_OAM[oam_index].prop = metasprite[3];
 			oam_index++;
@@ -99,11 +102,11 @@ void move_entities() NONBANKED
 	}
 }
 
-bool try_step(u8 i, u8 dir) BANKED
+bool try_step(entity *self, u8 i, u8 dir) BANKED
 {
-	entities.array[i].direction = dir;
-	u16 target_x = entities.array[i].x_pos;
-	u16 target_y = entities.array[i].y_pos;
+	self->direction = dir;
+	u16 target_x = self->x_pos;
+	u16 target_y = self->y_pos;
 	switch (dir) {
 	case DIR_DOWN:
 		target_y++;
@@ -119,8 +122,8 @@ bool try_step(u8 i, u8 dir) BANKED
 		break;
 	}
 	if (!check_collision(i, target_x, target_y)) {
-		entities.array[i].x_pos = target_x;
-		entities.array[i].y_pos = target_y;
+		self->x_pos = target_x;
+		self->y_pos = target_y;
 		return true;
 	}
 	return false;
@@ -155,4 +158,58 @@ bool check_collision(u8 ignore, u8 x, u8 y) BANKED
 	else if (check_entity_collision(ignore, x, y))
 		return true;
 	return false;
+}
+
+void pathfind(entity *self, u8 i, u8 target_x, u8 target_y) {
+	i8 dist_x = target_x - self->x_pos;
+	i8 dist_y = target_y - self->y_pos;
+	i8 dir = -1;
+	i8 dir2 = -1; // Secondary choice if choice one fails.
+	if (abs(dist_x) > abs(dist_y)) {
+		if (dist_x > 0)
+			dir = DIR_RIGHT;
+		else
+			dir = DIR_LEFT;
+		if (dist_y)
+			if (dist_y > 0)
+				dir2 = DIR_DOWN;
+			else
+				dir2 = DIR_UP;
+	} else if (dist_y) {
+		if (dist_y > 0)
+			dir = DIR_DOWN;
+		else
+			dir = DIR_UP;
+		if (dist_x)
+			if (dist_x > 0)
+				dir2 = DIR_RIGHT;
+			else
+				dir2 = DIR_LEFT;
+	}
+	if (dir != -1)
+		if (!try_step(self, i, dir))
+			if (dir2 != -1)
+				try_step(self, i, dir2);
+	else if (dir2 != -1)
+		try_step(self, i, dir2);
+
+}
+
+// Handle ally and enemy AI
+void do_turn()
+{
+	for (u8 i = 1; i < NB_ALLIES; i++) {
+		if (entities.allies[i].data) {
+			pathfind(
+				&entities.allies[i], i,
+				entities.player.x_pos,
+				entities.player.y_pos
+			);
+		}
+	}
+	for (u8 i = 0; i < NB_ENEMIES; i++) {
+		if (entities.enemies[i].data)
+			try_step(&entities.enemies[i], i, rand() & 0b11);
+	}
+	move_entities();
 }

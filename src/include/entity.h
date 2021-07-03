@@ -74,6 +74,7 @@ extern entity_array entities;
 
 void render_entities() NONBANKED;
 void move_entities() NONBANKED;
+void do_turn() NONBANKED;
 
-bool try_step(u8 i, u8 dir) BANKED;
+bool try_step(entity *self, u8 i, u8 dir) BANKED;
 bool check_collision(u8 ignore, u8 x, u8 y) BANKED;

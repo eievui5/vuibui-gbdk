@@ -67,8 +67,8 @@ void show_game() NONBANKED
 {
 	WAIT_VRAM;
 	LCDC_REG = lcdc_buffer;
-	SCX_REG = camera_x;
-	SCY_REG = camera_y;
+	SCX_REG = camera.x;
+	SCY_REG = camera.y;
 	
 	remove_LCD(&show_game);
 	LYC_REG = SCREENHEIGHT - 33;

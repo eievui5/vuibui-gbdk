@@ -1,7 +1,9 @@
 #pragma once
 
 #include <gb/gb.h>
+
 #include "include/int.h"
+#include "include/vec.h"
 
 enum collision {
 	NO_COLL = 0,
@@ -23,8 +25,7 @@ typedef struct {
 
 // Y, X order.
 extern u8 map[64][64];
-extern u16 camera_x;
-extern u16 camera_y;
+extern uvec16 camera;
 
 void update_camera(u16 x, u16 y) NONBANKED;
 u8 get_collision(u16 x, u16 y) NONBANKED;

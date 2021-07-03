@@ -10,8 +10,7 @@
 #include "include/vec.h"
 
 u8 map[64][64];
-u16 camera_x = 0;
-u16 camera_y = 0;
+uvec16 camera = {0, 0};
 u8 current_mapdata_bank;
 mapdata *current_mapdata;
 
@@ -23,25 +22,25 @@ void update_camera(u16 x, u16 y) NONBANKED
 	static u8 last_tile_y = 0;
 
 	if (x > 32 * 64)
-		camera_x = 0;
+		camera.x = 0;
 	else if (x > 16 * 54)
-		camera_x = 16 * 54;
+		camera.x = 16 * 54;
 	else
-		camera_x = x;
+		camera.x = x;
 	if (y > 32 * 64)
-		camera_y = 0;
+		camera.y = 0;
 	else if (y > 16 * 57)
-		camera_y = 16 * 57;
+		camera.y = 16 * 57;
 	else
-		camera_y = y;
-	u8 cur_tile_x = camera_x >> 3;
-	u8 cur_tile_y = camera_y >> 3;
+		camera.y = y;
+	u8 cur_tile_x = camera.x >> 3;
+	u8 cur_tile_y = camera.y >> 3;
 
 	if (cur_tile_x != last_tile_x) {
 		u8 tmpb = _current_bank;
 		SWITCH_ROM_MBC1(current_mapdata_bank);
 
-		u8 ptrx = cur_tile_x + (camera_x > last_camera_x ? 20 : 0);
+		u8 ptrx = cur_tile_x + (camera.x > last_camera_x ? 20 : 0);
 		if (ptrx > 127)
 			ptrx = 127;
 		u8 ptry = cur_tile_y < 113 ? cur_tile_y : 113;
@@ -61,7 +60,7 @@ void update_camera(u16 x, u16 y) NONBANKED
 		SWITCH_ROM_MBC1(current_mapdata_bank);
 
 		u8 ptrx = cur_tile_x < 127 ? cur_tile_x : 127;
-		u8 ptry = cur_tile_y + (camera_y > last_camera_y ? 14 : 0);
+		u8 ptry = cur_tile_y + (camera.y > last_camera_y ? 14 : 0);
 		if (ptry > 127)
 			ptry = 127;
 		for (u8 i = 0; i < 21; i++) {
@@ -77,8 +76,8 @@ void update_camera(u16 x, u16 y) NONBANKED
 	}
 	last_tile_x = cur_tile_x;
 	last_tile_y = cur_tile_y;
-	last_camera_x = camera_x;
-	last_camera_y = camera_y;
+	last_camera_x = camera.x;
+	last_camera_y = camera.y;
 }
 
 // Return the collision of the tile at (`x`, `y`).
@@ -110,9 +109,9 @@ void force_render_map() NONBANKED
 	u8 tmpb = _current_bank;
 	SWITCH_ROM_MBC1(current_mapdata_bank);
 
-	u8 x = camera_x >> 3;
+	u8 x = camera.x >> 3;
 	for (u8 i = 0; i < 21; i++) {
-		u8 y = camera_y >> 3;
+		u8 y = camera.y >> 3;
 		for (u8 j = 0; j < 19; j++) {
 			set_vram_byte(
 				(void *)(0x9800 + x % 32 + (y % 32) * 32),
@@ -257,7 +256,8 @@ void generate_exit() BANKED
 	while (1) {
 		u8 x = rand() & 0b111111;
 		u8 y = rand() & 0b111111;
-		if (!(  map[y][x]     || map[y][x + 1]	   || map[y][x - 1] ||
+		if (!(
+			map[y][x]     || map[y][x + 1]	   || map[y][x - 1] ||
 			map[y + 1][x] || map[y + 1][x + 1] || map[y + 1][x - 1] ||
 			map[y - 1][x] || map[y - 1][x + 1] || map[y - 1][x - 1]
 		)) {
@@ -273,6 +273,7 @@ void generate_map() BANKED
 	memset(map, 1, sizeof(map));
 	map[32][32] = 0;
 	uvec8 cur = {32, 32};
+	generate_room(&cur, 9, 9);
 	for (u8 i = 0; i < 8; i++) {
 		map_walk(&cur, 0, rand() & 0b11, (rand() & 0b1111) + 4);
 		map_walk(&cur, 0, rand() & 0b11, (rand() & 0b1111) + 4);
