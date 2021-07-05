@@ -1,5 +1,6 @@
 #pragma bank 255
 
+#include <gb/cgb.h>
 #include <gb/incbin.h>
 #include "entities/luvui.h"
 #include "include/entity.h"
@@ -26,4 +27,9 @@ const char luvui_metasprite[] = {
 const entity_data luvui_data = {
 	.metasprites = luvui_metasprite,
 	.graphics = gfx_luvui,
+	.colors = luvui_colors
+};
+
+const short luvui_colors[] = {
+	RGB_WHITE, RGB(0x1F, 0x14, 0x14), RGB(0x12, 0x04, 0x06), RGB(0x04, 0x00, 0x00)
 };

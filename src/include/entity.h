@@ -20,6 +20,7 @@
 typedef struct {
 	const char *metasprites;
 	const char *graphics;
+	short *colors;
 } entity_data;
 
 /**

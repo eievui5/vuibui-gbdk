@@ -39,11 +39,12 @@ void main()
 	OBP0_REG = 0b11010000;
 	OBP1_REG = 0b11100100;
 	init_hud();
-	initrand(0);
+	print_hud("Auto-tiling! This selects from a\nfew connecting tiles to stitch\ntogether the visible tile map.");
+	initrand(742);
 	memset(&entities, 0, sizeof(entity) * NB_ENTITIES);
 	for (u8 i = 0; i < 4; i++) {
 		entities.array[i].data = &luvui_data;
-		entities.array[i].bank = bank_luvui;
+		entities.array[i].bank = BANK(luvui);
 		entities.array[i].x_pos = 28 + (i * 2);
 		entities.array[i].y_pos = 32 + i;
 		entities.array[i].x_spr = (32 + i) * 16;
@@ -53,9 +54,11 @@ void main()
 			i * NB_ENTITY_TILES, NB_ENTITY_TILES,
 			entities.array[i].data->graphics
 		);
+		if (_cpu == CGB_TYPE)
+			set_sprite_palette(i, 1, entities.array[i].data->colors);
 	}
 
-	load_mapdata(&debug_mapdata, bank_debug_mapdata);
+	load_mapdata(&debug_mapdata, BANK(debug_mapdata));
 	generate_map();
 	move_entities();
 	force_render_map();

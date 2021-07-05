@@ -4,7 +4,6 @@
 // VWF Font
 
 extern const void __bank_vwf_font;
-#define bank_vwf_font ((unsigned char)&__bank_vwf_font)
 
 extern const unsigned char vwf_font[];
 

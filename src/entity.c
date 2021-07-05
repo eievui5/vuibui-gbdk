@@ -54,12 +54,12 @@ void render_entities() NONBANKED
 			shadow_OAM[oam_index].y = 16 + entities.array[i].y_spr - camera.y;
 			shadow_OAM[oam_index].x = 8 + entities.array[i].x_spr - camera.x;
 			shadow_OAM[oam_index].tile = metasprite[0] + i * NB_ENTITY_TILES;
-			shadow_OAM[oam_index].prop = metasprite[1];
+			shadow_OAM[oam_index].prop = i | metasprite[1];
 			oam_index++;
 			shadow_OAM[oam_index].y = 16 + entities.array[i].y_spr - camera.y;
 			shadow_OAM[oam_index].x = 16 + entities.array[i].x_spr - camera.x;
 			shadow_OAM[oam_index].tile = metasprite[2] + i * NB_ENTITY_TILES;
-			shadow_OAM[oam_index].prop = metasprite[3];
+			shadow_OAM[oam_index].prop = i | metasprite[3];
 			oam_index++;
 		}
 	}

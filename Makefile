@@ -62,7 +62,6 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.c
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.s
 	@mkdir -p $(@D)
-	@echo ASMCOMP
 	lcc -c -o $@ $<
 
 $(OBJDIR)/%.o: $(RESDIR)/%.c

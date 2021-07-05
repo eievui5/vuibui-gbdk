@@ -1,9 +1,11 @@
 #pragma bank 255
 
+#include <gb/cgb.h>
 #include <gb/gb.h>
 #include <rand.h>
 #include <stdbool.h>
 #include <string.h>
+
 #include "include/dir.h"
 #include "include/int.h"
 #include "include/map.h"
@@ -49,8 +51,18 @@ void update_camera(u16 x, u16 y) NONBANKED
 				(void *)(0x9800 + ptrx % 32 + (ptry % 32) * 32),
 				current_mapdata->metatiles[
 					map[ptry >> 1][ptrx >> 1]
-				].tiles[ptrx & 1 + (ptry & 1) * 2]
+				].tiles[(ptrx & 1) + (ptry & 1) * 2]
 			);
+			if (_cpu == CGB_TYPE) {
+				VBK_REG = 1;
+				set_vram_byte(
+					(void *)(0x9800 + ptrx % 32 + (ptry % 32) * 32),
+					current_mapdata->metatiles[
+						map[ptry >> 1][ptrx >> 1]
+					].attrs[(ptrx & 1) + (ptry & 1) * 2]
+				);
+				VBK_REG = 0;
+			}
 			ptry++;
 		}
 		SWITCH_ROM_MBC1(tmpb);
@@ -68,8 +80,18 @@ void update_camera(u16 x, u16 y) NONBANKED
 				(void *)(0x9800 + ptrx % 32 + (ptry % 32) * 32),
 				current_mapdata->metatiles[
 					map[ptry >> 1][ptrx >> 1]
-				].tiles[ptrx & 1 + (ptry & 1) * 2]
+				].tiles[(ptrx & 1) + (ptry & 1) * 2]
 			);
+			if (_cpu == CGB_TYPE) {
+				VBK_REG = 1;
+				set_vram_byte(
+					(void *)(0x9800 + ptrx % 32 + (ptry % 32) * 32),
+					current_mapdata->metatiles[
+						map[ptry >> 1][ptrx >> 1]
+					].attrs[(ptrx & 1) + (ptry & 1) * 2]
+				);
+				VBK_REG = 0;
+			}
 			ptrx++;
 		}
 		SWITCH_ROM_MBC1(tmpb);
@@ -100,6 +122,8 @@ void load_mapdata(mapdata *data, u8 bank) NONBANKED
 
 	current_mapdata = data;
 	set_bkg_data(0, 128, data->tileset);
+	if (_cpu == CGB_TYPE)
+		set_bkg_palette(0, 8, current_mapdata->colors);
 
 	SWITCH_ROM_MBC1(tmpb);
 }
@@ -117,8 +141,18 @@ void force_render_map() NONBANKED
 				(void *)(0x9800 + x % 32 + (y % 32) * 32),
 				current_mapdata->metatiles[
 					map[y >> 1][x >> 1]
-				].tiles[x & 1 + (y & 1) * 2]
+				].tiles[(x & 1) + (y & 1) * 2]
 			);
+			if (_cpu == CGB_TYPE) {
+				VBK_REG = 1;
+				set_vram_byte(
+					(void *)(0x9800 + x % 32 + (y % 32) * 32),
+					current_mapdata->metatiles[
+						map[y >> 1][x >> 1]
+					].attrs[(x & 1) + (y & 1) * 2]
+				);
+				VBK_REG = 0;
+			}
 			y++;
 		}
 		x++;
@@ -267,6 +301,45 @@ void generate_exit() BANKED
 	}
 }
 
+/**
+ * Column postprocessing. Only vertical tiles are considered when autotiling.
+ * 0 - Top; 1 - Connection; 2 - Bottom; 3 - Standalone
+*/
+void column_postprocess() NONBANKED
+{
+	u8 tmpb = _current_bank;
+	SWITCH_ROM_MBC1(current_mapdata_bank);
+
+	for (u8 x = 0; x < 64; x++)
+		if (map[1][x] != NO_COLL)
+			map[0][x] = current_mapdata->wall_palette[1];
+		else
+			map[0][x] = current_mapdata->wall_palette[2];
+
+	for (u8 y = 1; y < 63; y++) {
+		for (u8 x = 0; x < 64; x++) {
+			if (map[y][x] == NO_COLL)
+				continue;
+			else if (map[y - 1][x] != NO_COLL && map[y + 1][x] != NO_COLL)
+				map[y][x] = current_mapdata->wall_palette[1];
+			else if (map[y - 1][x] != NO_COLL)
+				map[y][x] = current_mapdata->wall_palette[2];
+			else if (map[y + 1][x] != NO_COLL)
+				map[y][x] = current_mapdata->wall_palette[0];
+			else
+				map[y][x] = current_mapdata->wall_palette[3];
+		}
+	}
+
+	for (u8 x = 0; x < 64; x++)
+		if (map[62][x] != NO_COLL)
+			map[63][x] = current_mapdata->wall_palette[1];
+		else
+			map[63][x] = current_mapdata->wall_palette[0];
+
+	SWITCH_ROM_MBC1(tmpb);
+}
+
 // Temporary function to test map generation.
 void generate_map() BANKED
 {
@@ -275,11 +348,12 @@ void generate_map() BANKED
 	uvec8 cur = {32, 32};
 	generate_room(&cur, 9, 9);
 	for (u8 i = 0; i < 8; i++) {
-		map_walk(&cur, 0, rand() & 0b11, (rand() & 0b1111) + 4);
-		map_walk(&cur, 0, rand() & 0b11, (rand() & 0b1111) + 4);
-		map_walk(&cur, 0, rand() & 0b11, (rand() & 0b1111) + 4);
+		map_walk(&cur, NO_COLL, rand() & 0b11, (rand() & 0b1111) + 4);
+		map_walk(&cur, NO_COLL, rand() & 0b11, (rand() & 0b1111) + 4);
+		map_walk(&cur, NO_COLL, rand() & 0b11, (rand() & 0b1111) + 4);
 		generate_room(&cur, (rand() & 0b11) + 4, (rand() & 0b11) + 4);
 	}
 	force_walls();
-	generate_exit();
+	column_postprocess();
+	//generate_exit();
 }

@@ -34,7 +34,7 @@ void init_hud() BANKED
 		vmemset((void *)(0x9FA0 + i * 32), 0x8B, MESSAGE_SIZE / 3);
 	}
 
-	vwf_load_font(0, vwf_font, bank_vwf_font);
+	vwf_load_font(0, vwf_font, BANK(vwf_font));
 }
 
 // Need to declare this...
