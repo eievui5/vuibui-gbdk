@@ -3,6 +3,7 @@
 #include <rand.h>
 #include <stdio.h>
 #include <string.h>
+
 #include "entities/luvui.h"
 #include "include/dir.h"
 #include "include/entity.h"
@@ -28,7 +29,6 @@ void main()
 {
 	if (_cpu == CGB_TYPE) {
 		cpu_fast();
-		cgb_compatibility(); // Temporarily init first two pals to grey.
 	}
 	wait_vbl_done();
 	LCDC_REG = 0;
@@ -39,10 +39,9 @@ void main()
 	OBP0_REG = 0b11010000;
 	OBP1_REG = 0b11100100;
 	init_hud();
-	print_hud("Auto-tiling! This selects from a\nfew connecting tiles to stitch\ntogether the visible tile map.");
 	initrand(742);
 	memset(&entities, 0, sizeof(entity) * NB_ENTITIES);
-	for (u8 i = 0; i < 4; i++) {
+	for (u8 i = 0; i < 4; i += 3) {
 		entities.array[i].data = &luvui_data;
 		entities.array[i].bank = BANK(luvui);
 		entities.array[i].x_pos = 28 + (i * 2);

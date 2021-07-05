@@ -4,14 +4,17 @@
 #include <rand.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "include/dir.h"
 #include "include/entity.h"
 #include "include/int.h"
 #include "include/map.h"
 #include "include/rendering.h"
+#include "include/vec.h"
 
 #define mspd 1
+#define DETECTION_RANGE 12
 
 entity_array entities;
 // The index of an ally which has been forced to move by the player. This ally
@@ -105,28 +108,83 @@ void move_entities() NONBANKED
 	}
 }
 
+void new_entity(entity_data *data, u8 bank, u8 i, u8 x, u8 y) BANKED
+{
+	entity *self = &entities.array[i];
+	memset(self, 0, sizeof(entity));
+	if (entities.player.data) {
+		if (abs(entities.player.x_pos - x) > abs(entities.player.y_pos - y)) {
+			if (entities.player.x_pos - x > 0) {
+				self->direction = DIR_RIGHT;
+			} else {
+				self->direction = DIR_LEFT;
+			}
+		} else {
+			if (entities.player.y_pos - y > 0) {
+				self->direction = DIR_DOWN;
+			}
+			else {
+				self->direction = DIR_UP;
+			}
+		}
+	}
+	self->data = data;
+	self->bank = bank;
+	self->x_pos = x;
+	self->x_spr = x * 16;
+	self->y_pos = y;
+	self->y_spr = y * 16;
+	self->path_dir = -1;
+}
+
+/**
+ * Spawns an entity at a given location, allocating space for it in the entity
+ * array.
+*/
+bool spawn_enemy(entity_data *data, u8 bank, u8 x, u8 y) BANKED
+{
+	for (u8 i = 0; i < NB_ENEMIES; i++)
+		if (!entities.enemies[i].data) {
+			new_entity(data, bank, i, x, y);
+			return true;
+		}
+	return false;
+}
+
+void move_direction(vec8 *vec, u8 dir) BANKED
+{
+	switch (dir) {
+	case DIR_UP:
+		vec->y--;
+		break;
+	case DIR_RIGHT:
+		vec->x++;
+		break;
+	case DIR_DOWN:
+		vec->y++;
+		break;
+	case DIR_LEFT:
+		vec->x--;
+		break;
+	}
+}
+
+/**
+ * Attempt to move in a given direction.
+ * 
+ * @param self	The entity to move.
+ * @param dir	The direction to attempt movement in.
+ * 
+ * @returns	Whether or not movement succeeded.
+*/
 bool try_step(entity *self, u8 dir) BANKED
 {
 	self->direction = dir;
-	u8 target_x = self->x_pos;
-	u8 target_y = self->y_pos;
-	switch (dir) {
-	case DIR_UP:
-		target_y--;
-		break;
-	case DIR_RIGHT:
-		target_x++;
-		break;
-	case DIR_DOWN:
-		target_y++;
-		break;
-	case DIR_LEFT:
-		target_x--;
-		break;
-	}
-	if (!check_collision(target_x, target_y)) {
-		self->x_pos = target_x;
-		self->y_pos = target_y;
+	vec8 target = {self->x_pos, self->y_pos};
+	move_direction(&target, dir);
+	if (!check_collision(target.x, target.y)) {
+		self->x_pos = target.x;
+		self->y_pos = target.y;
 		return true;
 	}
 	return false;
@@ -175,7 +233,6 @@ bool player_try_step() BANKED
 /**
  * Check for an entity at a given grid position.
  * 
- * @param ignore	Index of the calling entity, used to ignore self.
  * @param x		X position to check.
  * @param y		Y position to check.
  * 
@@ -211,21 +268,23 @@ void pathfind(entity *self, u8 target_x, u8 target_y) BANKED {
 			dir = DIR_RIGHT;
 		else
 			dir = DIR_LEFT;
-		if (dist_y)
+		if (dist_y) {
 			if (dist_y > 0)
 				dir2 = DIR_DOWN;
 			else
 				dir2 = DIR_UP;
+		}
 	} else if (dist_y) {
 		if (dist_y > 0)
 			dir = DIR_DOWN;
 		else
 			dir = DIR_UP;
-		if (dist_x)
+		if (dist_x) {
 			if (dist_x > 0)
 				dir2 = DIR_RIGHT;
 			else
 				dir2 = DIR_LEFT;
+		}
 	}
 	if (dir != -1)
 		if (!try_step(self, dir))
@@ -233,7 +292,15 @@ void pathfind(entity *self, u8 target_x, u8 target_y) BANKED {
 				try_step(self, dir2);
 	else if (dir2 != -1)
 		try_step(self, dir2);
+}
 
+void pursue(entity *self) BANKED
+{
+	entity *ally = entities.allies;
+	//for (u8 i = 0; i < NB_ALLIES; i++, ally++) {
+		pathfind(self, ally->x_pos, ally->y_pos);
+	//	return;
+	//}
 }
 
 // Handle ally and enemy AI
@@ -254,7 +321,7 @@ void do_turn() BANKED
 	}
 	for (u8 i = 0; i < NB_ENEMIES; i++) {
 		if (entities.enemies[i].data)
-			try_step(&entities.enemies[i], DIR_LEFT);
+			pursue(&entities.enemies[i]);
 	}
 	move_entities();
 }

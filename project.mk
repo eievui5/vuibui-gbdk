@@ -34,11 +34,11 @@ RAMBANKS := 1
 
 # List of C source directories.
 # Add a new $(wildcard $(SRCDIR)/<directory>*.c) when more directories are needed.
-CSRC 	:= $(shell find $(SRCDIR) -name *.c)
+CSRC 	:= $(shell find $(SRCDIR) -name '*.c')
 
 # List of ASM source directories.
 # Add a new $(wildcard $(SRCDIR)/<directory>*.s) when more directories are needed.
-SSRC	:= $(shell find $(SRCDIR) -name *.s)
+SSRC	:= $(shell find $(SRCDIR) -name '*.s')
 
 
 # List of binary source directories. These files will be converted to C sources
@@ -49,4 +49,4 @@ BINSRC	:=
 # List of PNG source directories. These files will be converted to 2bpp binary
 # files.
 # Add a new $(wildcard $(SRCDIR)/<directory>*.png) when more directories are needed.
-GFXSRC	:= $(shell find $(SRCDIR) -name *.png)
+GFXSRC	:= $(shell find $(SRCDIR) -name '*.png')

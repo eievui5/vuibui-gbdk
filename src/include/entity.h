@@ -34,6 +34,7 @@ typedef struct {
  * @param direction	Which direction the entity is facing.
  * @param prev_dir	Which direction the entity was facing the last time its
  * graphics were reloaded.
+ * @param path_dir	Which direction the entity is choosing to pathfind in.
  * @param spr_frame	Which frame the sprite should display.
  * @param prev_frame	Which frame the sprite displayed the last time its 
  * graphics were reloaded.
@@ -47,6 +48,7 @@ typedef struct {
 	u16 y_spr;
 	u8 direction;
 	u8 prev_dir;
+	i8 path_dir;
 	u8 spr_frame;
 	u8 prev_frame;
 } entity;
