@@ -238,7 +238,7 @@ bool player_try_step() BANKED
  * 
  * @returns		The detected entity. NULL if no entity is found.
 */
-entity *check_entity_collision(u8 x, u8 y) BANKED
+entity *check_entity_at(u8 x, u8 y) BANKED
 {
 	for (u8 i = 0; i < NB_ENTITIES; i++) {
 		if (!entities.array[i].data)
@@ -253,7 +253,7 @@ bool check_collision(u8 x, u8 y) BANKED
 {
 	if (get_collision(x, y))
 		return true;
-	else if (check_entity_collision(x, y))
+	else if (check_entity_at(x, y))
 		return true;
 	return false;
 }

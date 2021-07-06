@@ -4,6 +4,7 @@
 #include <stdbool.h>
 
 #include "include/int.h"
+#include "include/vec.h"
 
 #define NB_ALLIES 3
 #define NB_ENEMIES 5
@@ -82,3 +83,5 @@ void do_turn() BANKED;
 bool player_try_step() BANKED;
 bool try_step(entity *self, u8 dir) BANKED;
 bool check_collision(u8 x, u8 y) BANKED;
+entity *check_entity_at(u8 x, u8 y) BANKED;
+void move_direction(vec8 *vec, u8 dir) BANKED;

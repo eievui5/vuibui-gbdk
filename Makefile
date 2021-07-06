@@ -15,7 +15,7 @@ ifeq ($(OS),Windows_NT)
 	ROMUSAGE := ./tools/romusage.exe
 	SUPERFAMICONV := ./tools/superfamiconv.exe
 else
-	ROM_USAGE := ./tools/romusage
+	ROMUSAGE := ./tools/romusage
 	SUPERFAMICONV := ./tools/superfamiconv
 endif
 

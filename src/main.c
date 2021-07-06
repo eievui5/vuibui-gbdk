@@ -13,6 +13,7 @@
 #include "include/int.h"
 #include "include/map.h"
 #include "include/rendering.h"
+#include "include/vec.h"
 #include "libs/vwf.h"
 #include "mapdata/debug_mapdata.h"
 
@@ -20,10 +21,6 @@ u8 cur_keys = 0;
 u8 new_keys;
 u8 rel_keys;
 u8 last_keys;
-
-const char test_string[] = \
-"Luvui used Attack. It's super effective! Critical hit! Enemy took 65535 \
-damage and was defeated.";
 
 void main()
 {
@@ -67,9 +64,25 @@ void main()
 	while(1) {
 		update_input();
 
-		if (cur_keys & (J_DOWN | J_UP | J_LEFT | J_RIGHT)) {
+		if (cur_keys) {
 			bool moved = false;
-			if (cur_keys & J_DOWN) {
+			if (new_keys & J_A) {
+				char attack_msg[] = "Luvui attacked!";
+				vec8 pos = {
+					entities.player.x_pos,
+					entities.player.y_pos
+				};
+				move_direction(&pos, entities.player.direction);
+				entity *target = check_entity_at(pos.x, pos.y);
+				if (target)
+					strcat(attack_msg, " Hit enemy.");
+				else
+					strcat(attack_msg, " Missed.");
+				vwf_activate_font(0);
+				vwf_wrap_str(20 * 8, attack_msg);
+				print_hud(attack_msg);
+			}
+			else if (cur_keys & J_DOWN) {
 				entities.player.direction = DIR_DOWN;
 				moved = player_try_step();
 			}

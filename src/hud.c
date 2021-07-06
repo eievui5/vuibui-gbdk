@@ -1,7 +1,9 @@
 #pragma bank 255
 
+#include <gb/cgb.h>
 #include <gb/gb.h>
 #include <gb/incbin.h>
+
 #include "gfx/ui/vwf_font.h"
 #include "include/hardware.h"
 #include "include/hud.h"
@@ -16,7 +18,11 @@ INCBIN(hud_tiles, res/gfx/ui/hud.2bpp)
 #define FONT_SPACE ((void *)(0x8800 + FONT_TILE * 16))
 
 const unsigned char hud[] = {
-	0x80, 0x82, 0x83, 0x84, 0x84, 0x84, 0x84, 0x84, 0x84, 0x84, 0x84, 0x84, 0x84, 0x84, 0x85, 0x87, 0x88, 0x89, 0x81, 0x86
+	0x80, 0x82, 0x83, 0x84, 0x84, 0x84, 0x84, 0x84, 0x84, 0x84,
+	0x84, 0x84, 0x84, 0x84, 0x85, 0x87, 0x88, 0x89, 0x81, 0x86
+};
+const short hud_palettes[] = {
+	RGB_WHITE, RGB_BLUE, RGB_DARKBLUE, RGB_BLACK
 };
 
 void init_hud() BANKED
@@ -32,6 +38,13 @@ void init_hud() BANKED
 	vmemset((void *)(0x9F80), 0x8A, 20);
 	for (i = 0; i < 3; i++) {
 		vmemset((void *)(0x9FA0 + i * 32), 0x8B, MESSAGE_SIZE / 3);
+	}
+
+	if (_cpu == CGB_TYPE) {
+		set_bkg_palette(7, 1, hud_palettes);
+		VBK_REG = 1;
+		vmemset((void *)(0x9F60), 7, 160);
+		VBK_REG = 0;
 	}
 
 	vwf_load_font(0, vwf_font, BANK(vwf_font));

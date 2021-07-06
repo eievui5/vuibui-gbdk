@@ -123,7 +123,7 @@ void load_mapdata(mapdata *data, u8 bank) NONBANKED
 	current_mapdata = data;
 	set_bkg_data(0, 128, data->tileset);
 	if (_cpu == CGB_TYPE)
-		set_bkg_palette(0, 8, current_mapdata->colors);
+		set_bkg_palette(0, 4, current_mapdata->colors);
 
 	SWITCH_ROM_MBC1(tmpb);
 }
