@@ -31,9 +31,7 @@ void init_hud() BANKED
 	set_bkg_data(0x80, SIZE(hud_tiles) / 16, hud_tiles);
 	vmemset(FONT_SPACE, 0, MESSAGE_SIZE * 16);
 
-	// vmemcpy
-	for (i = 0; i < 20; i++)
-		set_vram_byte((void *)(0x9F60 + i), hud[i]);
+	vmemcpy((void *)(0x9F60), 20, hud);
 
 	vmemset((void *)(0x9F80), 0x8A, 20);
 	for (i = 0; i < 3; i++) {

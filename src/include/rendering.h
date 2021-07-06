@@ -6,7 +6,7 @@
 #define WAIT_VRAM \
 __asm \
 	00001$: \
-		ld a, (_STAT_REG) \
+		ldh a, (_STAT_REG) \
 		and a, #2 \
 		jr nz, 00001$ \
 __endasm
@@ -15,6 +15,7 @@ __endasm
 extern u8 lcdc_buffer;
 extern u8 oam_index;
 
+void vmemcpy(void *dest, u8 len, const void *src);
 void vblank();
 void stat();
 void clean_oam();

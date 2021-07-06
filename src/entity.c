@@ -1,5 +1,6 @@
 #pragma bank 255
 
+#include <gb/cgb.h>
 #include <gb/gb.h>
 #include <rand.h>
 #include <stdbool.h>
@@ -8,6 +9,7 @@
 
 #include "include/dir.h"
 #include "include/entity.h"
+#include "include/hud.h"
 #include "include/int.h"
 #include "include/map.h"
 #include "include/rendering.h"
@@ -108,7 +110,7 @@ void move_entities() NONBANKED
 	}
 }
 
-void new_entity(entity_data *data, u8 bank, u8 i, u8 x, u8 y) BANKED
+void new_entity(entity_data *data, u8 bank, u8 i, u8 x, u8 y, u16 health) NONBANKED
 {
 	entity *self = &entities.array[i];
 	memset(self, 0, sizeof(entity));
@@ -135,21 +137,34 @@ void new_entity(entity_data *data, u8 bank, u8 i, u8 x, u8 y) BANKED
 	self->y_pos = y;
 	self->y_spr = y * 16;
 	self->path_dir = -1;
+	self->health = health;
+	self->max_health = health;
+
+	u8 temp_bank = _current_bank;
+	SWITCH_ROM_MBC1(bank);
+	vmemcpy(
+		(void *)(0x8000 + i * (16 * NB_ENTITY_TILES)),
+		NB_ENTITY_TILES * 16,
+		entities.array[i].data->graphics
+	);
+	if (_cpu == CGB_TYPE)
+		set_sprite_palette(i, 1, entities.array[i].data->colors);
+	SWITCH_ROM_MBC1(temp_bank);
 }
 
 /**
  * Spawns an entity at a given location, allocating space for it in the entity
  * array.
 */
-bool spawn_enemy(entity_data *data, u8 bank, u8 x, u8 y) BANKED
-{
-	for (u8 i = 0; i < NB_ENEMIES; i++)
-		if (!entities.enemies[i].data) {
-			new_entity(data, bank, i, x, y);
-			return true;
-		}
-	return false;
-}
+//bool spawn_enemy(entity_data *data, u8 bank, u8 x, u8 y) BANKED
+//{
+//	for (u8 i = 0; i < NB_ENEMIES; i++)
+//		if (!entities.enemies[i].data) {
+//			new_entity(data, bank, i, x, y);
+//			return true;
+//		}
+//	return false;
+//}
 
 void move_direction(vec8 *vec, u8 dir) BANKED
 {
@@ -297,10 +312,27 @@ void pathfind(entity *self, u8 target_x, u8 target_y) BANKED {
 void pursue(entity *self) BANKED
 {
 	entity *ally = entities.allies;
-	//for (u8 i = 0; i < NB_ALLIES; i++, ally++) {
+	i8 closest = -1;
+	u16 dist = 65535;
+	for (u8 i = 0; i < NB_ALLIES; i++, ally++) {
+		u16 cur_dist = (
+			abs(self->x_pos - ally->x_pos) + 
+			abs(self->y_pos - ally->y_pos)
+		);
+		if (cur_dist < dist) {
+			dist = cur_dist;
+			closest = i;
+		}
+	}
+	ally = &entities.array[closest];
+	if (dist == 1) {
+		print_hud("Enemy attacked!");
+		if (ally->health <= 1)
+			print_hud("Luvui was defeated...");
+		else
+			ally->health -= 1;
+	} else
 		pathfind(self, ally->x_pos, ally->y_pos);
-	//	return;
-	//}
 }
 
 // Handle ally and enemy AI
@@ -320,8 +352,9 @@ void do_turn() BANKED
 		}
 	}
 	for (u8 i = 0; i < NB_ENEMIES; i++) {
-		if (entities.enemies[i].data)
+		if (entities.enemies[i].data) {
 			pursue(&entities.enemies[i]);
+		}
 	}
 	move_entities();
 }

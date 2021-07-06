@@ -52,6 +52,8 @@ typedef struct {
 	i8 path_dir;
 	u8 spr_frame;
 	u8 prev_frame;
+	u16 health;
+	u16 max_health;
 } entity;
 
 /**
@@ -78,6 +80,7 @@ extern entity_array entities;
 
 void render_entities() NONBANKED;
 void move_entities() NONBANKED;
+void new_entity(entity_data *data, u8 bank, u8 i, u8 x, u8 y, u16 health) NONBANKED;
 
 void do_turn() BANKED;
 bool player_try_step() BANKED;
@@ -85,3 +88,4 @@ bool try_step(entity *self, u8 dir) BANKED;
 bool check_collision(u8 x, u8 y) BANKED;
 entity *check_entity_at(u8 x, u8 y) BANKED;
 void move_direction(vec8 *vec, u8 dir) BANKED;
+bool spawn_enemy(entity_data *data, u8 bank, u8 x, u8 y) BANKED;

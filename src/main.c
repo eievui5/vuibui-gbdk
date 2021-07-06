@@ -22,6 +22,8 @@ u8 new_keys;
 u8 rel_keys;
 u8 last_keys;
 
+const char qw[] = "???";
+
 void main()
 {
 	if (_cpu == CGB_TYPE) {
@@ -39,19 +41,10 @@ void main()
 	initrand(742);
 	memset(&entities, 0, sizeof(entity) * NB_ENTITIES);
 	for (u8 i = 0; i < 4; i += 3) {
-		entities.array[i].data = &luvui_data;
-		entities.array[i].bank = BANK(luvui);
-		entities.array[i].x_pos = 28 + (i * 2);
-		entities.array[i].y_pos = 32 + i;
-		entities.array[i].x_spr = (32 + i) * 16;
-		entities.array[i].y_spr = (32 + i) * 16;
-		SWITCH_ROM_MBC1(entities.array[i].bank);
-		set_sprite_data(
-			i * NB_ENTITY_TILES, NB_ENTITY_TILES,
-			entities.array[i].data->graphics
+		new_entity(
+			&luvui_data, BANK(luvui),
+			i, 28 + (i * 2), 32 + i, 4
 		);
-		if (_cpu == CGB_TYPE)
-			set_sprite_palette(i, 1, entities.array[i].data->colors);
 	}
 
 	load_mapdata(&debug_mapdata, BANK(debug_mapdata));
@@ -67,20 +60,25 @@ void main()
 		if (cur_keys) {
 			bool moved = false;
 			if (new_keys & J_A) {
-				char attack_msg[] = "Luvui attacked!";
+				char attack_msg[36] = "Luvui attacked!";
 				vec8 pos = {
 					entities.player.x_pos,
 					entities.player.y_pos
 				};
 				move_direction(&pos, entities.player.direction);
 				entity *target = check_entity_at(pos.x, pos.y);
-				if (target)
+				if (target) {
 					strcat(attack_msg, " Hit enemy.");
-				else
+					if (target->health <= 1)
+						memset(target, 0, sizeof(entity));
+					else
+						target->health -= 1;
+				} else
 					strcat(attack_msg, " Missed.");
 				vwf_activate_font(0);
 				vwf_wrap_str(20 * 8, attack_msg);
 				print_hud(attack_msg);
+				moved = true;
 			}
 			else if (cur_keys & J_DOWN) {
 				entities.player.direction = DIR_DOWN;
