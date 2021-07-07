@@ -61,7 +61,8 @@ void main()
 		if (cur_keys) {
 			bool moved = false;
 			if (new_keys & J_A) {
-				char attack_msg[36] = "Luvui attacked!";
+				print_hud("Luvui attacked!");
+				attack_animation(0);
 				vec8 pos = {
 					entities.player.x_pos,
 					entities.player.y_pos
@@ -74,10 +75,7 @@ void main()
 					else
 						target->health -= 1;
 				} else
-					strcat(attack_msg, " Missed.");
-				vwf_activate_font(0);
-				vwf_wrap_str(20 * 8, attack_msg);
-				print_hud(attack_msg);
+					print_hud("Luvui missed her attack...");
 				moved = true;
 			}
 			else if (cur_keys & J_DOWN) {

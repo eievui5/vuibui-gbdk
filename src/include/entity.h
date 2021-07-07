@@ -12,8 +12,19 @@
 
 // The number of tiles each entity has allocated - do not edit.
 #define NB_ENTITY_TILES 16
+// Number of special tiles to be reloaded for animation - do not edit.
+#define NB_SPECIAL_TILES 8
 // The number of unique tiles in each direction - edit when adding new frames.
 #define NB_UNIQUE_TILES 24
+
+enum special_frames {
+	IDLE_FRAME = 0,
+	IDLE_FRAME_2 = 1,
+	WALK_FRAME = 2,
+	WALK_FRAME_2 = 3,
+	ATTACK_FRAME = 4,
+	HURT_FRAME = 5,
+};
 
 /**
  * Contains constant data for entities.
@@ -83,8 +94,9 @@ extern entity_array entities;
 
 void render_entities() NONBANKED;
 void move_entities() NONBANKED;
-void new_entity(entity_data *data, u8 bank, u8 i, u8 x, u8 y, u16 health) NONBANKED;
+entity *new_entity(entity_data *data, u8 bank, u8 i, u8 x, u8 y, u16 health) NONBANKED;
 
+void attack_animation(u8 i) BANKED;
 void do_turn() BANKED;
 bool player_try_step() BANKED;
 bool try_step(entity *self, u8 dir) BANKED;

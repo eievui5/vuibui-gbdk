@@ -11,11 +11,11 @@ typedef struct {
 } vec8;
 
 typedef struct {
-	unsigned short int x;
-	unsigned short int y;
+	unsigned short x;
+	unsigned short y;
 } uvec16;
 
 typedef struct {
-	short int x;
-	short int y;
+	short x;
+	short y;
 } vec16;

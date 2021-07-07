@@ -30,39 +30,53 @@ u8 ignore_ally = 0;
 void render_entities() NONBANKED
 {
 	static u8 anim_timer = 0;
+	u8 temp_bank = _current_bank;
 
 	for (u8 i = 0; i < NB_ENTITIES; i++) {
-		if (entities.array[i].data) {
-
+		entity *self = &entities.array[i];
+		if (self->data) {
 			if (!(
-				entities.array[i].x_spr + 16 >= camera.x &&
-				entities.array[i].x_spr <= camera.x + 160 &&
-				entities.array[i].y_spr + 16 >= camera.y &&
-				entities.array[i].y_spr <= camera.y + 144
-			)) continue;
+				self->x_spr + 16 >= camera.x &&
+				self->x_spr <= camera.x + 160 &&
+				self->y_spr + 16 >= camera.y &&
+				self->y_spr <= camera.y + 144
+			))
+				continue;
 
 			// Update the entity's graphics if needed.
-			if (entities.array[i].direction != entities.array[i].prev_dir) {
-				entities.array[i].prev_dir = entities.array[i].direction;
-				SWITCH_ROM_MBC1(entities.array[i].bank);
-				set_sprite_data(
-					i * NB_ENTITY_TILES, NB_ENTITY_TILES,
-					&entities.array[i].data->graphics[
-						entities.array[i].direction * (16 * NB_UNIQUE_TILES)
+			if (
+				self->direction != self->prev_dir ||
+				self->spr_frame != self->prev_frame
+			) {
+				SWITCH_ROM_MBC1(self->bank);
+				self->prev_dir = self->direction;
+				self->prev_frame = self->spr_frame;
+				vmemcpy(
+					(void *)(0x8000 + i * (16 * NB_ENTITY_TILES)),
+					16 * NB_SPECIAL_TILES, &self->data->graphics[
+						self->direction * 16 * NB_UNIQUE_TILES
+					]
+				);
+				vmemcpy(
+					(void *)(0x8000 + 16 * NB_SPECIAL_TILES + i * (16 * NB_ENTITY_TILES)),
+					16 * NB_SPECIAL_TILES, &self->data->graphics[
+						self->direction * 16 * NB_UNIQUE_TILES + 64 * self->spr_frame
 					]
 				);
 			}
-			const char *metasprite = &entities.array[i].data->metasprites[entities.array[i].spr_frame];
-			if (anim_timer & 0b10000)
+			const char *metasprite = self->data->metasprites;
+			if (self->spr_frame > IDLE_FRAME)
+				metasprite += 8;
+			if (self->spr_frame <= WALK_FRAME && anim_timer & 0b10000)
 				metasprite += 4;
 
-			shadow_OAM[oam_index].y = 16 + entities.array[i].y_spr - camera.y;
-			shadow_OAM[oam_index].x = 8 + entities.array[i].x_spr - camera.x;
+			shadow_OAM[oam_index].y = 16 + self->y_spr - camera.y;
+			shadow_OAM[oam_index].x = 8 + self->x_spr - camera.x;
 			shadow_OAM[oam_index].tile = metasprite[0] + i * NB_ENTITY_TILES;
 			shadow_OAM[oam_index].prop = i | metasprite[1];
 			oam_index++;
-			shadow_OAM[oam_index].y = 16 + entities.array[i].y_spr - camera.y;
-			shadow_OAM[oam_index].x = 16 + entities.array[i].x_spr - camera.x;
+			shadow_OAM[oam_index].y = 16 + self->y_spr - camera.y;
+			shadow_OAM[oam_index].x = 16 + self->x_spr - camera.x;
 			shadow_OAM[oam_index].tile = metasprite[2] + i * NB_ENTITY_TILES;
 			shadow_OAM[oam_index].prop = i | metasprite[3];
 			oam_index++;
@@ -70,6 +84,8 @@ void render_entities() NONBANKED
 	}
 	anim_timer++;
 	clean_oam();
+
+	SWITCH_ROM_MBC1(temp_bank);
 }
 
 // Rendering function to move entities sprites towards their grid positions.
@@ -79,19 +95,19 @@ void move_entities() NONBANKED
 		u8 progress = 0;
 		for (u8 i = 0; i < NB_ENTITIES; i++) {
 			if (entities.array[i].data) {
-				entities.array[i].spr_frame = 8;
-				if ((entities.array[i].x_pos & 0xFF) * 16 != entities.array[i].x_spr) {
-					if ((entities.array[i].x_pos & 0xFF) * 16 > entities.array[i].x_spr)
+				entities.array[i].spr_frame = WALK_FRAME;
+				if (entities.array[i].x_pos * 16 != entities.array[i].x_spr) {
+					if (entities.array[i].x_pos * 16 > entities.array[i].x_spr)
 						entities.array[i].x_spr += mspd;
 					else
 						entities.array[i].x_spr -= mspd;
-				} else if ((entities.array[i].y_pos & 0xFF) * 16 != entities.array[i].y_spr) {
-					if ((entities.array[i].y_pos & 0xFF) * 16 > entities.array[i].y_spr)
+				} else if (entities.array[i].y_pos * 16 != entities.array[i].y_spr) {
+					if (entities.array[i].y_pos * 16 > entities.array[i].y_spr)
 						entities.array[i].y_spr += mspd;
 					else
 						entities.array[i].y_spr -= mspd;
 				} else {
-					entities.array[i].spr_frame = 0;
+					entities.array[i].spr_frame = IDLE_FRAME;
 					progress++;
 				}
 			} else
@@ -111,6 +127,54 @@ void move_entities() NONBANKED
 	}
 }
 
+void attack_animation(u8 i) BANKED
+{
+	entity *self = &entities.array[i];
+
+	u8 j = 0;
+	// Delay
+	for (; j < 8; j++) {
+		render_entities();
+		wait_vbl_done();
+	}
+
+	// Windup
+	uvec16 init_spr = {self->x_spr, self->y_spr};
+	switch (self->direction) {
+	case DIR_UP:
+		self->y_spr += 1;
+		break;
+	case DIR_DOWN:
+		self->y_spr -= 1;
+		break;
+	case DIR_LEFT:
+		self->x_spr += 1;
+		break;
+	case DIR_RIGHT:
+		self->x_spr -= 1;
+		break;
+	}
+	for (j = 0; j < 3; j++) {
+		render_entities();
+		wait_vbl_done();
+	}
+	self->x_spr = init_spr.x;
+	self->y_spr = init_spr.y;
+
+	// Lunge
+	self->spr_frame = HURT_FRAME;
+	for (j = 0; j < 8; j++) {
+		render_entities();
+		wait_vbl_done();
+	}
+	self->spr_frame = ATTACK_FRAME;
+	for (j = 0; j < 8; j++) {
+		render_entities();
+		wait_vbl_done();
+	}
+	self->spr_frame = IDLE_FRAME;
+}
+
 /**
  * Create a new entity inside the entity array. Requires an index to load the
  * sprites into VRAM.
@@ -122,7 +186,7 @@ void move_entities() NONBANKED
  * @param y		
  * @param health	Temporary - Set health and max health.
 */
-entity new_entity(entity_data *data, u8 bank, u8 i, u8 x, u8 y, u16 health) NONBANKED
+entity *new_entity(entity_data *data, u8 bank, u8 i, u8 x, u8 y, u16 health) NONBANKED
 {
 	entity *self = &entities.array[i];
 	memset(self, 0, sizeof(entity));
