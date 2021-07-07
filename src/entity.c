@@ -121,8 +121,10 @@ void move_entities() NONBANKED
 			entities.player.y_spr - 64 + VCAM_OFF
 		);
 
-		if (progress == NB_ENTITIES)
+		if (progress == NB_ENTITIES) {
+			wait_vbl_done();
 			return;
+		}
 
 		render_entities();
 		wait_vbl_done();
@@ -255,11 +257,15 @@ void defeat_animation(entity *self) BANKED
 		self->x_spr -= 3;
 		break;
 	}
-	for (u8 i = 0; i < 30; i++) {
+	for (u8 i = 0; i < 10; i++) {
 		self->spr_frame = HIDE_FRAME;
 		render_entities();
 		wait_vbl_done();
+		render_entities();
+		wait_vbl_done();
 		self->spr_frame = HURT_FRAME;
+		render_entities();
+		wait_vbl_done();
 		render_entities();
 		wait_vbl_done();
 	}
