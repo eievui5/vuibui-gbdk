@@ -10,7 +10,10 @@
 #define NB_ENEMIES 5
 #define NB_ENTITIES 8
 
+// The number of tiles each entity has allocated - do not edit.
 #define NB_ENTITY_TILES 16
+// The number of unique tiles in each direction - edit when adding new frames.
+#define NB_UNIQUE_TILES 24
 
 /**
  * Contains constant data for entities.

@@ -48,7 +48,7 @@ void render_entities() NONBANKED
 				set_sprite_data(
 					i * NB_ENTITY_TILES, NB_ENTITY_TILES,
 					&entities.array[i].data->graphics[
-						entities.array[i].direction * 256
+						entities.array[i].direction * (16 * NB_UNIQUE_TILES)
 					]
 				);
 			}
@@ -72,6 +72,7 @@ void render_entities() NONBANKED
 	clean_oam();
 }
 
+// Rendering function to move entities sprites towards their grid positions.
 void move_entities() NONBANKED
 {
 	while(1) {
@@ -110,7 +111,18 @@ void move_entities() NONBANKED
 	}
 }
 
-void new_entity(entity_data *data, u8 bank, u8 i, u8 x, u8 y, u16 health) NONBANKED
+/**
+ * Create a new entity inside the entity array. Requires an index to load the
+ * sprites into VRAM.
+ * 
+ * @param data		Pointer to the new entity's constant data.
+ * @param bank		Bank of the entity's constant data.
+ * @param i		Index of the entity.
+ * @param x		Location to place the entity at.
+ * @param y		
+ * @param health	Temporary - Set health and max health.
+*/
+entity new_entity(entity_data *data, u8 bank, u8 i, u8 x, u8 y, u16 health) NONBANKED
 {
 	entity *self = &entities.array[i];
 	memset(self, 0, sizeof(entity));
@@ -150,13 +162,20 @@ void new_entity(entity_data *data, u8 bank, u8 i, u8 x, u8 y, u16 health) NONBAN
 	if (_cpu == CGB_TYPE)
 		set_sprite_palette(i, 1, entities.array[i].data->colors);
 	SWITCH_ROM_MBC1(temp_bank);
+	return self;
 }
 
 /**
  * Spawns an entity at a given location, allocating space for it in the entity
  * array.
+ * 
+ * @param data		Pointer to the new entity's constant data.
+ * @param bank		Bank of the entity's constant data.
+ * @param i		Index of the entity.
+ * @param x		Location to place the entity at.
+ * @param y		
 */
-//bool spawn_enemy(entity_data *data, u8 bank, u8 x, u8 y) BANKED
+//entity spawn_enemy(entity_data *data, u8 bank, u8 x, u8 y) BANKED
 //{
 //	for (u8 i = 0; i < NB_ENEMIES; i++)
 //		if (!entities.enemies[i].data) {
@@ -166,6 +185,13 @@ void new_entity(entity_data *data, u8 bank, u8 i, u8 x, u8 y, u16 health) NONBAN
 //	return false;
 //}
 
+/**
+ * Offset a vector (a pointer of course... thanks SDCC...) based on a direction
+ * value.
+ * 
+ * @param vec	Pointer to the target vector.
+ * @param dir	The direction to use as an offset.
+*/
 void move_direction(vec8 *vec, u8 dir) BANKED
 {
 	switch (dir) {
@@ -205,6 +231,12 @@ bool try_step(entity *self, u8 dir) BANKED
 	return false;
 }
 
+/**
+ * A variation of try_step() to alow the player to swap positions with their
+ * allies.
+ * 
+ * @returns	Whether or not movement succeeded.
+*/
 bool player_try_step() BANKED
 {
 	u8 target_x = entities.player.x_pos;
@@ -264,6 +296,11 @@ entity *check_entity_at(u8 x, u8 y) BANKED
 	return NULL;
 }
 
+/**
+ * Checks for collision or an entity at a given location.
+ * 
+ * @returns	True if the location is valid.
+*/
 bool check_collision(u8 x, u8 y) BANKED
 {
 	if (get_collision(x, y))
@@ -273,6 +310,13 @@ bool check_collision(u8 x, u8 y) BANKED
 	return false;
 }
 
+/**
+ * Attempt to move toward a given location.
+ * 
+ * @param self		A pointer to the entity to move.
+ * @param target_x	Target location.
+ * @param target_y
+*/
 void pathfind(entity *self, u8 target_x, u8 target_y) BANKED {
 	i8 dist_x = target_x - self->x_pos;
 	i8 dist_y = target_y - self->y_pos;
@@ -309,6 +353,11 @@ void pathfind(entity *self, u8 target_x, u8 target_y) BANKED {
 		try_step(self, dir2);
 }
 
+/**
+ * Attempt to chaser the allies and attack them if within range.
+ * 
+ * @param	A pointer to the pursuing entity.
+*/
 void pursue(entity *self) BANKED
 {
 	entity *ally = entities.allies;

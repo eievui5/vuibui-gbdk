@@ -22,8 +22,6 @@ u8 new_keys;
 u8 rel_keys;
 u8 last_keys;
 
-const char qw[] = "???";
-
 void main()
 {
 	if (_cpu == CGB_TYPE) {
@@ -52,8 +50,11 @@ void main()
 	move_entities();
 	force_render_map();
 
-	lcdc_buffer = LCDC_ENABLE | LCDC_BG_ENABLE | LCDC_OBJ_ENABLE | LCDC_OBJ_16;
-	LCDC_REG = LCDC_ENABLE | LCDC_BG_ENABLE | LCDC_OBJ_ENABLE | LCDC_OBJ_16;
+	LCDC_REG = lcdc_buffer = \
+		LCDC_ENABLE | \
+		LCDC_BG_ENABLE | \
+		LCDC_OBJ_ENABLE | \
+		LCDC_OBJ_16;
 	while(1) {
 		update_input();
 
@@ -68,7 +69,6 @@ void main()
 				move_direction(&pos, entities.player.direction);
 				entity *target = check_entity_at(pos.x, pos.y);
 				if (target) {
-					strcat(attack_msg, " Hit enemy.");
 					if (target->health <= 1)
 						memset(target, 0, sizeof(entity));
 					else
