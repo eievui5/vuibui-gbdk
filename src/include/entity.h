@@ -24,6 +24,8 @@ enum special_frames {
 	WALK_FRAME_2 = 3,
 	ATTACK_FRAME = 4,
 	HURT_FRAME = 5,
+
+	HIDE_FRAME = 255
 };
 
 /**
@@ -96,7 +98,9 @@ void render_entities() NONBANKED;
 void move_entities() NONBANKED;
 entity *new_entity(entity_data *data, u8 bank, u8 i, u8 x, u8 y, u16 health) NONBANKED;
 
-void attack_animation(u8 i) BANKED;
+void attack_animation(entity *self) BANKED;
+void hurt_animation(entity *self) BANKED;
+void defeat_animation(entity *self) BANKED;
 void do_turn() BANKED;
 bool player_try_step() BANKED;
 bool try_step(entity *self, u8 dir) BANKED;

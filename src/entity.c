@@ -35,6 +35,8 @@ void render_entities() NONBANKED
 	for (u8 i = 0; i < NB_ENTITIES; i++) {
 		entity *self = &entities.array[i];
 		if (self->data) {
+			if (self->spr_frame == HIDE_FRAME)
+				continue;
 			if (!(
 				self->x_spr + 16 >= camera.x &&
 				self->x_spr <= camera.x + 160 &&
@@ -127,10 +129,13 @@ void move_entities() NONBANKED
 	}
 }
 
-void attack_animation(u8 i) BANKED
+/**
+ * Plays the attack animation for an entity.
+ * 
+ * @param i	Entity's index.
+*/
+void attack_animation(entity *self) BANKED
 {
-	entity *self = &entities.array[i];
-
 	u8 j = 0;
 	// Delay
 	for (; j < 8; j++) {
@@ -173,6 +178,91 @@ void attack_animation(u8 i) BANKED
 		wait_vbl_done();
 	}
 	self->spr_frame = IDLE_FRAME;
+}
+
+void hurt_animation(entity *self) BANKED
+{
+	u8 i = 0;
+
+	self->spr_frame = HURT_FRAME;
+	uvec16 init_spr = {self->x_spr, self->y_spr};
+	for (; i < 3; i++) {
+		switch (self->direction) {
+		case DIR_UP:
+			self->y_spr += 1;
+			break;
+		case DIR_DOWN:
+			self->y_spr -= 1;
+			break;
+		case DIR_LEFT:
+			self->x_spr += 1;
+			break;
+		case DIR_RIGHT:
+			self->x_spr -= 1;
+			break;
+		}
+		render_entities();
+		wait_vbl_done();
+		render_entities();
+		wait_vbl_done();
+	}
+	u8 swap_dir = self->direction;
+	for (i = 0; i < 3; i++) {
+		switch (swap_dir) {
+		case DIR_UP:
+			self->y_spr += 1;
+			break;
+		case DIR_DOWN:
+			self->y_spr -= 1;
+			break;
+		case DIR_LEFT:
+			self->x_spr += 1;
+			break;
+		case DIR_RIGHT:
+			self->x_spr -= 1;
+			break;
+		}
+		swap_dir = FLIP(swap_dir);
+		render_entities();
+		wait_vbl_done();
+		render_entities();
+		wait_vbl_done();
+		render_entities();
+		wait_vbl_done();
+		render_entities();
+		wait_vbl_done();
+	}
+
+	self->x_spr = init_spr.x;
+	self->y_spr = init_spr.y;
+	self->spr_frame = IDLE_FRAME;
+}
+
+void defeat_animation(entity *self) BANKED
+{
+	hurt_animation(self);
+	switch (self->direction) {
+	case DIR_UP:
+		self->y_spr += 3;
+		break;
+	case DIR_DOWN:
+		self->y_spr -= 3;
+		break;
+	case DIR_LEFT:
+		self->x_spr += 3;
+		break;
+	case DIR_RIGHT:
+		self->x_spr -= 3;
+		break;
+	}
+	for (u8 i = 0; i < 30; i++) {
+		self->spr_frame = HIDE_FRAME;
+		render_entities();
+		wait_vbl_done();
+		self->spr_frame = HURT_FRAME;
+		render_entities();
+		wait_vbl_done();
+	}
 }
 
 /**
@@ -275,6 +365,28 @@ void move_direction(vec8 *vec, u8 dir) BANKED
 }
 
 /**
+ * Return the direction of a given vector. Prefers X over Y, and returns DIR_UP
+ * for 0, 0.
+ * 
+ * @param x	X direction.
+ * @param y	Y direction.
+ * 
+ * @return	Resulting direction value.
+*/
+u8 get_direction(i8 x, i8 y)
+{
+	if (abs(x) > abs(y)) {
+		if (x > 0)
+			return DIR_RIGHT;
+		else
+			return DIR_LEFT;
+	}
+	if (y > 0)
+		return DIR_DOWN;
+	return DIR_UP;
+}
+
+/**
  * Attempt to move in a given direction.
  * 
  * @param self	The entity to move.
@@ -369,9 +481,7 @@ bool check_collision(u8 x, u8 y) BANKED
 {
 	if (get_collision(x, y))
 		return true;
-	else if (check_entity_at(x, y))
-		return true;
-	return false;
+	return (bool)check_entity_at(x, y);
 }
 
 /**
@@ -420,14 +530,16 @@ void pathfind(entity *self, u8 target_x, u8 target_y) BANKED {
 /**
  * Attempt to chaser the allies and attack them if within range.
  * 
- * @param	A pointer to the pursuing entity.
+ * @param i	Index of the pursuing entity.
+ * @param start Starting index of the array to pursue (usually 0 or 3)
+ * @param stop	Stopping index of the array to pursue (usually 3 or 8)
 */
-void pursue(entity *self) BANKED
+void pursue(entity *self, u8 start, u8 stop) BANKED
 {
-	entity *ally = entities.allies;
+	entity *ally = &entities.array[start];
 	i8 closest = -1;
 	u16 dist = 65535;
-	for (u8 i = 0; i < NB_ALLIES; i++, ally++) {
+	for (u8 i = start; i < stop; i++, ally++) {
 		u16 cur_dist = (
 			abs(self->x_pos - ally->x_pos) + 
 			abs(self->y_pos - ally->y_pos)
@@ -439,11 +551,18 @@ void pursue(entity *self) BANKED
 	}
 	ally = &entities.array[closest];
 	if (dist == 1) {
+		self->direction = get_direction(
+			ally->x_pos - self->x_pos,
+			ally->y_pos - self->y_pos
+		);
+		attack_animation(self);
 		print_hud("Enemy attacked!");
 		if (ally->health <= 1)
 			print_hud("Luvui was defeated...");
-		else
+		else {
+			hurt_animation(ally);
 			ally->health -= 1;
+		}
 	} else
 		pathfind(self, ally->x_pos, ally->y_pos);
 }
@@ -466,7 +585,7 @@ void do_turn() BANKED
 	}
 	for (u8 i = 0; i < NB_ENEMIES; i++) {
 		if (entities.enemies[i].data) {
-			pursue(&entities.enemies[i]);
+			pursue(&entities.enemies[i], 0, 3);
 		}
 	}
 	move_entities();

@@ -62,7 +62,7 @@ void main()
 			bool moved = false;
 			if (new_keys & J_A) {
 				print_hud("Luvui attacked!");
-				attack_animation(0);
+				attack_animation(&entities.player);
 				vec8 pos = {
 					entities.player.x_pos,
 					entities.player.y_pos
@@ -70,10 +70,15 @@ void main()
 				move_direction(&pos, entities.player.direction);
 				entity *target = check_entity_at(pos.x, pos.y);
 				if (target) {
-					if (target->health <= 1)
+					if (target->health <= 1) {
+						defeat_animation(target);
 						memset(target, 0, sizeof(entity));
-					else
+						print_hud("Enemy was defeated.");
+					}
+					else {
 						target->health -= 1;
+						hurt_animation(target);
+					}
 				} else
 					print_hud("Luvui missed her attack...");
 				moved = true;
