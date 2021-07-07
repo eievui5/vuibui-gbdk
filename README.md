@@ -3,9 +3,9 @@
 To build, run `make` in the root directory.
 
 ## Dependancies
- - GBDK 2020 (Master branch as of June 2021)
+ - GBDK 2020 - Added to the PATH (Master branch as of July 2021)
  - GNU Make 4.3
- - A Unix environment (For Windows users this means something like MSYS2 or WSL)
+ - For Windows users: A Unix environment. This means something like MSYS2 or WSL.
 
 ## Makefile
 
