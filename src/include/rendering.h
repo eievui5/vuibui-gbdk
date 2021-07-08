@@ -2,16 +2,17 @@
 
 #include <gb/gb.h>
 
+#include "include/hardware.h"
 #include "include/int.h"
 #include "include/vec.h"
 
-#define WAIT_VRAM \
-__asm \
-	00001$: \
-		ldh a, (_STAT_REG) \
-		and a, #2 \
-		jr nz, 00001$ \
-__endasm
+#define WAIT_VRAM while (STAT_REG & STAT_BUSY) {}
+
+inline void vset(uint16_t dst, uint8_t value) {
+    while(STAT_REG & STAT_BUSY) {}
+    *((uint8_t*)dst) = value;
+}
+
 #define VCAM_OFF 12 // + 16 for the text, -4 for the HUD
 
 extern u8 lcdc_buffer;

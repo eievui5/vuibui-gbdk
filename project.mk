@@ -5,12 +5,11 @@
 ################################################
 
 # Change this to the name of your rom.
-ROMNAME = vuibui-gbdk
-# Change this to "gbc" if your rom is for the Game Boy Color only.
+ROMNAME = vuiige
 ROMEXT  = gb
 
 # Your ROM's 15-character Title. This must be within quotes.
-TITLE = "VUIBUI-GBDK"
+TITLE = "Vuiige         "
 
 # System Compatability Flag.
 # Leave Blank for DMG-only

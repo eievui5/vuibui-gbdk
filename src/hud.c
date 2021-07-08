@@ -21,13 +21,16 @@ INCBIN_EXTERN(arrow_tiles)
 #define HUD_TILE 0x80u
 #define ARROW_TILE (0x80 + SIZE(hud_tiles) / 16)
 #define FONT_TILE (0x80 + (SIZE(hud_tiles) + SIZE(arrow_tiles))/ 16 + 1)
-#define FONT_SPACE ((void *)(0x8800 + FONT_TILE * 16))
 #define MOVE_TILE (FONT_TILE + MESSAGE_SIZE)
-#define MOVE_SPACE ((void *)(0x8800 + MOVE_TILE * 16))
+
+#define TILEADDR(t) ((0x8800 + ((t) - 0x80u) * 16))
 
 const unsigned char hud[] = {
-	0x80, 0x82, 0x83, 0x84, 0x84, 0x84, 0x84, 0x84, 0x84, 0x84,
-	0x84, 0x84, 0x84, 0x84, 0x85, 0x87, 0x88, 0x89, 0x81, 0x86
+	HUD_TILE + 0u, HUD_TILE + 2u, HUD_TILE + 3u, HUD_TILE + 4u, 
+	HUD_TILE + 4u, HUD_TILE + 4u, HUD_TILE + 4u, HUD_TILE + 4u, 
+	HUD_TILE + 4u, HUD_TILE + 4u, HUD_TILE + 4u, HUD_TILE + 4u, 
+	HUD_TILE + 4u, HUD_TILE + 4u, HUD_TILE + 5u, HUD_TILE + 7u, 
+	HUD_TILE + 8u, HUD_TILE + 9u, HUD_TILE + 1u, HUD_TILE + 6u,
 };
 const short hud_palettes[] = {
 	RGB_WHITE, RGB_BLUE, RGB_DARKBLUE, RGB_BLACK
@@ -36,8 +39,8 @@ const short hud_palettes[] = {
 void init_hud() BANKED
 {
 	u8 i;
-	set_bkg_data(0x80, SIZE(hud_tiles) / 16, hud_tiles);
-	set_bkg_data(0x80 + SIZE(hud_tiles) / 16, SIZE(arrow_tiles) / 16, arrow_tiles);
+	vmemcpy((void *)TILEADDR(HUD_TILE), SIZE(hud_tiles), hud_tiles);
+	vmemcpy((void *)TILEADDR(ARROW_TILE), SIZE(arrow_tiles), arrow_tiles);
 
 	// Load hud
 	vmemcpy((void *)(0x9F60), 20, hud);
@@ -49,11 +52,11 @@ void init_hud() BANKED
 	}
 
 	// Setup attack window
-	set_vram_byte((void *)(0x9C00), HUD_TILE + 12u);
+	vset(0x9C00, HUD_TILE + 12u);
 	vmemset((void *)(0x9C01), HUD_TILE + 10u, 31);
 	for (i = 1; i < 5; i++) {
-		set_vram_byte((void *)(0x9C00 + i * 32), HUD_TILE + 11u);
-		set_vram_byte((void *)(0x9C01 + i * 32), ARROW_TILE-1 + i);
+		vset(0x9C00 + i * 32, HUD_TILE + 11u);
+		vset(0x9C01 + i * 32, ARROW_TILE-1 + i);
 		vmemset((void *)(0x9C02 + i * 32), FONT_TILE - 1, 30);
 	}
 

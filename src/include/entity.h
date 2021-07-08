@@ -101,6 +101,7 @@ typedef union {
 } entity_array;
 
 extern entity_array entities;
+extern u8 move_speed;
 
 void render_entities() NONBANKED;
 void move_entities() NONBANKED;

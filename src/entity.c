@@ -19,13 +19,13 @@
 #include "moves/scratch.h"
 #include "moves/lunge.h"
 
-#define mspd 1
 #define DETECTION_RANGE 12
 
 entity_array entities;
 // The index of an ally which has been forced to move by the player. This ally
 // loses their turn
 u8 ignore_ally = 0;
+u8 move_speed = 1;
 
 /**
  * Renders two 8x16 sprites at each entity's position. The tile is chosen based
@@ -92,7 +92,7 @@ void render_entities() NONBANKED
 			oam_index++;
 		}
 	}
-	anim_timer++;
+	anim_timer += move_speed;
 	clean_oam();
 
 	SWITCH_ROM_MBC1(temp_bank);
@@ -108,14 +108,14 @@ void move_entities() NONBANKED
 				entities.array[i].spr_frame = WALK_FRAME;
 				if (entities.array[i].x_pos * 16 != entities.array[i].x_spr) {
 					if (entities.array[i].x_pos * 16 > entities.array[i].x_spr)
-						entities.array[i].x_spr += mspd;
+						entities.array[i].x_spr += move_speed;
 					else
-						entities.array[i].x_spr -= mspd;
+						entities.array[i].x_spr -= move_speed;
 				} else if (entities.array[i].y_pos * 16 != entities.array[i].y_spr) {
 					if (entities.array[i].y_pos * 16 > entities.array[i].y_spr)
-						entities.array[i].y_spr += mspd;
+						entities.array[i].y_spr += move_speed;
 					else
-						entities.array[i].y_spr -= mspd;
+						entities.array[i].y_spr -= move_speed;
 				} else {
 					entities.array[i].spr_frame = IDLE_FRAME;
 					progress++;

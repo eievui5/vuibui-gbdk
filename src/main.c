@@ -31,7 +31,7 @@ void main()
 	LCDC_REG = 0;
 	add_VBL(&vblank);
 	set_interrupts(VBL_IFLAG | LCD_IFLAG);
-	STAT_REG = STATF_LYC;
+	STAT_REG = STAT_LYC;
 	BGP_REG = 0b11100100;
 	OBP0_REG = 0b11010000;
 	OBP1_REG = 0b11100100;
@@ -62,6 +62,10 @@ void main()
 		bool moved = false;
 		static u8 window_bounce = 0;
 
+		if (cur_keys & J_B)
+			move_speed = 2;
+		else
+			move_speed = 1;
 		if (cur_keys & J_A) {
 			// Handle window animation
 			if (win_pos.x > 168 - 80 && window_bounce == 0) {
@@ -82,7 +86,7 @@ void main()
 				selected = 2;
 			if (new_keys & J_LEFT) {
 				selected = 3;
-				init_hud();
+				init_move_window();
 			}
 			if (selected != 255)
 				if (entities.player.moves[selected].data) {
