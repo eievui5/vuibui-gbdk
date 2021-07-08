@@ -18,12 +18,12 @@ INCBIN(hud_tiles, res/gfx/ui/hud.2bpp)
 INCBIN(arrow_tiles, res/gfx/ui/arrows.2bpp)
 INCBIN_EXTERN(arrow_tiles)
 
-#define HUD_TILE 0x80u
-#define ARROW_TILE (0x80 + SIZE(hud_tiles) / 16)
-#define FONT_TILE (0x80 + (SIZE(hud_tiles) + SIZE(arrow_tiles))/ 16 + 1)
+#define HUD_TILE (0x80u)
+#define ARROW_TILE (0x8Du)
+#define FONT_TILE (0x92u)
 #define MOVE_TILE (FONT_TILE + MESSAGE_SIZE)
 
-#define TILEADDR(t) ((0x8800 + ((t) - 0x80u) * 16))
+#define TILEADDR(t) ((0x8800u + ((t) - 0x80u) * 16u))
 
 const unsigned char hud[] = {
 	HUD_TILE + 0u, HUD_TILE + 2u, HUD_TILE + 3u, HUD_TILE + 4u, 
@@ -33,7 +33,14 @@ const unsigned char hud[] = {
 	HUD_TILE + 8u, HUD_TILE + 9u, HUD_TILE + 1u, HUD_TILE + 6u,
 };
 const short hud_palettes[] = {
-	RGB_WHITE, RGB_BLUE, RGB_DARKBLUE, RGB_BLACK
+	RGB_WHITE, RGB_BLUE, RGB_DARKBLUE, RGB_BLACK, ARROW_TILE
+};
+
+const unsigned char arrow_window[] = {
+	FONT_TILE - 1u, ARROW_TILE, FONT_TILE - 1u, FONT_TILE - 1u, 
+	FONT_TILE - 1u, ARROW_TILE + 3u, FONT_TILE - 1u, ARROW_TILE + 1u, 
+	FONT_TILE - 1u, FONT_TILE - 1u, FONT_TILE - 1u, ARROW_TILE + 2u, 
+	FONT_TILE - 1u, FONT_TILE - 1u, FONT_TILE - 1u,
 };
 
 void init_hud() BANKED
@@ -48,7 +55,7 @@ void init_hud() BANKED
 	// Setup text box
 	vmemset((void *)(0x9F80), 0x8A, 20);
 	for (i = 0; i < 3; i++) {
-		vmemset((void *)(0x9FA0 + i * 32), FONT_TILE - 1, MESSAGE_SIZE / 3);
+		vmemset((void *)(0x9FA0 + i * 32), FONT_TILE - 1u, MESSAGE_SIZE / 3);
 	}
 
 	// Setup attack window
@@ -56,8 +63,6 @@ void init_hud() BANKED
 	vmemset((void *)(0x9C01), HUD_TILE + 10u, 31);
 	for (i = 1; i < 5; i++) {
 		vset(0x9C00 + i * 32, HUD_TILE + 11u);
-		vset(0x9C01 + i * 32, ARROW_TILE-1 + i);
-		vmemset((void *)(0x9C02 + i * 32), FONT_TILE - 1, 30);
 	}
 
 	if (_cpu == CGB_TYPE) {
@@ -72,20 +77,44 @@ void init_hud() BANKED
 }
 
 /**
- * Draws the names of the player's moves to the move window. Update whenever
- * moves change.
+ * Draws the names of the player's moves to the move window.
 */
-void init_move_window() BANKED
+void draw_move_window() NONBANKED
 {
+	u8 i = 1;
+	for (; i < 5; i++) {
+		vset(0x9C01 + i * 32, ARROW_TILE-1 + i);
+		vmemset((void *)(0x9C02 + i * 32), FONT_TILE - 1u, 8);
+	}
+
+	u8 temp_bank = _current_bank;
+
 	move *moves = entities.player.moves;
-	if (moves->data)
+	if (moves->data) {
+		SWITCH_ROM_MBC1(moves->bank);
 		vwf_draw_text(2, 1, MOVE_TILE, moves->data->name);
+	}
 	moves++;
-	for (u8 i = 1; i < 4; i++) {
-		if (moves->data)
+	for (i = 1; i < 4; i++) {
+		if (moves->data) {
+			SWITCH_ROM_MBC1(moves->bank);
 			vwf_draw_text(2, i + 1, vwf_next_tile(), moves->data->name);
+		}
 		moves++;
 	}
+
+	SWITCH_ROM_MBC1(temp_bank);
+}
+
+/**
+ * Draws the direction menu.
+*/
+void draw_dir_window() BANKED
+{
+	vmemcpy((void *)(0x9C21), 5, &arrow_window[0]);
+	vmemcpy((void *)(0x9C41), 5, &arrow_window[5]);
+	vmemcpy((void *)(0x9C61), 5, &arrow_window[10]);
+	vmemset((void *)(0x9C81), FONT_TILE - 1, 5);
 }
 
 // Need to declare this...
@@ -130,7 +159,7 @@ void show_game() NONBANKED
 void print_hud(const char *src) BANKED
 {
 	for (u8 i = 0; i < 3; i++)
-		vmemset((void *)(0x9FA1 + i * 32), FONT_TILE - 1, MESSAGE_SIZE / 3);
+		vmemset((void *)(0x9FA1 + i * 32), FONT_TILE - 1u, MESSAGE_SIZE / 3);
 	vwf_activate_font(0);
 	vwf_draw_text(0x01, 0x1D, FONT_TILE, src);
 	//u8 c = 0;
