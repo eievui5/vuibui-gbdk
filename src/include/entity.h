@@ -4,6 +4,7 @@
 #include <stdbool.h>
 
 #include "include/int.h"
+#include "include/move.h"
 #include "include/vec.h"
 
 #define NB_ALLIES 3
@@ -16,6 +17,9 @@
 #define NB_SPECIAL_TILES 8
 // The number of unique tiles in each direction - edit when adding new frames.
 #define NB_UNIQUE_TILES 24
+
+// 12 letters plus a 0 terminator.
+#define ENTITY_NAME_LEN 12 + 1
 
 enum special_frames {
 	IDLE_FRAME = 0,
@@ -38,6 +42,7 @@ typedef struct {
 	const char *metasprites;
 	const char *graphics;
 	short *colors;
+	const char *name;
 } entity_data;
 
 /**
@@ -55,6 +60,7 @@ typedef struct {
  * @param spr_frame	Which frame the sprite should display.
  * @param prev_frame	Which frame the sprite displayed the last time its 
  * graphics were reloaded.
+ * @param moves		The entity's 4 available moves.
 */
 typedef struct {
 	const entity_data *data;
@@ -70,6 +76,8 @@ typedef struct {
 	u8 prev_frame;
 	u16 health;
 	u16 max_health;
+	char name[ENTITY_NAME_LEN];
+	move moves[4];
 } entity;
 
 /**
@@ -108,3 +116,5 @@ bool check_collision(u8 x, u8 y) BANKED;
 entity *check_entity_at(u8 x, u8 y) BANKED;
 void move_direction(vec8 *vec, u8 dir) BANKED;
 bool spawn_enemy(entity_data *data, u8 bank, u8 x, u8 y) BANKED;
+
+void use_melee_move(entity *self, move *self_move);

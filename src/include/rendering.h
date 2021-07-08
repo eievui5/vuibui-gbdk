@@ -1,7 +1,9 @@
 #pragma once
 
 #include <gb/gb.h>
+
 #include "include/int.h"
+#include "include/vec.h"
 
 #define WAIT_VRAM \
 __asm \
@@ -14,6 +16,7 @@ __endasm
 
 extern u8 lcdc_buffer;
 extern u8 oam_index;
+extern uvec8 win_pos;
 
 void vmemcpy(void *dest, u8 len, const void *src);
 void vblank();

@@ -12,8 +12,12 @@
 #include "include/hud.h"
 #include "include/int.h"
 #include "include/map.h"
+#include "include/move.h"
 #include "include/rendering.h"
 #include "include/vec.h"
+
+#include "moves/scratch.h"
+#include "moves/lunge.h"
 
 #define mspd 1
 #define DETECTION_RANGE 12
@@ -31,11 +35,15 @@ void render_entities() NONBANKED
 {
 	static u8 anim_timer = 0;
 	u8 temp_bank = _current_bank;
-
-	for (u8 i = 0; i < NB_ENTITIES; i++) {
-		entity *self = &entities.array[i];
+	entity *self = entities.array;
+	for (u8 i = 0; i < NB_ENTITIES; i++, self++) {
 		if (self->data) {
 			if (self->spr_frame == HIDE_FRAME)
+				continue;
+			if (
+				(16 + self->x_spr - camera.x & 0xFF) > win_pos.x &&
+				(16 + self->y_spr - camera.y & 0xFF) > win_pos.y
+			)
 				continue;
 			if (!(
 				self->x_spr + 16 >= camera.x &&
@@ -311,6 +319,11 @@ entity *new_entity(entity_data *data, u8 bank, u8 i, u8 x, u8 y, u16 health) NON
 	self->path_dir = -1;
 	self->health = health;
 	self->max_health = health;
+	self->moves[0].data = &scratch_move;
+	self->moves[0].bank = BANK(scratch);
+	self->moves[1].data = &lunge_move;
+	self->moves[1].bank = BANK(lunge);
+	strcpy(self->name, data->name);
 
 	u8 temp_bank = _current_bank;
 	SWITCH_ROM_MBC1(bank);
@@ -447,13 +460,13 @@ bool player_try_step() BANKED
 			entities.allies[i].y_pos = entities.player.y_pos;
 			entities.allies[i].direction = FLIP(entities.player.direction);
 			ignore_ally = i;
-			goto move;
+			goto skip_enemies;
 		}
 	}
 	for (u8 i = 0; i < NB_ENEMIES; i++)
 		if (entities.array[i].x_pos == target_x && entities.array[i].y_pos == target_y)
 			return false;
-	move:
+	skip_enemies:
 	entities.player.x_pos = target_x;
 	entities.player.y_pos = target_y;
 	return true;
@@ -547,7 +560,7 @@ void pursue(entity *self, u8 start, u8 stop) BANKED
 	u16 dist = 65535;
 	for (u8 i = start; i < stop; i++, ally++) {
 		u16 cur_dist = (
-			abs(self->x_pos - ally->x_pos) + 
+			abs(self->x_pos - ally->x_pos) +
 			abs(self->y_pos - ally->y_pos)
 		);
 		if (cur_dist < dist) {
@@ -558,17 +571,9 @@ void pursue(entity *self, u8 start, u8 stop) BANKED
 	ally = &entities.array[closest];
 	if (dist == 1) {
 		self->direction = get_direction(
-			ally->x_pos - self->x_pos,
-			ally->y_pos - self->y_pos
+			ally->x_pos - self->x_pos, ally->y_pos - self->y_pos
 		);
-		attack_animation(self);
-		print_hud("Enemy attacked!");
-		if (ally->health <= 1)
-			print_hud("Luvui was defeated...");
-		else {
-			hurt_animation(ally);
-			ally->health -= 1;
-		}
+		use_melee_move(self, &self->moves[0]);
 	} else
 		pathfind(self, ally->x_pos, ally->y_pos);
 }
@@ -581,18 +586,17 @@ void do_turn() BANKED
 			ignore_ally = 0;
 			continue;
 		}
-		if (entities.allies[i].data) {
+		if (entities.allies[i].data)
 			pathfind(
-				&entities.allies[i],
-				entities.player.x_pos,
+				&entities.allies[i], entities.player.x_pos,
 				entities.player.y_pos
 			);
-		}
 	}
-	for (u8 i = 0; i < NB_ENEMIES; i++) {
-		if (entities.enemies[i].data) {
+	for (u8 i = 0; i < NB_ENEMIES; i++)
+		if (entities.enemies[i].data)
 			pursue(&entities.enemies[i], 0, 3);
-		}
-	}
 	move_entities();
+
+	if (!entities.player.data)
+		while(1){wait_vbl_done();};
 }

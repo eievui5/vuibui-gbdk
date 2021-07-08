@@ -40,10 +40,13 @@ void main()
 	memset(&entities, 0, sizeof(entity) * NB_ENTITIES);
 	for (u8 i = 0; i < 4; i += 3) {
 		new_entity(
-			&luvui_data, BANK(luvui),
-			i, 28 + (i * 2), 32 + i, 4
+			&luvui_entity, BANK(luvui),
+			i, 28 + (i * 2), 32, 4
 		);
 	}
+	strcpy(entities.player.name, "Eievui");
+	strcpy(entities.array[3].name, "Enemy");
+	init_move_window();
 
 	load_mapdata(&debug_mapdata, BANK(debug_mapdata));
 	generate_map();
@@ -51,39 +54,56 @@ void main()
 	force_render_map();
 
 	LCDC_REG = lcdc_buffer = \
-		LCDC_ENABLE | \
-		LCDC_BG_ENABLE | \
-		LCDC_OBJ_ENABLE | \
-		LCDC_OBJ_16;
+		LCDC_ENABLE | LCDC_BG_ENABLE | LCDC_WINDOW_ENABLE | \
+		LCDC_WINDOW_SCRN1 | LCDC_OBJ_ENABLE | LCDC_OBJ_16;
 	while(1) {
 		update_input();
 
-		if (cur_keys) {
-			bool moved = false;
-			if (new_keys & J_A) {
-				print_hud("Luvui attacked!");
-				attack_animation(&entities.player);
-				vec8 pos = {
-					entities.player.x_pos,
-					entities.player.y_pos
-				};
-				move_direction(&pos, entities.player.direction);
-				entity *target = check_entity_at(pos.x, pos.y);
-				if (target) {
-					if (target->health <= 1) {
-						defeat_animation(target);
-						memset(target, 0, sizeof(entity));
-						print_hud("Enemy was defeated.");
-					}
-					else {
-						target->health -= 1;
-						hurt_animation(target);
-					}
+		bool moved = false;
+		static u8 window_bounce = 0;
+
+		if (cur_keys & J_A) {
+			// Handle window animation
+			if (win_pos.x > 168 - 80 && window_bounce == 0) {
+				win_pos.x -= 8;
+			} else if (window_bounce != 2) {
+				window_bounce = 1;
+				if (win_pos.x < 168 - 72) {
+					win_pos.x += 1;
 				} else
-					print_hud("Luvui missed her attack...");
-				moved = true;
+					window_bounce = 2;
 			}
-			else if (cur_keys & J_DOWN) {
+			u8 selected = 255;
+			if (new_keys & J_UP)
+				selected = 0;
+			if (new_keys & J_RIGHT)
+				selected = 1;
+			if (new_keys & J_DOWN)
+				selected = 2;
+			if (new_keys & J_LEFT) {
+				selected = 3;
+				init_hud();
+			}
+			if (selected != 255)
+				if (entities.player.moves[selected].data) {
+					win_pos.x = 168 - 72;
+					window_bounce = 2;
+					use_melee_move(
+						&entities.player,
+						&entities.player.moves[selected]
+					);
+					moved = true;
+				}
+
+		// If not holding the attack button, regress the window
+		// and check for movement.
+		} else {
+			// Reset window if needed.
+			if (win_pos.x < 168) {
+				win_pos.x = 168;
+				window_bounce = 0;
+			}
+			if (cur_keys & J_DOWN) {
 				entities.player.direction = DIR_DOWN;
 				moved = player_try_step();
 			}
@@ -99,10 +119,11 @@ void main()
 				entities.player.direction = DIR_LEFT;
 				moved = player_try_step();
 			}
-			
-			if (moved)
-				do_turn();
-		} else {
+		}
+		
+		if (moved)
+			do_turn();
+		else {
 			render_entities();
 			wait_vbl_done();
 		}

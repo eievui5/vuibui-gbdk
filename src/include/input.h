@@ -1,3 +1,5 @@
+#pragma once
+
 #include "include/int.h"
 
 extern u8 cur_keys;

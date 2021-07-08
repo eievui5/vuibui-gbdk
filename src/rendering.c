@@ -1,13 +1,20 @@
 #include <gb/gb.h>
+
+#include "include/hardware.h"
 #include "include/hud.h"
 #include "include/int.h"
+#include "include/vec.h"
 
 u8 lcdc_buffer;
 u8 oam_index = 0;
 
+uvec8 win_pos = {160, 144 - 72};
+
 void vblank()
 {
 	show_hud();
+	WX_REG = win_pos.x;
+	WY_REG = win_pos.y;
 }
 
 void vmemcpy(void *dest, u8 len, const void *src)
