@@ -3,6 +3,7 @@
 #include <gb/cgb.h>
 #include <gb/gb.h>
 #include <gb/incbin.h>
+#include <string.h>
 
 #include "gfx/ui/vwf_font.h"
 #include "include/entity.h"
@@ -32,19 +33,22 @@ const unsigned char hud[] = {
 	HUD_TILE + 4u, HUD_TILE + 4u, HUD_TILE + 5u, HUD_TILE + 7u, 
 	HUD_TILE + 8u, HUD_TILE + 9u, HUD_TILE + 1u, HUD_TILE + 6u,
 };
-const short hud_palettes[] = {
-	RGB_WHITE, RGB_BLUE, RGB_DARKBLUE, RGB_BLACK, ARROW_TILE
-};
-
 const unsigned char arrow_window[] = {
 	FONT_TILE - 1u, ARROW_TILE, FONT_TILE - 1u, FONT_TILE - 1u, 
 	FONT_TILE - 1u, ARROW_TILE + 3u, FONT_TILE - 1u, ARROW_TILE + 1u, 
 	FONT_TILE - 1u, FONT_TILE - 1u, FONT_TILE - 1u, ARROW_TILE + 2u, 
 	FONT_TILE - 1u, FONT_TILE - 1u, FONT_TILE - 1u,
 };
+const ui_pal default_ui_pink = {
+	.colors = {RGB(31, 20, 31), RGB(31, 3, 31), RGB(16, 0, 16), RGB_BLACK},
+	.gradient_start = {31, 3, 31}
+};
+
+ui_pal current_ui_pal;
 
 void init_hud() BANKED
 {
+	memcpy(&current_ui_pal, &default_ui_pink, sizeof(ui_pal));
 	u8 i;
 	vmemcpy((void *)TILEADDR(HUD_TILE), SIZE(hud_tiles), hud_tiles);
 	vmemcpy((void *)TILEADDR(ARROW_TILE), SIZE(arrow_tiles), arrow_tiles);
@@ -66,7 +70,7 @@ void init_hud() BANKED
 	}
 
 	if (_cpu == CGB_TYPE) {
-		set_bkg_palette(7, 1, hud_palettes);
+		set_bkg_palette(7, 1, current_ui_pal.colors);
 		VBK_REG = 1;
 		vmemset((void *)(0x9C00), 7, 1024);
 		VBK_REG = 0;
@@ -114,7 +118,7 @@ void draw_dir_window() BANKED
 	vmemcpy((void *)(0x9C21), 5, &arrow_window[0]);
 	vmemcpy((void *)(0x9C41), 5, &arrow_window[5]);
 	vmemcpy((void *)(0x9C61), 5, &arrow_window[10]);
-	vmemset((void *)(0x9C81), FONT_TILE - 1, 5);
+	vmemset((void *)(0x9C81), FONT_TILE - 1u, 5);
 }
 
 // Need to declare this...
@@ -127,9 +131,39 @@ void show_hud() NONBANKED
 	SCX_REG = 0;
 	SCY_REG = 216;
 
+	if (_cpu == CGB_TYPE) {
+		BCPS_REG = 7 * 8 | 0x80;
+		BCPD_REG = current_ui_pal.colors[0] & 0xFF;
+		BCPD_REG = (current_ui_pal.colors[0] & 0xFF00) >> 8;
+	}
+
 	// remove_LCD(&show_hud); // show_hud uses VBlank, not STAT.
 	LYC_REG = 7;
 	add_LCD(&show_game);
+}
+
+void hi_color() NONBANKED
+{
+	u8 r = current_ui_pal.gradient_start[0] - ((LYC_REG - 112) >> 1);
+	u8 g = current_ui_pal.gradient_start[1] - ((LYC_REG - 112) >> 1);
+	u8 b = current_ui_pal.gradient_start[2] - ((LYC_REG - 112) >> 1);
+	if (r > 31)
+		r = 0;
+	if (g > 31)
+		g = 0;
+	if (b > 31)
+		b = 0;
+	u8 clr0 = r | g << 5;
+	u8 clr1 = g >> 3 | b << 2;
+	BCPS_REG = 7 * 8 | 0x80;
+	LYC_REG += 2;
+	bool done = false;
+	WAIT_VRAM;
+	BCPD_REG = clr0;
+	BCPD_REG = clr1;
+	if (LYC_REG >= 143) {
+		remove_LCD(&hi_color);
+	}
 }
 
 void show_text() NONBANKED
@@ -141,6 +175,10 @@ void show_text() NONBANKED
 	SCY_REG = 112;
 
 	remove_LCD(&show_text);
+	if (_cpu == CGB_TYPE) {
+		add_LCD(&hi_color);
+		LYC_REG = SCREENHEIGHT - 31;
+	}
 }
 
 void show_game() NONBANKED
@@ -154,7 +192,6 @@ void show_game() NONBANKED
 	LYC_REG = SCREENHEIGHT - 33;
 	add_LCD(&show_text);
 }
-
 
 void print_hud(const char *src) BANKED
 {

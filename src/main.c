@@ -38,9 +38,9 @@ void main()
 	OBP0_REG = 0b11010000;
 	OBP1_REG = 0b11100100;
 	init_hud();
-	initrand(84);
+	initrand(7894);
 	memset(&entities, 0, sizeof(entity) * NB_ENTITIES);
-	for (u8 i = 0; i < 4; i += 3) {
+	for (u8 i = 0; i < 1; i += 3) {
 		new_entity(
 			&luvui_entity, BANK(luvui),
 			i, i ? 29 : 28, i ? 35 : 32, 4
@@ -128,8 +128,8 @@ void main()
 			}
 			if (selected != 255)
 				if (entities.player.moves[selected].data) {
-					win_pos.x = 168 - 72;
-					window_bounce = 2;
+					win_pos.x = 168;
+					window_bounce = 0;
 					use_melee_move(
 						&entities.player,
 						&entities.player.moves[selected]
