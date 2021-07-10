@@ -14,6 +14,7 @@ typedef struct {
 } ui_pal;
 
 void init_hud() BANKED;
+void draw_clock() BANKED;
 void draw_move_window() NONBANKED;
 void draw_dir_window() BANKED;
 void show_hud() NONBANKED;

@@ -3,10 +3,11 @@
 #include <gb/cgb.h>
 #include <gb/gb.h>
 #include <gb/incbin.h>
+#include <stdio.h>
 #include <string.h>
 
-#include "gfx/ui/vwf_font.h"
 #include "include/entity.h"
+#include "include/game.h"
 #include "include/hardware.h"
 #include "include/hud.h"
 #include "include/map.h"
@@ -14,15 +15,18 @@
 #include "include/rendering.h"
 #include "libs/vwf.h"
 
-INCBIN(font_tiles, res/gfx/ui/font.1bpp.2bpp)
+#include "gfx/ui/vwf_font.h"
+#include "gfx/ui/clockface_font.h"
+
 INCBIN(hud_tiles, res/gfx/ui/hud.2bpp)
 INCBIN(arrow_tiles, res/gfx/ui/arrows.2bpp)
 INCBIN_EXTERN(arrow_tiles)
 
 #define HUD_TILE (0x80u)
-#define ARROW_TILE (0x8Du)
-#define FONT_TILE (0x92u)
-#define MOVE_TILE (FONT_TILE + MESSAGE_SIZE)
+#define ARROW_TILE (0x8Au)
+#define FONT_TILE (0x9Eu)
+#define CLOCK_TILE (FONT_TILE + MESSAGE_SIZE)
+#define MOVE_TILE (CLOCK_TILE + 3u)
 
 #define TILEADDR(t) ((0x8800u + ((t) - 0x80u) * 16u))
 
@@ -30,14 +34,23 @@ const unsigned char hud[] = {
 	HUD_TILE + 0u, HUD_TILE + 2u, HUD_TILE + 3u, HUD_TILE + 4u, 
 	HUD_TILE + 4u, HUD_TILE + 4u, HUD_TILE + 4u, HUD_TILE + 4u, 
 	HUD_TILE + 4u, HUD_TILE + 4u, HUD_TILE + 4u, HUD_TILE + 4u, 
-	HUD_TILE + 4u, HUD_TILE + 4u, HUD_TILE + 5u, HUD_TILE + 7u, 
-	HUD_TILE + 8u, HUD_TILE + 9u, HUD_TILE + 1u, HUD_TILE + 6u,
+	HUD_TILE + 4u, HUD_TILE + 4u, HUD_TILE + 5u, HUD_TILE + 1u, 
+	HUD_TILE + 1u, HUD_TILE + 1u, HUD_TILE + 1u, HUD_TILE + 6u,
 };
 const unsigned char arrow_window[] = {
 	FONT_TILE - 1u, ARROW_TILE, FONT_TILE - 1u, FONT_TILE - 1u, 
 	FONT_TILE - 1u, ARROW_TILE + 3u, FONT_TILE - 1u, ARROW_TILE + 1u, 
 	FONT_TILE - 1u, FONT_TILE - 1u, FONT_TILE - 1u, ARROW_TILE + 2u, 
 	FONT_TILE - 1u, FONT_TILE - 1u, FONT_TILE - 1u,
+};
+
+const ui_pal default_ui_white = {
+	.colors = {RGB_WHITE, RGB_LIGHTGRAY, RGB_DARKGRAY, RGB_BLACK},
+	.gradient_start = {31, 31, 31}
+};
+const ui_pal default_ui_blue = {
+	.colors = {RGB(20, 20, 31), RGB_BLUE, RGB_DARKBLUE, RGB_BLACK},
+	.gradient_start = {16, 16, 31}
 };
 const ui_pal default_ui_pink = {
 	.colors = {RGB(31, 20, 31), RGB(31, 3, 31), RGB(16, 0, 16), RGB_BLACK},
@@ -57,16 +70,16 @@ void init_hud() BANKED
 	vmemcpy((void *)(0x9F60), 20, hud);
 
 	// Setup text box
-	vmemset((void *)(0x9F80), 0x8A, 20);
+	vmemset((void *)(0x9F80), HUD_TILE + 7u, 20);
 	for (i = 0; i < 3; i++) {
 		vmemset((void *)(0x9FA0 + i * 32), FONT_TILE - 1u, MESSAGE_SIZE / 3);
 	}
 
 	// Setup attack window
-	vset(0x9C00, HUD_TILE + 12u);
-	vmemset((void *)(0x9C01), HUD_TILE + 10u, 31);
+	vset(0x9C00, HUD_TILE + 9u);
+	vmemset((void *)(0x9C01), HUD_TILE + 7u, 31);
 	for (i = 1; i < 5; i++) {
-		vset(0x9C00 + i * 32, HUD_TILE + 11u);
+		vset(0x9C00 + i * 32, HUD_TILE + 8u);
 	}
 
 	if (_cpu == CGB_TYPE) {
@@ -77,7 +90,8 @@ void init_hud() BANKED
 	}
 
 	vwf_load_font(0, vwf_font, BANK(vwf_font));
-	vwf_activate_font(0);
+	vwf_load_font(1, clockface_font, BANK(clockface_font));
+	draw_clock();
 }
 
 /**
@@ -87,7 +101,7 @@ void draw_move_window() NONBANKED
 {
 	u8 i = 1;
 	for (; i < 5; i++) {
-		vset(0x9C01 + i * 32, ARROW_TILE-1 + i);
+		vset(0x9C01 + i * 32, ARROW_TILE - 1u + i);
 		vmemset((void *)(0x9C02 + i * 32), FONT_TILE - 1u, 8);
 	}
 
@@ -199,20 +213,23 @@ void print_hud(const char *src) BANKED
 		vmemset((void *)(0x9FA1 + i * 32), FONT_TILE - 1u, MESSAGE_SIZE / 3);
 	vwf_activate_font(0);
 	vwf_draw_text(0x01, 0x1D, FONT_TILE, src);
-	//u8 c = 0;
-	//for (u8 i = 0; src[i] != 0; i++, c++) {
-	//	if (src[i] == '\n') {
-	//		// Clear the remaining tiles on this line.
-	//		vmemset(
-	//			(void *)(0x8850 + c * 16), 
-	//			0, 
-	//			((c + (MESSAGE_SIZE / 3 - c % (MESSAGE_SIZE / 3))) - c) * 16
-	//		);
-	//		// Jump to the next line.
-	//		c += MESSAGE_SIZE / 3 - c % (MESSAGE_SIZE / 3);
-	//		i++;
-	//	}
-	//	set_bkg_1bit_data(0x85 + c, 1, &font_tiles[(src[i] - ' ') * 8], 3);
-	//}
-	//vmemset((void *)(0x8850 + c * 16), 0, (MESSAGE_SIZE - c) * 16);
+}
+
+void draw_clock() BANKED
+{
+	const char clock_string[] = "%u:%s";
+	const char minute_string[] = "%u";
+	vwf_activate_font(1);
+	char minute_buffer[3] = {'0'};
+	if (minutes < 10)
+		sprintf(&minute_buffer[1], minute_string, minutes);
+	else
+		sprintf(minute_buffer, minute_string, minutes);
+	char clock_buffer[6];
+	sprintf(clock_buffer, clock_string, hours, minute_buffer);
+	vwf_draw_text(15, 27, CLOCK_TILE, clock_buffer);
+	vwf_activate_font(0);
+	vmemset((void *)(0x800Du + CLOCK_TILE * 16u), 0xFF, 3);
+	vmemset((void *)(0x801Du + CLOCK_TILE * 16u), 0xFF, 3);
+	vmemset((void *)(0x802Du + CLOCK_TILE * 16u), 0xFF, 3);
 }

@@ -6,9 +6,9 @@
 
 #include "include/dir.h"
 #include "include/entity.h"
+#include "include/game.h"
 #include "include/hardware.h"
 #include "include/hud.h"
-#include "include/input.h"
 #include "include/int.h"
 #include "include/map.h"
 #include "include/rendering.h"
@@ -18,11 +18,6 @@
 #include "entities/luvui.h"
 #include "mapdata/debug_mapdata.h"
 #include "moves/lunge.h"
-
-u8 cur_keys = 0;
-u8 new_keys;
-u8 rel_keys;
-u8 last_keys;
 
 void main()
 {
@@ -96,7 +91,7 @@ void main()
 				entities.player.direction = DIR_DOWN;
 			else if (new_keys & J_LEFT)
 				entities.player.direction = DIR_LEFT;
-			vset(0x9C42, 0x8D + entities.player.direction);
+			vset(0x9C42, 0x8A + entities.player.direction);
 
 		// Attack check.
 		} else if (cur_keys & J_A) {

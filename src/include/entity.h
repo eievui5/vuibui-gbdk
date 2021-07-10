@@ -103,19 +103,19 @@ typedef union {
 extern entity_array entities;
 extern u8 move_speed;
 
-void render_entities() NONBANKED;
 void move_entities() NONBANKED;
 entity *new_entity(entity_data *data, u8 bank, u8 i, u8 x, u8 y, u16 health) NONBANKED;
+void render_entities() NONBANKED;
 
 void attack_animation(entity *self) BANKED;
-void hurt_animation(entity *self) BANKED;
-void defeat_animation(entity *self) BANKED;
-void do_turn() BANKED;
-bool player_try_step() BANKED;
-bool try_step(entity *self, u8 dir) BANKED;
 bool check_collision(u8 x, u8 y) BANKED;
 entity *check_entity_at(u8 x, u8 y) BANKED;
+void defeat_animation(entity *self) BANKED;
+void hurt_animation(entity *self) BANKED;
 void move_direction(vec8 *vec, u8 dir) BANKED;
+void pathfind(entity *self, u8 target_x, u8 target_y) BANKED;
+bool player_try_step() BANKED;
+void pursue(entity *self, u8 start, u8 stop) BANKED;
 bool spawn_enemy(entity_data *data, u8 bank, u8 x, u8 y) BANKED;
-
+bool try_step(entity *self, u8 dir) BANKED;
 void use_melee_move(entity *self, move *self_move);

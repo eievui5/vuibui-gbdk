@@ -510,7 +510,8 @@ bool check_collision(u8 x, u8 y) BANKED
  * @param target_x	Target location.
  * @param target_y
 */
-void pathfind(entity *self, u8 target_x, u8 target_y) BANKED {
+void pathfind(entity *self, u8 target_x, u8 target_y) BANKED
+{
 	i8 dist_x = target_x - self->x_pos;
 	i8 dist_y = target_y - self->y_pos;
 	i8 dir = -1;
@@ -576,27 +577,4 @@ void pursue(entity *self, u8 start, u8 stop) BANKED
 		use_melee_move(self, &self->moves[0]);
 	} else
 		pathfind(self, ally->x_pos, ally->y_pos);
-}
-
-// Handle ally and enemy AI
-void do_turn() BANKED
-{
-	for (u8 i = 1; i < NB_ALLIES; i++) {
-		if (i == ignore_ally) {
-			ignore_ally = 0;
-			continue;
-		}
-		if (entities.allies[i].data)
-			pathfind(
-				&entities.allies[i], entities.player.x_pos,
-				entities.player.y_pos
-			);
-	}
-	for (u8 i = 0; i < NB_ENEMIES; i++)
-		if (entities.enemies[i].data)
-			pursue(&entities.enemies[i], 0, 3);
-	move_entities();
-
-	if (!entities.player.data)
-		while(1){wait_vbl_done();};
 }
