@@ -1,3 +1,6 @@
+// Cannot bank this file, It relies too much on formating strings from various
+// sources.
+
 #include <stdio.h>
 #include <string.h>
 
@@ -28,6 +31,7 @@ void use_melee_move(entity *self, move *self_move)
 
 	// Construct attack message
 	char message[MESSAGE_SIZE];
+	// Entity names are stored in RAM during gameplay, so this is safe.
 	sprintf(message, attack_message, self->name, self_move->data->name);
 	vwf_wrap_str(20 * 8, message);
 	print_hud(message);

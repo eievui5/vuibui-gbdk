@@ -105,7 +105,6 @@ extern u8 move_speed;
 
 void move_entities() NONBANKED;
 entity *new_entity(entity_data *data, u8 bank, u8 i, u8 x, u8 y, u16 health) NONBANKED;
-void render_entities() NONBANKED;
 
 void attack_animation(entity *self) BANKED;
 bool check_collision(u8 x, u8 y) BANKED;
@@ -116,6 +115,7 @@ void move_direction(vec8 *vec, u8 dir) BANKED;
 void pathfind(entity *self, u8 target_x, u8 target_y) BANKED;
 bool player_try_step() BANKED;
 void pursue(entity *self, u8 start, u8 stop) BANKED;
+void render_entities() BANKED;
 bool spawn_enemy(entity_data *data, u8 bank, u8 x, u8 y) BANKED;
 bool try_step(entity *self, u8 dir) BANKED;
 void use_melee_move(entity *self, move *self_move);

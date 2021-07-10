@@ -215,10 +215,10 @@ void print_hud(const char *src) BANKED
 	vwf_draw_text(0x01, 0x1D, FONT_TILE, src);
 }
 
+const char clock_string[] = "%u:%s";
+const char minute_string[] = "%u";
 void draw_clock() BANKED
 {
-	const char clock_string[] = "%u:%s";
-	const char minute_string[] = "%u";
 	vwf_activate_font(1);
 	char minute_buffer[3] = {'0'};
 	if (minutes < 10)

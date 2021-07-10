@@ -27,14 +27,36 @@ entity_array entities;
 u8 ignore_ally = 0;
 u8 move_speed = 1;
 
+// Reload an entity's graphics using its frame
+void reload_entity_graphics(entity *self, u8 i) NONBANKED
+{
+	u8 temp_bank = _current_bank;
+	SWITCH_ROM_MBC1(self->bank);
+
+	self->prev_dir = self->direction;
+	self->prev_frame = self->spr_frame;
+	vmemcpy(
+		(void *)(0x8000 + i * (16 * NB_ENTITY_TILES)),
+		16 * NB_SPECIAL_TILES, &self->data->graphics[
+			self->direction * 16 * NB_UNIQUE_TILES
+		]
+	);
+	vmemcpy(
+		(void *)(0x8000 + 16 * NB_SPECIAL_TILES + i * (16 * NB_ENTITY_TILES)),
+		16 * NB_SPECIAL_TILES, &self->data->graphics[
+			self->direction * 16 * NB_UNIQUE_TILES + 64 * self->spr_frame
+		]
+	);
+
+	SWITCH_ROM_MBC1(temp_bank);
+}
+
 /**
- * Renders two 8x16 sprites at each entity's position. The tile is chosen based
- * on the entity's index, allowing each entity to stream its own graphics.
+ * Renders two 8x16 sprites at each entity's position.
 */
-void render_entities() NONBANKED
+void render_entities() BANKED
 {
 	static u8 anim_timer = 0;
-	u8 temp_bank = _current_bank;
 	entity *self = entities.array;
 	for (u8 i = 0; i < NB_ENTITIES; i++, self++) {
 		if (self->data) {
@@ -57,23 +79,8 @@ void render_entities() NONBANKED
 			if (
 				self->direction != self->prev_dir ||
 				self->spr_frame != self->prev_frame
-			) {
-				SWITCH_ROM_MBC1(self->bank);
-				self->prev_dir = self->direction;
-				self->prev_frame = self->spr_frame;
-				vmemcpy(
-					(void *)(0x8000 + i * (16 * NB_ENTITY_TILES)),
-					16 * NB_SPECIAL_TILES, &self->data->graphics[
-						self->direction * 16 * NB_UNIQUE_TILES
-					]
-				);
-				vmemcpy(
-					(void *)(0x8000 + 16 * NB_SPECIAL_TILES + i * (16 * NB_ENTITY_TILES)),
-					16 * NB_SPECIAL_TILES, &self->data->graphics[
-						self->direction * 16 * NB_UNIQUE_TILES + 64 * self->spr_frame
-					]
-				);
-			}
+			)
+				reload_entity_graphics(self, i);
 			const char *metasprite = self->data->metasprites;
 			if (self->spr_frame > IDLE_FRAME)
 				metasprite += 8;
@@ -94,8 +101,6 @@ void render_entities() NONBANKED
 	}
 	anim_timer += move_speed;
 	clean_oam();
-
-	SWITCH_ROM_MBC1(temp_bank);
 }
 
 // Rendering function to move entities sprites towards their grid positions.

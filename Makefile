@@ -90,4 +90,4 @@ $(RESDIR)/%.h.2bpp: $(SRCDIR)/%.h.png
 $(ROM): $(GFXS) $(OBJS)
 	@mkdir -p $(@D)
 	$(LCC) -Wm-yn$(TITLE) $(COMPAT) -Wl-yt$(MBCTYPE) -Wl-yo$(ROMBANKS) -Wl-ya$(RAMBANKS) -o $(ROM) $(OBJS)
-	$(ROMUSAGE) $(BINDIR)/$(ROMNAME).map -g -e:STACK:DEFF:100 -e:SHADOW_OAM:C000:A0
+	$(ROMUSAGE) $(BINDIR)/$(ROMNAME).map -g -e:STACK:DEFF:100 -e:SHADOW_OAM:C000:A0 -e:HEADER:0083:17D
