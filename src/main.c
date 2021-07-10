@@ -21,9 +21,8 @@
 
 void main()
 {
-	if (_cpu == CGB_TYPE) {
+	if (_cpu == CGB_TYPE)
 		cpu_fast();
-	}
 	wait_vbl_done();
 	LCDC_REG = 0;
 	add_VBL(&vblank);
@@ -41,8 +40,8 @@ void main()
 			i, i ? 29 : 28, i ? 35 : 32, 4
 		);
 	}
+	entities.player.health = 65535;
 	strcpy(entities.player.name, "Eievui");
-	strcpy(entities.array[3].name, "Enemy");
 
 	load_mapdata(&debug_mapdata, BANK(debug_mapdata));
 	generate_map();
@@ -57,8 +56,11 @@ void main()
 
 		bool moved = false;
 		static u8 window_bounce = 0;
+		static u8 speedup_delay = 0;
 
-		// Running check.
+		// Waiting and running checks.
+		if (new_keys == J_SELECT)
+			moved = true;
 		if (
 			(cur_keys & J_B) && !(cur_keys & J_A) &&
 			(cur_keys & (J_UP | J_DOWN | J_LEFT | J_RIGHT))

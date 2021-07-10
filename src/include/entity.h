@@ -116,6 +116,6 @@ void pathfind(entity *self, u8 target_x, u8 target_y) BANKED;
 bool player_try_step() BANKED;
 void pursue(entity *self, u8 start, u8 stop) BANKED;
 void render_entities() BANKED;
-bool spawn_enemy(entity_data *data, u8 bank, u8 x, u8 y) BANKED;
+entity *spawn_enemy(entity_data *data, u8 bank) BANKED;
 bool try_step(entity *self, u8 dir) BANKED;
 void use_melee_move(entity *self, move *self_move);

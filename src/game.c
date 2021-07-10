@@ -6,7 +6,10 @@
 #include "include/hud.h"
 #include "include/int.h"
 
+#include "entities/luvui.h"
+
 #define TURNS_PER_MIN 15
+#define MINS_PER_SPAWN 5
 
 extern u8 ignore_ally;
 
@@ -18,6 +21,9 @@ u8 last_keys;
 u8 sub_mins = 0;
 u8 minutes = 59;
 u8 hours = 23;
+
+// Used to keep track of entity spawning. Increments once per game minute.
+u8 spawn_ticker = 0;
 
 // Handle ally and enemy AI
 void do_turn() BANKED
@@ -49,5 +55,10 @@ void do_turn() BANKED
 				hours = 0;
 		}
 		draw_clock();
+
+		if ((u8)(spawn_ticker++ >= MINS_PER_SPAWN)) {
+			spawn_ticker = 0;
+			spawn_enemy(&luvui_entity, BANK(luvui));
+		}
 	}
 }

@@ -344,8 +344,7 @@ entity *new_entity(entity_data *data, u8 bank, u8 i, u8 x, u8 y, u16 health) NON
 }
 
 /**
- * Spawns an entity at a given location, allocating space for it in the entity
- * array.
+ * Attempt to spawn an entity, allocating space for it in the entity array.
  * 
  * @param data		Pointer to the new entity's constant data.
  * @param bank		Bank of the entity's constant data.
@@ -353,15 +352,23 @@ entity *new_entity(entity_data *data, u8 bank, u8 i, u8 x, u8 y, u16 health) NON
  * @param x		Location to place the entity at.
  * @param y		
 */
-//entity spawn_enemy(entity_data *data, u8 bank, u8 x, u8 y) BANKED
-//{
-//	for (u8 i = 0; i < NB_ENEMIES; i++)
-//		if (!entities.enemies[i].data) {
-//			new_entity(data, bank, i, x, y);
-//			return true;
-//		}
-//	return false;
-//}
+entity *spawn_enemy(entity_data *data, u8 bank) BANKED
+{
+	entity *self = entities.enemies;
+	for (u8 i = 3; i < NB_ENTITIES; i++, self++)
+		if (!self->data) {
+			u8 x;
+			u8 y;
+			while(1) {
+				x = rand() & 0b111111;
+				y = rand() & 0b111111;
+				if (!check_collision(x, y))
+					break;
+			}
+			return new_entity(data, bank, i, x, y, 4);
+		}
+	return NULL;
+}
 
 /**
  * Offset a vector (a pointer of course... thanks SDCC...) based on a direction
@@ -469,7 +476,7 @@ bool player_try_step() BANKED
 		}
 	}
 	for (u8 i = 0; i < NB_ENEMIES; i++)
-		if (entities.array[i].x_pos == target_x && entities.array[i].y_pos == target_y)
+		if (entities.enemies[i].x_pos == target_x && entities.enemies[i].y_pos == target_y)
 			return false;
 	skip_enemies:
 	entities.player.x_pos = target_x;
