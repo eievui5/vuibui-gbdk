@@ -107,7 +107,7 @@ void draw_move_window() NONBANKED
 
 	u8 temp_bank = _current_bank;
 
-	move *moves = entities.player.moves;
+	move *moves = PLAYER.moves;
 	if (moves->data) {
 		SWITCH_ROM_MBC1(moves->bank);
 		vwf_draw_text(2, 1, MOVE_TILE, moves->data->name);

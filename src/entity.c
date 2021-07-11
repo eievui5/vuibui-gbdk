@@ -21,7 +21,7 @@
 
 #define DETECTION_RANGE 12
 
-entity_array entities;
+entity entities[NB_ENTITIES];
 // The index of an ally which has been forced to move by the player. This ally
 // loses their turn
 u8 ignore_ally = 0;
@@ -57,7 +57,7 @@ void reload_entity_graphics(entity *self, u8 i) NONBANKED
 void render_entities() BANKED
 {
 	static u8 anim_timer = 0;
-	entity *self = entities.array;
+	entity *self = entities;
 	for (u8 i = 0; i < NB_ENTITIES; i++, self++) {
 		if (self->data) {
 			if (self->spr_frame == HIDE_FRAME)
@@ -109,20 +109,20 @@ void move_entities() NONBANKED
 	while(1) {
 		u8 progress = 0;
 		for (u8 i = 0; i < NB_ENTITIES; i++) {
-			if (entities.array[i].data) {
-				entities.array[i].spr_frame = WALK_FRAME;
-				if (entities.array[i].x_pos * 16 != entities.array[i].x_spr) {
-					if (entities.array[i].x_pos * 16 > entities.array[i].x_spr)
-						entities.array[i].x_spr += move_speed;
+			if (entities[i].data) {
+				entities[i].spr_frame = WALK_FRAME;
+				if (entities[i].x_pos * 16 != entities[i].x_spr) {
+					if (entities[i].x_pos * 16 > entities[i].x_spr)
+						entities[i].x_spr += move_speed;
 					else
-						entities.array[i].x_spr -= move_speed;
-				} else if (entities.array[i].y_pos * 16 != entities.array[i].y_spr) {
-					if (entities.array[i].y_pos * 16 > entities.array[i].y_spr)
-						entities.array[i].y_spr += move_speed;
+						entities[i].x_spr -= move_speed;
+				} else if (entities[i].y_pos * 16 != entities[i].y_spr) {
+					if (entities[i].y_pos * 16 > entities[i].y_spr)
+						entities[i].y_spr += move_speed;
 					else
-						entities.array[i].y_spr -= move_speed;
+						entities[i].y_spr -= move_speed;
 				} else {
-					entities.array[i].spr_frame = IDLE_FRAME;
+					entities[i].spr_frame = IDLE_FRAME;
 					progress++;
 				}
 			} else
@@ -130,8 +130,8 @@ void move_entities() NONBANKED
 		}
 
 		update_camera(
-			entities.player.x_spr - 68,
-			entities.player.y_spr - 64 + VCAM_OFF
+			PLAYER.x_spr - 68,
+			PLAYER.y_spr - 64 + VCAM_OFF
 		);
 
 		if (progress == NB_ENTITIES) {
@@ -297,17 +297,17 @@ void defeat_animation(entity *self) BANKED
 */
 entity *new_entity(entity_data *data, u8 bank, u8 i, u8 x, u8 y, u16 health) NONBANKED
 {
-	entity *self = &entities.array[i];
+	entity *self = &entities[i];
 	memset(self, 0, sizeof(entity));
-	if (entities.player.data) {
-		if (abs(entities.player.x_pos - x) > abs(entities.player.y_pos - y)) {
-			if (entities.player.x_pos - x > 0) {
+	if (PLAYER.data) {
+		if (abs(PLAYER.x_pos - x) > abs(PLAYER.y_pos - y)) {
+			if (PLAYER.x_pos - x > 0) {
 				self->direction = DIR_RIGHT;
 			} else {
 				self->direction = DIR_LEFT;
 			}
 		} else {
-			if (entities.player.y_pos - y > 0) {
+			if (PLAYER.y_pos - y > 0) {
 				self->direction = DIR_DOWN;
 			}
 			else {
@@ -335,10 +335,10 @@ entity *new_entity(entity_data *data, u8 bank, u8 i, u8 x, u8 y, u16 health) NON
 	vmemcpy(
 		(void *)(0x8000 + i * (16 * NB_ENTITY_TILES)),
 		NB_ENTITY_TILES * 16,
-		entities.array[i].data->graphics
+		entities[i].data->graphics
 	);
 	if (_cpu == CGB_TYPE)
-		set_sprite_palette(i, 1, entities.array[i].data->colors);
+		set_sprite_palette(i, 1, entities[i].data->colors);
 	SWITCH_ROM_MBC1(temp_bank);
 	return self;
 }
@@ -354,7 +354,7 @@ entity *new_entity(entity_data *data, u8 bank, u8 i, u8 x, u8 y, u16 health) NON
 */
 entity *spawn_enemy(entity_data *data, u8 bank) BANKED
 {
-	entity *self = entities.enemies;
+	entity *self = &entities[3];
 	for (u8 i = 3; i < NB_ENTITIES; i++, self++)
 		if (!self->data) {
 			u8 x;
@@ -446,9 +446,9 @@ bool try_step(entity *self, u8 dir) BANKED
 */
 bool player_try_step() BANKED
 {
-	u8 target_x = entities.player.x_pos;
-	u8 target_y = entities.player.y_pos;
-	switch (entities.player.direction) {
+	u8 target_x = PLAYER.x_pos;
+	u8 target_y = PLAYER.y_pos;
+	switch (PLAYER.direction) {
 	case DIR_UP:
 		target_y--;
 		break;
@@ -465,22 +465,22 @@ bool player_try_step() BANKED
 	if (get_collision(target_x, target_y))
 		return false;
 	for (u8 i = 1; i < NB_ALLIES; i++) {
-		if (!entities.allies[i].data)
+		if (!entities[i].data)
 			continue;
-		if (entities.allies[i].x_pos == target_x && entities.allies[i].y_pos == target_y) {
-			entities.allies[i].x_pos = entities.player.x_pos;
-			entities.allies[i].y_pos = entities.player.y_pos;
-			entities.allies[i].direction = FLIP(entities.player.direction);
+		if (entities[i].x_pos == target_x && entities[i].y_pos == target_y) {
+			entities[i].x_pos = PLAYER.x_pos;
+			entities[i].y_pos = PLAYER.y_pos;
+			entities[i].direction = FLIP(PLAYER.direction);
 			ignore_ally = i;
 			goto skip_enemies;
 		}
 	}
-	for (u8 i = 0; i < NB_ENEMIES; i++)
-		if (entities.enemies[i].x_pos == target_x && entities.enemies[i].y_pos == target_y)
+	for (u8 i = BEGIN_ENEMIES; i < NB_ENTITIES; i++)
+		if (entities[i].x_pos == target_x && entities[i].y_pos == target_y)
 			return false;
 	skip_enemies:
-	entities.player.x_pos = target_x;
-	entities.player.y_pos = target_y;
+	PLAYER.x_pos = target_x;
+	PLAYER.y_pos = target_y;
 	return true;
 }
 
@@ -495,10 +495,10 @@ bool player_try_step() BANKED
 entity *check_entity_at(u8 x, u8 y) BANKED
 {
 	for (u8 i = 0; i < NB_ENTITIES; i++) {
-		if (!entities.array[i].data)
+		if (!entities[i].data)
 			continue;
-		if (entities.array[i].x_pos == x && entities.array[i].y_pos == y)
-			return &entities.array[i];
+		if (entities[i].x_pos == x && entities[i].y_pos == y)
+			return &entities[i];
 	}
 	return NULL;
 }
@@ -568,7 +568,7 @@ void pathfind(entity *self, u8 target_x, u8 target_y) BANKED
 */
 void pursue(entity *self, u8 start, u8 stop) BANKED
 {
-	entity *ally = &entities.array[start];
+	entity *ally = &entities[start];
 	i8 closest = -1;
 	u16 dist = 65535;
 	for (u8 i = start; i < stop; i++, ally++) {
@@ -581,7 +581,7 @@ void pursue(entity *self, u8 start, u8 stop) BANKED
 			closest = i;
 		}
 	}
-	ally = &entities.array[closest];
+	ally = &entities[closest];
 	if (dist == 1) {
 		self->direction = get_direction(
 			ally->x_pos - self->x_pos, ally->y_pos - self->y_pos

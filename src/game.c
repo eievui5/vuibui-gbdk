@@ -33,18 +33,18 @@ void do_turn() BANKED
 			ignore_ally = 0;
 			continue;
 		}
-		if (entities.allies[i].data)
+		if (entities[i].data)
 			pathfind(
-				&entities.allies[i], entities.player.x_pos,
-				entities.player.y_pos
+				&entities[i], PLAYER.x_pos,
+				PLAYER.y_pos
 			);
 	}
-	for (u8 i = 0; i < NB_ENEMIES; i++)
-		if (entities.enemies[i].data)
-			pursue(&entities.enemies[i], 0, 3);
+	for (u8 i = BEGIN_ENEMIES; i < NB_ENTITIES; i++)
+		if (entities[i].data)
+			pursue(&entities[i], 0, 3);
 	move_entities();
 
-	if (!entities.player.data)
+	if (!PLAYER.data)
 		while(1){wait_vbl_done();};
 
 	if (++sub_mins >= TURNS_PER_MIN) {

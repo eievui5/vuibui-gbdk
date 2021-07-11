@@ -8,6 +8,7 @@
 #include "include/vec.h"
 
 #define NB_ALLIES 3
+#define BEGIN_ENEMIES 3
 #define NB_ENEMIES 5
 #define NB_ENTITIES 8
 
@@ -20,6 +21,8 @@
 
 // 12 letters plus a 0 terminator.
 #define ENTITY_NAME_LEN 12 + 1
+
+#define PLAYER entities[0]
 
 enum special_frames {
 	IDLE_FRAME = 0,
@@ -80,27 +83,7 @@ typedef struct {
 	move moves[4];
 } entity;
 
-/**
- * Used to organize the entity array into players, allies, and enemies.
- * 
- * @param player	The player entity.
- * @param allies	The player's team, including the player entity.
- * @param enemies	The enemy entities, placed after the allies.
- * @param array		The entire entity array, including both allies and 
- * enemies.
-*/
-typedef union {
-	struct {
-		union {
-			entity player;
-			entity allies[NB_ALLIES];
-		};
-		entity enemies[NB_ENEMIES];
-	};
-	entity array[NB_ENTITIES];
-} entity_array;
-
-extern entity_array entities;
+extern entity entities[NB_ENTITIES];
 extern u8 move_speed;
 
 void move_entities() NONBANKED;

@@ -33,15 +33,10 @@ void main()
 	OBP1_REG = 0b11100100;
 	init_hud();
 	initrand(7894);
-	memset(&entities, 0, sizeof(entity) * NB_ENTITIES);
-	for (u8 i = 0; i < 1; i += 3) {
-		new_entity(
-			&luvui_entity, BANK(luvui),
-			i, i ? 29 : 28, i ? 35 : 32, 4
-		);
-	}
-	entities.player.health = 65535;
-	strcpy(entities.player.name, "Eievui");
+	memset(entities, 0, sizeof(entity) * NB_ENTITIES);
+	new_entity(&luvui_entity, BANK(luvui), 0, 32, 32, 4);
+	PLAYER.health = 65535;
+	strcpy(PLAYER.name, "Eievui");
 
 	load_mapdata(&debug_mapdata, BANK(debug_mapdata));
 	generate_map();
@@ -86,14 +81,14 @@ void main()
 					window_bounce = 2;
 			}
 			if (new_keys & J_UP)
-				entities.player.direction = DIR_UP;
+				PLAYER.direction = DIR_UP;
 			else if (new_keys & J_RIGHT)
-				entities.player.direction = DIR_RIGHT;
+				PLAYER.direction = DIR_RIGHT;
 			else if (new_keys & J_DOWN)
-				entities.player.direction = DIR_DOWN;
+				PLAYER.direction = DIR_DOWN;
 			else if (new_keys & J_LEFT)
-				entities.player.direction = DIR_LEFT;
-			vset(0x9C42, 0x8A + entities.player.direction);
+				PLAYER.direction = DIR_LEFT;
+			vset(0x9C42, 0x8A + PLAYER.direction);
 
 		// Attack check.
 		} else if (cur_keys & J_A) {
@@ -121,15 +116,15 @@ void main()
 				selected = 2;
 			else if (new_keys & J_LEFT) {
 				selected = 3;
-				entities.player.moves[0].data = &lunge_move;
+				PLAYER.moves[0].data = &lunge_move;
 			}
 			if (selected != 255)
-				if (entities.player.moves[selected].data) {
+				if (PLAYER.moves[selected].data) {
 					win_pos.x = 168;
 					window_bounce = 0;
 					use_melee_move(
-						&entities.player,
-						&entities.player.moves[selected]
+						&PLAYER,
+						&PLAYER.moves[selected]
 					);
 					moved = true;
 				}
@@ -143,19 +138,19 @@ void main()
 				window_bounce = 0;
 			}
 			if (cur_keys & J_DOWN) {
-				entities.player.direction = DIR_DOWN;
+				PLAYER.direction = DIR_DOWN;
 				moved = player_try_step();
 			}
 			else if (cur_keys & J_UP) {
-				entities.player.direction = DIR_UP;
+				PLAYER.direction = DIR_UP;
 				moved = player_try_step();
 			}
 			else if (cur_keys & J_RIGHT) {
-				entities.player.direction = DIR_RIGHT;
+				PLAYER.direction = DIR_RIGHT;
 				moved = player_try_step();
 			}
 			else if (cur_keys & J_LEFT) {
-				entities.player.direction = DIR_LEFT;
+				PLAYER.direction = DIR_LEFT;
 				moved = player_try_step();
 			}
 		}
