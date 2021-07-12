@@ -10,12 +10,14 @@
 #include "include/hardware.h"
 #include "include/hud.h"
 #include "include/int.h"
+#include "include/item.h"
 #include "include/map.h"
 #include "include/rendering.h"
 #include "include/vec.h"
 #include "libs/vwf.h"
 
 #include "entities/luvui.h"
+#include "items/apple.h"
 #include "mapdata/debug_mapdata.h"
 #include "moves/lunge.h"
 
@@ -33,13 +35,23 @@ void main()
 	OBP1_REG = 0b11100100;
 	init_hud();
 	initrand(7894);
-	memset(entities, 0, sizeof(entity) * NB_ENTITIES);
+	memset(entities, 0, sizeof(entities));
+	memset(world_items, 0, sizeof(world_items));
 	new_entity(&luvui_entity, BANK(luvui), 0, 32, 32, 4);
 	PLAYER.health = 65535;
 	strcpy(PLAYER.name, "Eievui");
 
 	load_mapdata(&debug_mapdata, BANK(debug_mapdata));
 	generate_map();
+	for (u8 i = 0; i < NB_WORLD_ITEMS; i++) {
+		world_items[i].data = &apple_item;
+		world_items[i].bank = BANK(apple);
+		world_items[i].x = 30 + i;
+		world_items[i].y = 30;
+		world_items[i].palette = 6;
+		vmemcpy((void *)(0x9700 + i * 64), 64, world_items[i].data->graphic);
+	}
+	print_hud("Hello?");
 	move_entities();
 	force_render_map();
 

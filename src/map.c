@@ -5,16 +5,62 @@
 #include <rand.h>
 #include <stdbool.h>
 #include <string.h>
+#include <stdio.h>
 
 #include "include/dir.h"
 #include "include/int.h"
+#include "include/hud.h"
+#include "include/item.h"
 #include "include/map.h"
+#include "include/rendering.h"
 #include "include/vec.h"
 
 u8 map[64][64];
 uvec16 camera = {0, 0};
 u8 current_mapdata_bank;
 mapdata *current_mapdata;
+
+void draw_tile(u8 x, u8 y) NONBANKED
+{
+	u16 tile_ptr = 0x9800 + (x & 0b11111) + ((y & 0b11111) << 5);
+	vset(
+		tile_ptr,
+		current_mapdata->metatiles[
+			map[y >> 1][x >> 1]
+		].tiles[(x & 1) + (y & 1) * 2]
+	);
+	if (_cpu == CGB_TYPE) {
+		VBK_REG = 1;
+		vset(
+			tile_ptr,
+			current_mapdata->metatiles[
+				map[y >> 1][x >> 1]
+			].attrs[(x & 1) + (y & 1) * 2]
+		);
+		VBK_REG = 0;
+	}
+}
+
+void render_item(u8 i) NONBANKED
+{
+	const item_data *self = world_items[i].data;
+	u16 tile_ptr = 0x9800 + ((world_items[i].x * 2) & 0b11111) + (world_items[i].y * 2 & 0b11111) * 32;
+	u8 tile_id = 0x70 + i * 4;
+	vset(tile_ptr, tile_id++);
+	vset(tile_ptr + 1, tile_id++);
+	vset(tile_ptr + 32, tile_id++);
+	vset(tile_ptr + 33, tile_id++);
+	if (_cpu == CGB_TYPE) {
+		VBK_REG = 1;
+		u8 tile_attr = world_items[i].palette;
+		tile_ptr;
+		vset(tile_ptr, tile_attr);
+		vset(tile_ptr + 1, tile_attr);
+		vset(tile_ptr + 32, tile_attr);
+		vset(tile_ptr + 33, tile_attr);
+		VBK_REG = 0;
+	}
+}
 
 void update_camera(u16 x, u16 y) NONBANKED
 {
@@ -46,25 +92,19 @@ void update_camera(u16 x, u16 y) NONBANKED
 		if (ptrx > 127)
 			ptrx = 127;
 		u8 ptry = cur_tile_y < 113 ? cur_tile_y : 113;
-		for (u8 i = 0; i < 15; i++) {
-			set_vram_byte(
-				(void *)(0x9800 + ptrx % 32 + (ptry % 32) * 32),
-				current_mapdata->metatiles[
-					map[ptry >> 1][ptrx >> 1]
-				].tiles[(ptrx & 1) + (ptry & 1) * 2]
-			);
-			if (_cpu == CGB_TYPE) {
-				VBK_REG = 1;
-				set_vram_byte(
-					(void *)(0x9800 + ptrx % 32 + (ptry % 32) * 32),
-					current_mapdata->metatiles[
-						map[ptry >> 1][ptrx >> 1]
-					].attrs[(ptrx & 1) + (ptry & 1) * 2]
-				);
-				VBK_REG = 0;
-			}
+		u8 i = 0;
+		for (; i < 15; i++) {
+			draw_tile(ptrx, ptry);
 			ptry++;
 		}
+		for (i = 0; i < NB_WORLD_ITEMS; i++)
+			if (world_items[i].data)
+				if (
+					world_items[i].x == ptrx / 2 &&
+					world_items[i].y < ptry / 2 &&
+					world_items[i].y > (ptry - 17) / 2
+				)
+					render_item(i);
 		SWITCH_ROM_MBC1(tmpb);
 	}
 	if (cur_tile_y != last_tile_y) {
@@ -75,25 +115,19 @@ void update_camera(u16 x, u16 y) NONBANKED
 		u8 ptry = cur_tile_y + (camera.y > last_camera_y ? 14 : 0);
 		if (ptry > 127)
 			ptry = 127;
-		for (u8 i = 0; i < 21; i++) {
-			set_vram_byte(
-				(void *)(0x9800 + ptrx % 32 + (ptry % 32) * 32),
-				current_mapdata->metatiles[
-					map[ptry >> 1][ptrx >> 1]
-				].tiles[(ptrx & 1) + (ptry & 1) * 2]
-			);
-			if (_cpu == CGB_TYPE) {
-				VBK_REG = 1;
-				set_vram_byte(
-					(void *)(0x9800 + ptrx % 32 + (ptry % 32) * 32),
-					current_mapdata->metatiles[
-						map[ptry >> 1][ptrx >> 1]
-					].attrs[(ptrx & 1) + (ptry & 1) * 2]
-				);
-				VBK_REG = 0;
-			}
+		u8 i = 0;
+		for (; i < 21; i++) {
+			draw_tile(ptrx, ptry);
 			ptrx++;
 		}
+		for (i = 0; i < NB_WORLD_ITEMS; i++)
+			if (world_items[i].data)
+				if (
+					world_items[i].y == ptry / 2 &&
+					world_items[i].x < ptrx / 2 &&
+					world_items[i].x > (ptrx - 23) / 2
+				)
+					render_item(i);
 		SWITCH_ROM_MBC1(tmpb);
 	}
 	last_tile_x = cur_tile_x;
@@ -123,7 +157,7 @@ void load_mapdata(mapdata *data, u8 bank) NONBANKED
 	current_mapdata = data;
 	set_bkg_data(0, 128, data->tileset);
 	if (_cpu == CGB_TYPE)
-		set_bkg_palette(0, 4, current_mapdata->colors);
+		set_bkg_palette(0, 7, current_mapdata->colors);
 
 	SWITCH_ROM_MBC1(tmpb);
 }
@@ -137,22 +171,14 @@ void force_render_map() NONBANKED
 	for (u8 i = 0; i < 21; i++) {
 		u8 y = camera.y >> 3;
 		for (u8 j = 0; j < 19; j++) {
-			set_vram_byte(
-				(void *)(0x9800 + x % 32 + (y % 32) * 32),
-				current_mapdata->metatiles[
-					map[y >> 1][x >> 1]
-				].tiles[(x & 1) + (y & 1) * 2]
-			);
-			if (_cpu == CGB_TYPE) {
-				VBK_REG = 1;
-				set_vram_byte(
-					(void *)(0x9800 + x % 32 + (y % 32) * 32),
-					current_mapdata->metatiles[
-						map[y >> 1][x >> 1]
-					].attrs[(x & 1) + (y & 1) * 2]
-				);
-				VBK_REG = 0;
-			}
+			draw_tile(x, y);
+			for (u8 j = 0; j < NB_WORLD_ITEMS; j++)
+				if (world_items[j].data)
+					if (
+						world_items[j].x == x / 2 &&
+						world_items[j].y == y / 2
+					)
+						render_item(j);
 			y++;
 		}
 		x++;

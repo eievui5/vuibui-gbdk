@@ -24,7 +24,7 @@ INCBIN_EXTERN(arrow_tiles)
 
 #define HUD_TILE (0x80u)
 #define ARROW_TILE (0x8Au)
-#define FONT_TILE (0x9Eu)
+#define FONT_TILE (0x8Fu)
 #define CLOCK_TILE (FONT_TILE + MESSAGE_SIZE)
 #define MOVE_TILE (CLOCK_TILE + 3u)
 

@@ -55,5 +55,10 @@ const char debug_wall_palette[] = {1, 2, 3, 4};
 
 const short debug_colors[] = {
 	RGB(0x0A, 0x18, 0x0C), RGB(0x10, 0x0B, 0x07), RGB(0x00, 0x0B, 0x03), RGB(0x00, 0x04, 0x00),
-	RGB(0x0A, 0x18, 0x0C), RGB(0x00, 0x0F, 0x00)
+	RGB(0x0A, 0x18, 0x0C), RGB(0x00, 0x0F, 0x00), RGB_BLACK, RGB_BLACK,
+	RGB_BLACK, RGB_BLACK, RGB_BLACK, RGB_BLACK,
+	RGB_BLACK, RGB_BLACK, RGB_BLACK, RGB_BLACK,
+	RGB_BLACK, RGB_BLACK, RGB_BLACK, RGB_BLACK,
+	RGB_BLACK, RGB_BLACK, RGB_BLACK, RGB_BLACK,
+	RGB(0x0A, 0x18, 0x0C), RGB(31, 0, 0), RGB(16, 0, 0), RGB(8, 0, 0)
 };
