@@ -24,3 +24,5 @@ typedef struct {
 } world_item;
 
 extern world_item world_items[NB_WORLD_ITEMS];
+
+void pickup_item(u8 i);

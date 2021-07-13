@@ -51,7 +51,6 @@ void main()
 		world_items[i].palette = 6;
 		vmemcpy((void *)(0x9700 + i * 64), 64, world_items[i].data->graphic);
 	}
-	print_hud("Hello?");
 	move_entities();
 	force_render_map();
 

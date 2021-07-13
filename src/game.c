@@ -5,6 +5,7 @@
 #include "include/entity.h"
 #include "include/hud.h"
 #include "include/int.h"
+#include "include/item.h"
 
 #include "entities/luvui.h"
 
@@ -46,6 +47,14 @@ void do_turn() BANKED
 
 	if (!PLAYER.data)
 		while(1){wait_vbl_done();};
+
+	for (u8 i = 0; i < NB_WORLD_ITEMS; i++)
+		if (world_items[i].data)
+			if (
+				PLAYER.x_pos == world_items[i].x && 
+				PLAYER.y_pos == world_items[i].y
+			)
+				pickup_item(i);
 
 	if (++sub_mins >= TURNS_PER_MIN) {
 		sub_mins = 0;
