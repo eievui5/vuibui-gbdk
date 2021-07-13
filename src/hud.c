@@ -207,10 +207,15 @@ void show_game() NONBANKED
 	add_LCD(&show_text);
 }
 
-void print_hud(const char *src) BANKED
+void clear_print_hud() BANKED
 {
 	for (u8 i = 0; i < 3; i++)
 		vmemset((void *)(0x9FA1 + i * 32), FONT_TILE - 1u, MESSAGE_SIZE / 3);
+}
+
+void print_hud(const char *src) BANKED
+{
+	clear_print_hud();
 	vwf_activate_font(0);
 	vwf_draw_text(0x01, 0x1D, FONT_TILE, src);
 }

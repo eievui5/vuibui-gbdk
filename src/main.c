@@ -19,6 +19,7 @@
 #include "entities/luvui.h"
 #include "items/apple.h"
 #include "mapdata/debug_mapdata.h"
+#include "menus/pause.h"
 #include "moves/lunge.h"
 
 void main()
@@ -65,6 +66,11 @@ void main()
 		bool moved = false;
 		static u8 window_bounce = 0;
 		static u8 speedup_delay = 0;
+
+		if (new_keys == J_START && cur_keys == J_START) {
+			pause_menu();
+			continue;
+		}
 
 		// Waiting and running checks.
 		if (new_keys == J_SELECT)

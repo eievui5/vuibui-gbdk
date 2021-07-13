@@ -13,6 +13,7 @@ typedef struct {
 	unsigned char gradient_start[3];
 } ui_pal;
 
+void clear_print_hud() BANKED;
 void init_hud() BANKED;
 void draw_clock() BANKED;
 void draw_move_window() NONBANKED;
