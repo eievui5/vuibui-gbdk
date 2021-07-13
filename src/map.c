@@ -43,6 +43,9 @@ void draw_tile(u8 x, u8 y) NONBANKED
 
 void render_item(u8 i) NONBANKED
 {
+	u8 temp_bank = _current_bank;
+	SWITCH_ROM_MBC1(world_items[i].bank);
+
 	const item_data *self = world_items[i].data;
 	u16 tile_ptr = 0x9800 + ((world_items[i].x * 2) & 0b11111) + (world_items[i].y * 2 & 0b11111) * 32;
 	u8 tile_id = 0x70 + i * 4;
@@ -60,6 +63,8 @@ void render_item(u8 i) NONBANKED
 		vset(tile_ptr + 33, tile_attr);
 		VBK_REG = 0;
 	}
+
+	SWITCH_ROM_MBC1(temp_bank);
 }
 
 void update_camera(u16 x, u16 y) NONBANKED

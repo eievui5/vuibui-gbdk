@@ -3,6 +3,7 @@
 #include "include/int.h"
 
 #define NB_WORLD_ITEMS 4
+#define INVENTORY_SIZE 2
 
 typedef struct {
 	const char *name;
@@ -24,5 +25,6 @@ typedef struct {
 } world_item;
 
 extern world_item world_items[NB_WORLD_ITEMS];
+extern item inventory[INVENTORY_SIZE];
 
 void pickup_item(u8 i);

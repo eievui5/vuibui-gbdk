@@ -37,6 +37,7 @@ void main()
 	initrand(7894);
 	memset(entities, 0, sizeof(entities));
 	memset(world_items, 0, sizeof(world_items));
+	memset(inventory, 0, sizeof(inventory));
 	new_entity(&luvui_entity, BANK(luvui), 0, 32, 32, 4);
 	PLAYER.health = 65535;
 	strcpy(PLAYER.name, "Eievui");
@@ -49,6 +50,7 @@ void main()
 		world_items[i].x = 30 + i;
 		world_items[i].y = 30;
 		world_items[i].palette = 6;
+		SWITCH_ROM_MBC1(BANK(apple));
 		vmemcpy((void *)(0x9700 + i * 64), 64, world_items[i].data->graphic);
 	}
 	move_entities();
