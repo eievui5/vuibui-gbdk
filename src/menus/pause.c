@@ -6,6 +6,7 @@
 #include "include/entity.h"
 #include "include/hud.h"
 #include "include/game.h"
+#include "include/hardware.h"
 #include "include/int.h"
 #include "include/item.h"
 #include "include/map.h"
@@ -75,8 +76,8 @@ u8 pause_menu() BANKED
 	shadow_OAM[1].x = 20;
 	shadow_OAM[0].tile = CURSOR_TILE;
 	shadow_OAM[1].tile = CURSOR_TILE + 2;
-	shadow_OAM[0].prop = 0;
-	shadow_OAM[1].prop = 0;
+	shadow_OAM[0].prop = OAM_DMG_PAL1;
+	shadow_OAM[1].prop = OAM_DMG_PAL1;
 	while(1) {
 		update_input();
 		if (new_keys == J_START) {
