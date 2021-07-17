@@ -28,8 +28,9 @@ u8 ignore_ally = 0;
 u8 move_speed = 1;
 
 // Reload an entity's graphics using its frame
-void reload_entity_graphics(entity *self, u8 i) NONBANKED
+void reload_entity_graphics(u8 i) NONBANKED
 {
+	entity *self = &entities[i];
 	u8 temp_bank = _current_bank;
 	SWITCH_ROM_MBC1(self->bank);
 
@@ -80,7 +81,7 @@ void render_entities() BANKED
 				self->direction != self->prev_dir ||
 				self->spr_frame != self->prev_frame
 			)
-				reload_entity_graphics(self, i);
+				reload_entity_graphics(i);
 			const char *metasprite = self->data->metasprites;
 			if (self->spr_frame > IDLE_FRAME)
 				metasprite += 8;

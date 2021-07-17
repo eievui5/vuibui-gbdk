@@ -58,6 +58,8 @@ const ui_pal default_ui_pink = {
 };
 
 ui_pal current_ui_pal;
+u8 status_position = 8;
+u8 text_position = 32;
 
 void init_hud() BANKED
 {
@@ -143,7 +145,7 @@ void show_hud() NONBANKED
 	WAIT_VRAM;
 	LCDC_REG = LCDC_ENABLE | LCDC_BG_ENABLE | LCDC_OBJ_16 | LCDC_BG_SCRN1;
 	SCX_REG = 0;
-	SCY_REG = 216;
+	SCY_REG = 216 + (8 - status_position);
 
 	if (_cpu == CGB_TYPE) {
 		BCPS_REG = 7 * 8 | 0x80;
@@ -152,7 +154,7 @@ void show_hud() NONBANKED
 	}
 
 	// remove_LCD(&show_hud); // show_hud uses VBlank, not STAT.
-	LYC_REG = 7;
+	LYC_REG = status_position - 1;
 	add_LCD(&show_game);
 }
 
@@ -186,12 +188,12 @@ void show_text() NONBANKED
 	// Disable objects and swap to map 2.
 	LCDC_REG = LCDC_ENABLE | LCDC_BG_ENABLE | LCDC_OBJ_16 | LCDC_BG_SCRN1;
 	SCX_REG = 0;
-	SCY_REG = 112;
+	SCY_REG = 112 - (32 - text_position);
 
 	remove_LCD(&show_text);
 	if (_cpu == CGB_TYPE) {
 		add_LCD(&hi_color);
-		LYC_REG = SCREENHEIGHT - 31;
+		LYC_REG += 2;
 	}
 }
 
@@ -203,7 +205,7 @@ void show_game() NONBANKED
 	SCY_REG = camera.y;
 	
 	remove_LCD(&show_game);
-	LYC_REG = SCREENHEIGHT - 33;
+	LYC_REG = SCREENHEIGHT - 1 - text_position;
 	add_LCD(&show_text);
 }
 

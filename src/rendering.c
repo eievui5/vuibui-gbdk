@@ -10,11 +10,19 @@
 
 u8 lcdc_buffer;
 u8 oam_index = 0;
-uvec8 win_pos = {160, 144 - 72};
+uvec8 win_pos = {160, 72};
+u8 fx_mode = NO_UI;
 
 void vblank() NONBANKED
 {
-	show_hud();
+	switch(fx_mode) {
+	case NO_UI:
+		LCDC_REG = lcdc_buffer;
+		break;
+	case GAME_UI:
+		show_hud();
+		break;
+	}
 	WX_REG = win_pos.x;
 	WY_REG = win_pos.y;
 }

@@ -42,12 +42,13 @@ typedef struct {
 // Y, X order.
 extern u8 map[64][64];
 extern uvec16 camera;
+extern const mapdata *current_mapdata;
 extern u8 current_mapdata_bank;
 
 void draw_tile(u8 x, u8 y) NONBANKED;
 void update_camera(u16 x, u16 y) NONBANKED;
 u8 get_collision(u16 x, u16 y) NONBANKED;
 void force_render_map() NONBANKED;
-void load_mapdata(mapdata *data, u8 bank) NONBANKED;
+void reload_mapdata() NONBANKED;
 
 void generate_map() BANKED;

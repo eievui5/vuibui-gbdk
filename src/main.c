@@ -28,6 +28,7 @@ void main()
 		cpu_fast();
 	wait_vbl_done();
 	LCDC_REG = 0;
+	fx_mode = GAME_UI;
 	add_VBL(&vblank);
 	set_interrupts(VBL_IFLAG | LCD_IFLAG);
 	STAT_REG = STAT_LYC;
@@ -43,7 +44,9 @@ void main()
 	PLAYER.health = 65535;
 	strcpy(PLAYER.name, "Eievui");
 
-	load_mapdata(&debug_mapdata, BANK(debug_mapdata));
+	current_mapdata = &debug_mapdata;
+	current_mapdata_bank = BANK(debug_mapdata);
+	reload_mapdata();
 	generate_map();
 	for (u8 i = 0; i < NB_WORLD_ITEMS; i++) {
 		world_items[i].data = &apple_item;
@@ -51,9 +54,8 @@ void main()
 		world_items[i].x = 30 + i;
 		world_items[i].y = 30;
 		world_items[i].palette = 6;
-		SWITCH_ROM_MBC1(BANK(apple));
-		vmemcpy((void *)(0x9700 + i * 64), 64, world_items[i].data->graphic);
 	}
+	load_item_graphics();
 	move_entities();
 	force_render_map();
 

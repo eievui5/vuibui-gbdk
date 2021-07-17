@@ -102,3 +102,4 @@ void render_entities() BANKED;
 entity *spawn_enemy(entity_data *data, u8 bank) BANKED;
 bool try_step(entity *self, u8 dir) BANKED;
 void use_melee_move(entity *self, move *self_move);
+void reload_entity_graphics(u8 i) NONBANKED;

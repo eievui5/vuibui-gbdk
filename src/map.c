@@ -18,7 +18,7 @@
 u8 map[64][64];
 uvec16 camera = {0, 0};
 u8 current_mapdata_bank;
-mapdata *current_mapdata;
+const mapdata *current_mapdata;
 
 void draw_tile(u8 x, u8 y) NONBANKED
 {
@@ -153,14 +153,12 @@ u8 get_collision(u16 x, u16 y) NONBANKED
 	return rtrn;
 }
 
-void load_mapdata(mapdata *data, u8 bank) NONBANKED
+void reload_mapdata() NONBANKED
 {
 	u8 tmpb = _current_bank;
-	current_mapdata_bank = bank;
-	SWITCH_ROM_MBC1(bank);
+	SWITCH_ROM_MBC1(current_mapdata_bank);
 
-	current_mapdata = data;
-	set_bkg_data(0, 128, data->tileset);
+	set_bkg_data(0, 128, current_mapdata->tileset);
 	if (_cpu == CGB_TYPE)
 		set_bkg_palette(0, 7, current_mapdata->colors);
 

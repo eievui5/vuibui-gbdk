@@ -2,6 +2,8 @@
 
 #include <gb/incbin.h>
 
+#include "include/int.h"
+
 #define MESSAGE_SIZE 60u
 
 INCBIN_EXTERN(hud_tiles)
@@ -12,6 +14,10 @@ typedef struct {
 	short colors[4];
 	unsigned char gradient_start[3];
 } ui_pal;
+
+extern ui_pal current_ui_pal;
+extern u8 status_position;
+extern u8 text_position;
 
 void clear_print_hud() BANKED;
 void init_hud() BANKED;

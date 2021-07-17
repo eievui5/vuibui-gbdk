@@ -28,3 +28,4 @@ extern world_item world_items[NB_WORLD_ITEMS];
 extern item inventory[INVENTORY_SIZE];
 
 void pickup_item(u8 i);
+void load_item_graphics();

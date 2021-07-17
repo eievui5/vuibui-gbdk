@@ -9,7 +9,7 @@
 #                                              #
 ################################################
 
-LCC	= lcc -Wa-l -Wa--vc -Wl-m -Isrc -Wb-ext=.rel -autobank -debug
+LCC	= lcc -Wa-l -Wa--vc -Wl-m -Isrc -Wb-ext=.rel -autobank
 
 ifeq ($(OS),Windows_NT)
 	ROMUSAGE := ./tools/romusage.exe
@@ -50,12 +50,15 @@ rebuild:
 	$(MAKE) clean
 	$(MAKE) all
 
+map: $(MAPS)
+
 ###############################################
 #                                             #
 #                 COMPILATION                 #
 #                                             #
 ###############################################
 
+# Compile source code.
 $(OBJDIR)/%.o: $(SRCDIR)/%.c
 	@mkdir -p $(@D)
 	$(LCC) -c -o $@ $<
@@ -77,17 +80,22 @@ $(RESDIR)/%.1bpp.2bpp: $(SRCDIR)/%.1bpp.png
 	@mkdir -p $(@D)
 	$(SUPERFAMICONV) tiles -i $< -d $@ -M gbc -R -D -F -B 1
 
-# Convert .png files to .2bpp graphics.
 $(RESDIR)/%.2bpp: $(SRCDIR)/%.png
 	@mkdir -p $(@D)
 	$(SUPERFAMICONV) tiles -i $< -d $@ -M gbc -R -D -F
 
-# Convert .png files to .2bpp graphics.
 $(RESDIR)/%.h.2bpp: $(SRCDIR)/%.h.png
 	@mkdir -p $(@D)
 	$(SUPERFAMICONV) tiles -i $< -d $@ -M gbc -H 16 -R -D -F
 
-$(ROM): $(GFXS) $(OBJS)
+# Convert .png files to tilemaps.
+$(RESDIR)/%.map: $(SRCDIR)/%.1bpp.png
+	$(SUPERFAMICONV) -i $< -t $(patsubst %.map, %.2bpp, $@) -m $@ -R -M gb -B 1
+
+$(RESDIR)/%.map: $(SRCDIR)/%.png
+	$(SUPERFAMICONV) -i $< -t $(patsubst %.map, %.2bpp, $@) -m $@ -M gb
+
+$(ROM): $(GFXS) $(MAPS) $(OBJS)
 	@mkdir -p $(@D)
 	$(LCC) -Wm-yn$(TITLE) $(COMPAT) -Wl-yt$(MBCTYPE) -Wl-yo$(ROMBANKS) -Wl-ya$(RAMBANKS) -o $(ROM) $(OBJS)
 	$(ROMUSAGE) $(BINDIR)/$(ROMNAME).map -g -e:STACK:DEFF:100 -e:SHADOW_OAM:C000:A0 -e:HEADER:0083:17D

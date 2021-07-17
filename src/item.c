@@ -5,6 +5,7 @@
 #include "include/hud.h"
 #include "include/item.h"
 #include "include/map.h"
+#include "include/rendering.h"
 
 const char a_infinitive[] = "a";
 const char an_infinitive[] = "an";
@@ -57,4 +58,14 @@ void pickup_item(u8 i)
 
 	print_hud(buffer);
 
+}
+
+void load_item_graphics()
+{
+	for (u8 i = 0; i < NB_WORLD_ITEMS; i++) {
+		if (!world_items[i].data)
+			continue;
+		SWITCH_ROM_MBC1(world_items[i].bank);
+		vmemcpy((void *)(0x9700 + i * 64), 64, world_items[i].data->graphic);
+	}
 }
