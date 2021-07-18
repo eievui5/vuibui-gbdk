@@ -35,10 +35,7 @@ void do_turn() BANKED
 			continue;
 		}
 		if (entities[i].data)
-			pathfind(
-				&entities[i], PLAYER.x_pos,
-				PLAYER.y_pos
-			);
+			pathfind(&entities[i], PLAYER.x_pos, PLAYER.y_pos);
 	}
 	for (u8 i = BEGIN_ENEMIES; i < NB_ENTITIES; i++)
 		if (entities[i].data)
@@ -50,9 +47,8 @@ void do_turn() BANKED
 
 	for (u8 i = 0; i < NB_WORLD_ITEMS; i++)
 		if (world_items[i].data)
-			if (
-				PLAYER.x_pos == world_items[i].x && 
-				PLAYER.y_pos == world_items[i].y
+			if (PLAYER.x_pos == world_items[i].x && 
+			    PLAYER.y_pos == world_items[i].y
 			)
 				pickup_item(i);
 

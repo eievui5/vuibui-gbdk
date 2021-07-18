@@ -3,14 +3,29 @@
 #include "include/int.h"
 
 #define NB_WORLD_ITEMS 4
-#define INVENTORY_SIZE 2
+#define INVENTORY_SIZE 5
+
+enum item_type {
+	NULL_ITEM,
+	HEAL_ITEM,
+};
+
+// Used to extend the item_data struct for polymorphism.
 
 typedef struct {
 	const char *name;
 	const char *graphic;
 	const u8 palette;
 	const char *desc;
+	const u8 type;
 } item_data;
+
+// Item classes. Cast item_data to these based on type.
+typedef struct {
+	const item_data data;
+	const u8 health;
+	const u8 fatigue;
+} healitem_data;
 
 typedef struct {
 	const item_data *data;

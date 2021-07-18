@@ -10,8 +10,12 @@ INCBIN_EXTERN(apple_graphic)
 const char apple_name[] = "Apple";
 const char apple_desc[] = \
 "A small red fruit.\nEat it to restore\nyour health and\nenergy.";
-const item_data apple_item = {
-	.name = apple_name,
-	.graphic = apple_graphic,
-	.desc = apple_desc,
+const healitem_data apple_item = {
+	.data = {
+		.name = apple_name,
+		.graphic = apple_graphic,
+		.desc = apple_desc,
+		.type = HEAL_ITEM,
+	},
+	.health = 5,
 };

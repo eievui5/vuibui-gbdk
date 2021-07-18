@@ -1,9 +1,12 @@
 #pragma bank 255
 
+#include <gb/cgb.h>
 #include <stdbool.h>
+#include <stdio.h>
 #include <string.h>
 
 #include "include/bank.h"
+#include "include/dir.h"
 #include "include/entity.h"
 #include "include/hud.h"
 #include "include/game.h"
@@ -14,16 +17,25 @@
 #include "include/rendering.h"
 #include "libs/vwf.h"
 
-#define SWIPE_SPEED 12
-#define BLANK_TILE 0x8E
-#define FONT_TILE 0x8F
+// VRAM allocation
+#define CURSOR_TILE 0x00u
+#define CURSOR_PALETTE 0u
+#define ENTITY_TILE 0x04u
+#define ENTITY_PALETTE 1u
+#define BLANK_TILE 0x8Eu
+#define FONT_TILE 0x8Fu
 #define SUBFONT_TILE 0xA6u
+#define PARTYFONT_TILE 0x35u
 #define DESCFONT_TILE (SUBFONT_TILE + 56u)
-#define CURSOR_TILE 0x00
-#define CURSOR_SPEED 4
-#define NB_OPTIONS (6-1)
-#define SUBMENU_SLIDE_POS 0x60
-#define SUBMENU_SLIDE_SPEED 8
+
+// Animation speeds
+#define CURSOR_SPEED 4u
+#define SWIPE_SPEED 12u
+#define SUBMENU_SLIDE_SPEED 8u
+
+#define SUBMENU_SLIDE_POS 0x60u
+#define SUBSUBMENU_SLIDE_POS 0x48u
+#define NB_OPTIONS (6u - 1u)
 
 enum choice {
 	RETURN_CHOICE,
@@ -32,6 +44,12 @@ enum choice {
 	SAVE_CHOICE,
 	OPTIONS_CHOICE,
 	ESCAPE_CHOICE
+};
+
+enum party_type {
+	PARTY_NULL = 0,
+	PARTY_HEALTH = 1,
+	PARTY_FATIGUE = 2,
 };
 
 INCBIN(paw_print, res/gfx/ui/paw_mark.2bpp)
@@ -44,8 +62,95 @@ DEF_BANK(pause_menu)
 
 const char pause_text[] = \
 "Return\n\nItems\n\nParty\n\nSave\n\nOptions\n\nEscape!";
-const char apple_text[] = \
-"Apple\nApple\nApple\nApple\nApple\nApple\nApple\nApple\n";
+const char health_text[] = \
+"HP: %u/%u";
+
+// Banked portion of draw_party.
+void draw_party_banked(u8 i) NONBANKED
+{
+	u8 temp_bank = _current_bank;
+	SWITCH_ROM_MBC1(entities[i].bank);
+	vmemcpy((void *)(0x8040 + i * 64), 64,
+		&entities[i].data->graphics[DIR_DOWN * NB_UNIQUE_TILES * 16]);
+	if (_cpu == CGB_TYPE)
+		set_sprite_palette(i + 1, 1, entities[i].data->colors);
+	SWITCH_ROM_MBC1(temp_bank);
+}
+
+/**
+ * Draws the party menu starting at a given tile. Can be used to show the party
+ * or select who to use an item on.
+ * 
+ * @param x		Starting tile position of the menu.
+ * @param y
+ * @param font_tile	The VRAM tile to use as font space. This allows text to
+ * be overwritten without conflicts when using the party screen as a submenu.
+ * @param spr_x		The starting position of the party sprites. Used to
+ * control where they appear before scrolling.
+*/
+void draw_party(u8 x, u8 y, u8 font_tile, u8 spr_x, u8 spr_y, u8 spacing, 
+	u8 type) BANKED
+{
+	char buffer[16];
+	vwf_draw_text(0, 0, font_tile, "\0");
+	for (u8 i = 0; i < NB_ALLIES; i++) {
+		if (entities[i].data) {
+			vwf_draw_text(x, y++, vwf_next_tile(),
+				      entities[i].name);
+			if (type & PARTY_HEALTH) {
+				sprintf(buffer, health_text, entities[i].health,
+					entities[i].max_health);
+				vwf_draw_text(x, y++, vwf_next_tile(), buffer);
+			}
+			if (type & PARTY_FATIGUE) {
+				vwf_draw_text(x, y++, vwf_next_tile(),
+					      "Fatigue: 100/100");
+			}
+			char *entry = (char *)&shadow_OAM[2 + i * 2];
+			*entry++ = spr_y + i * spacing;
+			*entry++ = spr_x;
+			*entry++ = ENTITY_TILE + i * 4;
+			*entry++ = ENTITY_PALETTE + i;
+			*entry++ = spr_y + i * spacing;
+			*entry++ = spr_x + 8;
+			*entry++ = ENTITY_TILE + i * 4 + 2;
+			*entry++ = ENTITY_PALETTE + i;
+			draw_party_banked(i);
+			y++;
+		}
+	}
+}
+
+bool use_item(u8 i, u8 t)
+{
+	entity *target = &entities[t];
+	item *src_item = &inventory[i];
+	switch (src_item->data->type) {
+	case HEAL_ITEM:
+		if (target->health < target->max_health) {
+			if (target->health + ((healitem_data *)src_item->data)->health >= target->max_health)
+				target->health = target->max_health;
+			else
+				target->health += ((healitem_data *)src_item->data)->health;
+			draw_party(22, 18, PARTYFONT_TILE, 7u * 8u + 8u,
+				   9u * 8u + 16u, 24, PARTY_HEALTH);
+			for (u8 i = 0; i < 60; i++)
+				wait_vbl_done();
+			goto consume_item;
+		}
+		else
+			return false;
+		break;
+	default:
+		return false;
+	}
+
+	consume_item:
+	// Move the inventory down by one index and clear the last slot.
+	memmove(src_item, &inventory[i + 1], (INVENTORY_SIZE - 1u - i) * sizeof(item));
+	memset(&inventory[INVENTORY_SIZE - 1], 0, sizeof(item));
+	return true;
+}
 
 void draw_inventory(u8 start) NONBANKED
 {
@@ -65,10 +170,83 @@ void draw_inventory(u8 start) NONBANKED
 	SWITCH_ROM_MBC1(temp_bank);
 }
 
+void use_item_menu(u8 base_item, u8 i) BANKED
+{
+	u8 cursor_pos = 0;
+	u8 cursor_spr = 88;
+
+	// Init
+	draw_party(22, 18, PARTYFONT_TILE, 7u * 8u + 8u,
+		   18u * 8u + 16u, 24, PARTY_HEALTH);
+	shadow_OAM[0].x = 6u * 8u;
+	shadow_OAM[1].x = 6u * 8u + 8u;
+	shadow_OAM[0].y = 88u + SUBSUBMENU_SLIDE_POS;
+	shadow_OAM[1].y = 88u + SUBSUBMENU_SLIDE_POS;
+	while (SCY_REG < SUBSUBMENU_SLIDE_POS) {
+		wait_vbl_done();
+		SCY_REG += SUBMENU_SLIDE_SPEED;
+		for (u8 i = 0; i < 8; i++) {
+			if (!shadow_OAM[i].y)
+				continue;
+			shadow_OAM[i].y -= SUBMENU_SLIDE_SPEED;
+		}
+	}
+	SCY_REG = SUBSUBMENU_SLIDE_POS;
+
+	while (1) {
+		// Handle new inputs.
+		update_input();
+		switch (new_keys) {
+		case J_START: case J_B:
+			goto exit;
+		case J_UP:
+			if (cursor_pos > 0) {
+				cursor_pos--;
+			}
+			break;
+		case J_DOWN:
+			if (cursor_pos < 2) {
+				cursor_pos++;
+			}
+			break;
+		case J_A:
+			if (use_item(i, cursor_pos))
+				goto exit;
+			break;
+		}
+
+		// Rendering.
+		if (cursor_pos * 24 + 88 - cursor_spr > 0)
+			cursor_spr += CURSOR_SPEED;
+		else if (cursor_pos * 24 + 88 - cursor_spr < 0)
+			cursor_spr -= CURSOR_SPEED;
+		shadow_OAM[0].y = cursor_spr;
+		shadow_OAM[1].y = cursor_spr;
+		wait_vbl_done();
+	}
+
+	exit:
+	draw_inventory(base_item);
+
+	while (SCY_REG > 0) {
+		wait_vbl_done();
+		SCY_REG -= SUBMENU_SLIDE_SPEED;
+		for (u8 i = 0; i < 8; i++) {
+			if (!shadow_OAM[i].y)
+				continue;
+			shadow_OAM[i].y += SUBMENU_SLIDE_SPEED;
+		}
+	}
+	SCY_REG = 0;
+}
+
 void draw_description(u8 i) NONBANKED
 {
-	if (!inventory[i].data)
+	if (!inventory[i].data) {
+		for (u8 y = 0; y < 4; y++)
+			vmemset((void *)(0x9DB5 + y * 32), BLANK_TILE, 10);
 		return;
+	}
 	u8 temp_bank = _current_bank;
 	SWITCH_ROM_MBC1(inventory[i].bank);
 	vwf_draw_text(21, 13, DESCFONT_TILE,
@@ -115,6 +293,10 @@ u8 item_menu() BANKED
 				cursor_pos++;
 				redraw_flag = true;
 			}
+			break;
+		case J_A:
+			use_item_menu(base_item, base_item + cursor_pos);
+			redraw_flag = true;
 			break;
 		}
 

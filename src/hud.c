@@ -118,7 +118,8 @@ void draw_move_window() NONBANKED
 	for (i = 1; i < 4; i++) {
 		if (moves->data) {
 			SWITCH_ROM_MBC1(moves->bank);
-			vwf_draw_text(2, i + 1, vwf_next_tile(), moves->data->name);
+			vwf_draw_text(2, i + 1, vwf_next_tile(), 
+				      moves->data->name);
 		}
 		moves++;
 	}
@@ -212,7 +213,8 @@ void show_game() NONBANKED
 void clear_print_hud() BANKED
 {
 	for (u8 i = 0; i < 3; i++)
-		vmemset((void *)(0x9FA1 + i * 32), FONT_TILE - 1u, MESSAGE_SIZE / 3);
+		vmemset((void *)(0x9FA1 + i * 32), FONT_TILE - 1u,
+			MESSAGE_SIZE / 3);
 }
 
 void print_hud(const char *src) BANKED

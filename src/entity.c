@@ -36,18 +36,18 @@ void reload_entity_graphics(u8 i) NONBANKED
 
 	self->prev_dir = self->direction;
 	self->prev_frame = self->spr_frame;
-	vmemcpy(
-		(void *)(0x8000 + i * (16 * NB_ENTITY_TILES)),
+	vmemcpy((void *)(0x8000 + i * (16 * NB_ENTITY_TILES)),
 		16 * NB_SPECIAL_TILES, &self->data->graphics[
 			self->direction * 16 * NB_UNIQUE_TILES
 		]
 	);
-	vmemcpy(
-		(void *)(0x8000 + 16 * NB_SPECIAL_TILES + i * (16 * NB_ENTITY_TILES)),
+	vmemcpy((void *)(0x8000 + 16 * NB_SPECIAL_TILES + i * (16 * NB_ENTITY_TILES)),
 		16 * NB_SPECIAL_TILES, &self->data->graphics[
 			self->direction * 16 * NB_UNIQUE_TILES + 64 * self->spr_frame
 		]
 	);
+	if (_cpu == CGB_TYPE)
+		set_sprite_palette(i, 1, entities[i].data->colors);
 
 	SWITCH_ROM_MBC1(temp_bank);
 }
@@ -63,23 +63,20 @@ void render_entities() BANKED
 		if (self->data) {
 			if (self->spr_frame == HIDE_FRAME)
 				continue;
-			if (
-				(16 + self->x_spr - camera.x & 0xFF) > win_pos.x &&
-				(16 + self->y_spr - camera.y & 0xFF) > win_pos.y
+			if ((16 + self->x_spr - camera.x & 0xFF) > win_pos.x &&
+			    (16 + self->y_spr - camera.y & 0xFF) > win_pos.y
 			)
 				continue;
-			if (!(
-				self->x_spr + 16 >= camera.x &&
-				self->x_spr <= camera.x + 160 &&
-				self->y_spr + 16 >= camera.y &&
-				self->y_spr <= camera.y + 144
+			if (!(self->x_spr + 16 >= camera.x &&
+			    self->x_spr <= camera.x + 160 &&
+			    self->y_spr + 16 >= camera.y &&
+			    self->y_spr <= camera.y + 144
 			))
 				continue;
 
 			// Update the entity's graphics if needed.
-			if (
-				self->direction != self->prev_dir ||
-				self->spr_frame != self->prev_frame
+			if (self->direction != self->prev_dir ||
+			    self->spr_frame != self->prev_frame
 			)
 				reload_entity_graphics(i);
 			const char *metasprite = self->data->metasprites;
@@ -298,22 +295,22 @@ void defeat_animation(entity *self) BANKED
 */
 entity *new_entity(entity_data *data, u8 bank, u8 i, u8 x, u8 y, u16 health) NONBANKED
 {
+	u8 temp_bank = _current_bank;
+	SWITCH_ROM_MBC1(bank);
+
 	entity *self = &entities[i];
 	memset(self, 0, sizeof(entity));
 	if (PLAYER.data) {
 		if (abs(PLAYER.x_pos - x) > abs(PLAYER.y_pos - y)) {
-			if (PLAYER.x_pos - x > 0) {
+			if (PLAYER.x_pos - x > 0)
 				self->direction = DIR_RIGHT;
-			} else {
+			else
 				self->direction = DIR_LEFT;
-			}
 		} else {
-			if (PLAYER.y_pos - y > 0) {
+			if (PLAYER.y_pos - y > 0)
 				self->direction = DIR_DOWN;
-			}
-			else {
+			else
 				self->direction = DIR_UP;
-			}
 		}
 	}
 	self->data = data;
@@ -330,16 +327,8 @@ entity *new_entity(entity_data *data, u8 bank, u8 i, u8 x, u8 y, u16 health) NON
 	self->moves[1].data = &lunge_move;
 	self->moves[1].bank = BANK(lunge);
 	strcpy(self->name, data->name);
+	reload_entity_graphics(i);
 
-	u8 temp_bank = _current_bank;
-	SWITCH_ROM_MBC1(bank);
-	vmemcpy(
-		(void *)(0x8000 + i * (16 * NB_ENTITY_TILES)),
-		NB_ENTITY_TILES * 16,
-		entities[i].data->graphics
-	);
-	if (_cpu == CGB_TYPE)
-		set_sprite_palette(i, 1, entities[i].data->colors);
 	SWITCH_ROM_MBC1(temp_bank);
 	return self;
 }
@@ -468,7 +457,9 @@ bool player_try_step() BANKED
 	for (u8 i = 1; i < NB_ALLIES; i++) {
 		if (!entities[i].data)
 			continue;
-		if (entities[i].x_pos == target_x && entities[i].y_pos == target_y) {
+		if (entities[i].x_pos == target_x && \
+		    entities[i].y_pos == target_y
+		) {
 			entities[i].x_pos = PLAYER.x_pos;
 			entities[i].y_pos = PLAYER.y_pos;
 			entities[i].direction = FLIP(PLAYER.direction);
