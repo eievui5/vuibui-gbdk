@@ -175,13 +175,13 @@ void main()
 				moved = player_try_step();
 			}
 		}
-		
+
 		if (moved)
 			do_turn();
 		else {
 			render_entities();
 			wait_vbl_done();
 		}
-		
+
 	}
 }

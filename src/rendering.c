@@ -27,6 +27,8 @@ void vblank() NONBANKED
 	WY_REG = win_pos.y;
 }
 
+// TODO: This might be broken? I had some issue with it when doing the
+// inventory. Might have just been a mistake.
 void vmemcpy(void *dest, u8 len, const void *src) NONBANKED
 {
 	dest; len; src;
@@ -55,7 +57,7 @@ void vmemcpy(void *dest, u8 len, const void *src) NONBANKED
 }
 
 /**
- * Cleans leftover oam entries so that unused sprites are not rendered. Resets 
+ * Cleans leftover oam entries so that unused sprites are not rendered. Resets
  * oam_index, allowing a new set of sprites to be rendered. This function should
  * be run after rendering.
 */

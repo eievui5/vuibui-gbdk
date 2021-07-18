@@ -9,6 +9,7 @@ typedef struct {
 	const char *name;
 	const char *graphic;
 	const u8 palette;
+	const char *desc;
 } item_data;
 
 typedef struct {

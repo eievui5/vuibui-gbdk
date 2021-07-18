@@ -16,6 +16,8 @@ const char inventory_full[] = "%s's inventory is full.";
 world_item world_items[NB_WORLD_ITEMS];
 item inventory[INVENTORY_SIZE];
 
+// Searches for a valid space to create an item in the inventory, returning
+// whether or not it succeeded.
 bool add_item(const item_data *data, const u8 bank)
 {
 	for (u8 i = 0; i < INVENTORY_SIZE; i++) {
@@ -28,6 +30,8 @@ bool add_item(const item_data *data, const u8 bank)
 	return false;
 }
 
+// Attempt to pick up an item given an index. Constructs a message and searches
+// for space in the invetory.
 void pickup_item(u8 i)
 {
 
@@ -60,6 +64,8 @@ void pickup_item(u8 i)
 
 }
 
+// Load the item graphics for each of the current items into the last 16 tiles
+// of VRAM.
 void load_item_graphics()
 {
 	for (u8 i = 0; i < NB_WORLD_ITEMS; i++) {

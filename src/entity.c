@@ -288,12 +288,12 @@ void defeat_animation(entity *self) BANKED
 /**
  * Create a new entity inside the entity array. Requires an index to load the
  * sprites into VRAM.
- * 
+ *
  * @param data		Pointer to the new entity's constant data.
  * @param bank		Bank of the entity's constant data.
  * @param i		Index of the entity.
  * @param x		Location to place the entity at.
- * @param y		
+ * @param y
  * @param health	Temporary - Set health and max health.
 */
 entity *new_entity(entity_data *data, u8 bank, u8 i, u8 x, u8 y, u16 health) NONBANKED
@@ -346,12 +346,12 @@ entity *new_entity(entity_data *data, u8 bank, u8 i, u8 x, u8 y, u16 health) NON
 
 /**
  * Attempt to spawn an entity, allocating space for it in the entity array.
- * 
+ *
  * @param data		Pointer to the new entity's constant data.
  * @param bank		Bank of the entity's constant data.
  * @param i		Index of the entity.
  * @param x		Location to place the entity at.
- * @param y		
+ * @param y
 */
 entity *spawn_enemy(entity_data *data, u8 bank) BANKED
 {
@@ -374,7 +374,7 @@ entity *spawn_enemy(entity_data *data, u8 bank) BANKED
 /**
  * Offset a vector (a pointer of course... thanks SDCC...) based on a direction
  * value.
- * 
+ *
  * @param vec	Pointer to the target vector.
  * @param dir	The direction to use as an offset.
 */
@@ -399,10 +399,10 @@ void move_direction(vec8 *vec, u8 dir) BANKED
 /**
  * Return the direction of a given vector. Prefers X over Y, and returns DIR_UP
  * for 0, 0.
- * 
+ *
  * @param x	X direction.
  * @param y	Y direction.
- * 
+ *
  * @return	Resulting direction value.
 */
 u8 get_direction(i8 x, i8 y)
@@ -420,10 +420,10 @@ u8 get_direction(i8 x, i8 y)
 
 /**
  * Attempt to move in a given direction.
- * 
+ *
  * @param self	The entity to move.
  * @param dir	The direction to attempt movement in.
- * 
+ *
  * @returns	Whether or not movement succeeded.
 */
 bool try_step(entity *self, u8 dir) BANKED
@@ -442,7 +442,7 @@ bool try_step(entity *self, u8 dir) BANKED
 /**
  * A variation of try_step() to alow the player to swap positions with their
  * allies.
- * 
+ *
  * @returns	Whether or not movement succeeded.
 */
 bool player_try_step() BANKED
@@ -487,10 +487,10 @@ bool player_try_step() BANKED
 
 /**
  * Check for an entity at a given grid position.
- * 
+ *
  * @param x		X position to check.
  * @param y		Y position to check.
- * 
+ *
  * @returns		The detected entity. NULL if no entity is found.
 */
 entity *check_entity_at(u8 x, u8 y) BANKED
@@ -506,7 +506,7 @@ entity *check_entity_at(u8 x, u8 y) BANKED
 
 /**
  * Checks for collision or an entity at a given location.
- * 
+ *
  * @returns	True if the location is valid.
 */
 bool check_collision(u8 x, u8 y) BANKED
@@ -518,7 +518,7 @@ bool check_collision(u8 x, u8 y) BANKED
 
 /**
  * Attempt to move toward a given location.
- * 
+ *
  * @param self		A pointer to the entity to move.
  * @param target_x	Target location.
  * @param target_y
@@ -561,8 +561,8 @@ void pathfind(entity *self, u8 target_x, u8 target_y) BANKED
 }
 
 /**
- * Attempt to chaser the allies and attack them if within range.
- * 
+ * Attempt to chase the allies and attack them if within range.
+ *
  * @param i	Index of the pursuing entity.
  * @param start Starting index of the array to pursue (usually 0 or 3)
  * @param stop	Stopping index of the array to pursue (usually 3 or 8)

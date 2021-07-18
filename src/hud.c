@@ -203,7 +203,7 @@ void show_game() NONBANKED
 	LCDC_REG = lcdc_buffer;
 	SCX_REG = camera.x;
 	SCY_REG = camera.y;
-	
+
 	remove_LCD(&show_game);
 	LYC_REG = SCREENHEIGHT - 1 - text_position;
 	add_LCD(&show_text);
