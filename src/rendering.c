@@ -56,6 +56,14 @@ void vmemcpy(void *dest, u8 len, const void *src) NONBANKED
 	__endasm;
 }
 
+void banked_vmemcpy(void *dest, u8 len, const void *src, u8 bank) NONBANKED
+{
+	u8 temp_bank = _current_bank;
+	SWITCH_ROM_MBC1(bank);
+	vmemcpy(dest, len, src);
+	SWITCH_ROM_MBC1(temp_bank);
+}
+
 /**
  * Cleans leftover oam entries so that unused sprites are not rendered. Resets
  * oam_index, allowing a new set of sprites to be rendered. This function should

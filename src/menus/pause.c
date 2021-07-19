@@ -65,13 +65,15 @@ const char pause_text[] = \
 const char health_text[] = \
 "HP: %u/%u";
 
-// Banked portion of draw_party.
-void draw_party_banked(u8 i) NONBANKED
+// Draws an entity with a static frame and direction.
+void draw_party_entity(u8 i, u8 dir, u8 frame) NONBANKED
 {
 	u8 temp_bank = _current_bank;
 	SWITCH_ROM_MBC1(entities[i].bank);
 	vmemcpy((void *)(0x8040 + i * 64), 64,
-		&entities[i].data->graphics[DIR_DOWN * NB_UNIQUE_TILES * 16]);
+		&entities[i].data->graphics[
+			dir * NB_UNIQUE_TILES  * 16 + 64 * frame]
+	);
 	if (_cpu == CGB_TYPE)
 		set_sprite_palette(i + 1, 1, entities[i].data->colors);
 	SWITCH_ROM_MBC1(temp_bank);
@@ -115,7 +117,7 @@ void draw_party(u8 x, u8 y, u8 font_tile, u8 spr_x, u8 spr_y, u8 spacing,
 			*entry++ = spr_x + 8;
 			*entry++ = ENTITY_TILE + i * 4 + 2;
 			*entry++ = ENTITY_PALETTE + i;
-			draw_party_banked(i);
+			draw_party_entity(i, DIR_DOWN, IDLE_FRAME);
 			y++;
 		}
 	}
@@ -132,9 +134,23 @@ bool use_item(u8 i, u8 t)
 				target->health = target->max_health;
 			else
 				target->health += ((healitem_data *)src_item->data)->health;
+			draw_party_entity(i, DIR_LEFT, IDLE_FRAME);
+			for (u8 i = 0; i < 15; i++)
+				wait_vbl_done();
+			draw_party_entity(i, DIR_LEFT, HURT_FRAME);
+			for (u8 i = 0; i < 8; i++)
+				wait_vbl_done();
+			draw_party_entity(i, DIR_LEFT, ATTACK_FRAME);
+			for (u8 i = 0; i < 8; i++)
+				wait_vbl_done();
+			draw_party_entity(i, DIR_LEFT, IDLE_FRAME);
+			for (u8 i = 0; i < 15; i++)
+				wait_vbl_done();
+			shadow_OAM[0].y = 0;
+			shadow_OAM[1].y = 0;
 			draw_party(22, 18, PARTYFONT_TILE, 7u * 8u + 8u,
 				   9u * 8u + 16u, 24, PARTY_HEALTH);
-			for (u8 i = 0; i < 60; i++)
+			for (u8 i = 0; i < 15; i++)
 				wait_vbl_done();
 			goto consume_item;
 		}
@@ -149,6 +165,7 @@ bool use_item(u8 i, u8 t)
 	// Move the inventory down by one index and clear the last slot.
 	memmove(src_item, &inventory[i + 1], (INVENTORY_SIZE - 1u - i) * sizeof(item));
 	memset(&inventory[INVENTORY_SIZE - 1], 0, sizeof(item));
+	memset(shadow_OAM, 0, 160);
 	return true;
 }
 
@@ -170,18 +187,33 @@ void draw_inventory(u8 start) NONBANKED
 	SWITCH_ROM_MBC1(temp_bank);
 }
 
-void use_item_menu(u8 base_item, u8 i) BANKED
+void draw_item_cursor(u8 i) NONBANKED
+{
+	u8 temp_bank = _current_bank;
+	SWITCH_ROM_MBC1(inventory[i].bank);
+	vmemcpy((void *)(0x8000), 16, inventory[i].data->graphic);
+	vmemcpy((void *)(0x8010), 16, &inventory[i].data->graphic[32]);
+	vmemcpy((void *)(0x8020), 16, &inventory[i].data->graphic[16]);
+	vmemcpy((void *)(0x8030), 16, &inventory[i].data->graphic[48]);
+	if (_cpu == CGB_TYPE)
+		set_sprite_palette(0, 1, inventory[i].data->colors);
+	SWITCH_ROM_MBC1(temp_bank);
+}
+
+bool use_item_menu(u8 base_item, u8 i) BANKED
 {
 	u8 cursor_pos = 0;
 	u8 cursor_spr = 88;
 
 	// Init
+	// Copy the item sprite to VRAM
 	draw_party(22, 18, PARTYFONT_TILE, 7u * 8u + 8u,
 		   18u * 8u + 16u, 24, PARTY_HEALTH);
 	shadow_OAM[0].x = 6u * 8u;
 	shadow_OAM[1].x = 6u * 8u + 8u;
 	shadow_OAM[0].y = 88u + SUBSUBMENU_SLIDE_POS;
 	shadow_OAM[1].y = 88u + SUBSUBMENU_SLIDE_POS;
+	draw_item_cursor(i);
 	while (SCY_REG < SUBSUBMENU_SLIDE_POS) {
 		wait_vbl_done();
 		SCY_REG += SUBMENU_SLIDE_SPEED;
@@ -211,7 +243,7 @@ void use_item_menu(u8 base_item, u8 i) BANKED
 			break;
 		case J_A:
 			if (use_item(i, cursor_pos))
-				goto exit;
+				return true;
 			break;
 		}
 
@@ -238,6 +270,11 @@ void use_item_menu(u8 base_item, u8 i) BANKED
 		}
 	}
 	SCY_REG = 0;
+	shadow_OAM[0].x = 10u * 8u + 4u;
+	shadow_OAM[1].x = 10u * 8u + 12u;
+	vmemcpy((void *)(0x8000), SIZE(paw_cursor), paw_cursor);
+	set_sprite_palette(0, 1, current_ui_pal.colors);
+	return false;
 }
 
 void draw_description(u8 i) NONBANKED
@@ -254,7 +291,7 @@ void draw_description(u8 i) NONBANKED
 	SWITCH_ROM_MBC1(temp_bank);
 }
 
-u8 item_menu() BANKED
+bool item_menu() BANKED
 {
 	u8 cursor_pos = 0;
 	u8 cursor_spr = 20;
@@ -289,13 +326,22 @@ u8 item_menu() BANKED
 			}
 			break;
 		case J_DOWN:
-			if (cursor_pos < 7) {
+			if (cursor_pos < 8 &&
+			    cursor_pos + base_item < INVENTORY_SIZE &&
+			    inventory[base_item + cursor_pos + 1].data) {
 				cursor_pos++;
 				redraw_flag = true;
 			}
 			break;
 		case J_A:
-			use_item_menu(base_item, base_item + cursor_pos);
+			if (inventory[base_item + cursor_pos].data)
+				if (use_item_menu(base_item, base_item + cursor_pos))
+					return true;
+			if (!inventory[base_item + cursor_pos + 1].data &&
+			    cursor_pos > 0) {
+				cursor_pos--;
+				redraw_flag = true;
+				}
 			redraw_flag = true;
 			break;
 		}
@@ -329,16 +375,18 @@ u8 item_menu() BANKED
 	}
 	SCX_REG = 0;
 
-	return 0;
+	return false;
 }
 
-u8 pause_menu() BANKED
+// Show and handle the pause menu. Return true if a turn has been taken.
+bool pause_menu() BANKED
 {
 	// Init.
 	u8 cursor_pos = 0;
 	u8 cursor_spr = 20;
+	bool used_turn = false;
 
-	vmemset((void *)(0x9C00), 0x8E, 18 * 32);
+	vmemset((void *)(0x9C00), 0x8E, 27 * 32);
 
 	win_pos.y = 8;
 	while (win_pos.x >= 7) {
@@ -372,6 +420,7 @@ u8 pause_menu() BANKED
 	set_bkg_1bit_data(0x00, 0x3E, paw_print, 1);
 	set_bkg_tiles(9, 8, 11, 10, paw_print_map);
 	vmemcpy((void *)(0x8000), SIZE(paw_cursor), paw_cursor);
+	set_sprite_palette(0, 1, current_ui_pal.colors);
 	vwf_activate_font(0);
 	vwf_draw_text(3, 1, FONT_TILE, pause_text);
 
@@ -400,7 +449,10 @@ u8 pause_menu() BANKED
 			case RETURN_CHOICE:
 				goto exit;
 			case ITEMS_CHOICE:
-				item_menu();
+				if (item_menu()) {
+					used_turn = true;
+					goto exit;
+				}
 				break;
 			//case PARTY_CHOICE:
 			//	break;
@@ -428,7 +480,7 @@ u8 pause_menu() BANKED
 			reload_entity_graphics(i);
 		}
 	}
-	vmemset((void *)(0x9C00), 0x8E, 18 * 32);
+	vmemset((void *)(0x9C00), 0x8E, 27 * 32);
 	vmemset((void *)(0x9FA0), 0x8E, 3 * 32);
 	reload_mapdata();
 	load_item_graphics();
@@ -445,14 +497,14 @@ u8 pause_menu() BANKED
 		wait_vbl_done();
 	}
 
-	while (win_pos.x < 160) {
+	while (win_pos.x < 168) {
 		render_entities();
 		wait_vbl_done();
 		win_pos.x += SWIPE_SPEED;
 	}
-	win_pos.x = 160;
+	win_pos.x = 168;
 	win_pos.y = 72;
 	init_hud();
 
-	return 0;
+	return used_turn;
 }

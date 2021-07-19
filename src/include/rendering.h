@@ -21,6 +21,7 @@ extern short palettes[64];
 extern u8 fx_mode;
 
 void vmemcpy(void *dest, u8 len, const void *src) NONBANKED;
+void banked_vmemcpy(void *dest, u8 len, const void *src, u8 bank) NONBANKED;
 void vblank() NONBANKED;
 void clean_oam() BANKED;
 void fade_to_white(u8 fade_speed) BANKED;

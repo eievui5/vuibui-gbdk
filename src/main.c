@@ -73,7 +73,8 @@ void main()
 		static u8 speedup_delay = 0;
 
 		if (new_keys == J_START && cur_keys == J_START) {
-			pause_menu();
+			if(pause_menu())
+				do_turn();
 			continue;
 		}
 

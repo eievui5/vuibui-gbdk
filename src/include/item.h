@@ -17,6 +17,7 @@ typedef struct {
 	const char *graphic;
 	const u8 palette;
 	const char *desc;
+	short *colors;
 	const u8 type;
 } item_data;
 
