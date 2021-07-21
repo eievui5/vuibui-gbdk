@@ -19,8 +19,6 @@
 #include "moves/scratch.h"
 #include "moves/lunge.h"
 
-#define DETECTION_RANGE 12
-
 entity entities[NB_ENTITIES];
 // The index of an ally which has been forced to move by the player. This ally
 // loses their turn
@@ -452,14 +450,13 @@ bool player_try_step() BANKED
 		target_x--;
 		break;
 	}
-	if (get_collision(target_x, target_y))
+	if (0 && get_collision(target_x, target_y) == WALL_COLL)
 		return false;
 	for (u8 i = 1; i < NB_ALLIES; i++) {
 		if (!entities[i].data)
 			continue;
 		if (entities[i].x_pos == target_x && \
-		    entities[i].y_pos == target_y
-		) {
+		    entities[i].y_pos == target_y) {
 			entities[i].x_pos = PLAYER.x_pos;
 			entities[i].y_pos = PLAYER.y_pos;
 			entities[i].direction = FLIP(PLAYER.direction);
@@ -468,7 +465,8 @@ bool player_try_step() BANKED
 		}
 	}
 	for (u8 i = BEGIN_ENEMIES; i < NB_ENTITIES; i++)
-		if (entities[i].x_pos == target_x && entities[i].y_pos == target_y)
+		if (entities[i].x_pos == target_x &&
+		    entities[i].y_pos == target_y)
 			return false;
 	skip_enemies:
 	PLAYER.x_pos = target_x;
@@ -502,7 +500,7 @@ entity *check_entity_at(u8 x, u8 y) BANKED
 */
 bool check_collision(u8 x, u8 y) BANKED
 {
-	if (get_collision(x, y))
+	if (get_collision(x, y) == WALL_COLL)
 		return true;
 	return (bool)check_entity_at(x, y);
 }

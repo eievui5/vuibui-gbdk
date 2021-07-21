@@ -6,6 +6,11 @@
 #include "debug_mapdata.h"
 #include "include/map.h"
 
+#define GRASS 6
+
+#define TREE_PAL 0
+#define GRASS_PAL 1
+
 const void __at(255) __bank_debug_mapdata;
 
 const mapdata debug_mapdata = {
@@ -13,40 +18,41 @@ const mapdata debug_mapdata = {
 	.colors = debug_colors,
 	.metatiles = debug_metatiles,
 	.nb_walls = 1,
-	.wall_palette = debug_wall_palette
+	.wall_palette = debug_wall_palette,
+	.exit_tile = 5,
 };
 
 INCBIN(debug_tileset, res/gfx/tilesets/tree_tiles.2bpp)
 
 const metatile debug_metatiles[] = {
 	{
-		.tiles = {0x12, 0x12, 0x12, 0x12},
-		.attrs = {1, 1, 1, 1},
+		.tiles = {GRASS, GRASS, GRASS, GRASS},
+		.attrs = {GRASS_PAL, GRASS_PAL, GRASS_PAL, GRASS_PAL},
 		.collision = NO_COLL
 	},
 	{
-		.tiles = {0x04, 0x05, 0x0C, 0x0D},
-		.attrs = {0, 0, 0, 0},
+		.tiles = {4, 5, 11, 12},
+		.attrs = {TREE_PAL, TREE_PAL, TREE_PAL, TREE_PAL},
 		.collision = WALL_COLL
 	},
 	{
-		.tiles = {0x00, 0x01, 0x0C, 0x0D},
-		.attrs = {0, 0, 0, 0},
+		.tiles = {0, 1, 11, 12},
+		.attrs = {TREE_PAL, TREE_PAL, TREE_PAL, TREE_PAL},
 		.collision = WALL_COLL
 	},
 	{
-		.tiles = {0x00, 0x01, 0x0A, 0x0B},
-		.attrs = {0, 0, 0, 0},
+		.tiles = {0, 1, 9, 10},
+		.attrs = {TREE_PAL, TREE_PAL, TREE_PAL, TREE_PAL},
 		.collision = WALL_COLL
 	},
 	{
-		.tiles = {0x04, 0x05, 0x10, 0x11},
-		.attrs = {0, 0, 0, 0},
+		.tiles = {4, 5, 13, 14},
+		.attrs = {TREE_PAL, TREE_PAL, TREE_PAL, TREE_PAL},
 		.collision = WALL_COLL
 	},
 	{
-		.tiles = {2, 2, 2, 2},
-		.attrs = {0, 0, 0, 0},
+		.tiles = {7, 8, 16, 17},
+		.attrs = {GRASS_PAL, GRASS_PAL, GRASS_PAL, GRASS_PAL},
 		.collision = EXIT_COLL
 	},
 };
@@ -54,11 +60,11 @@ const metatile debug_metatiles[] = {
 const char debug_wall_palette[] = {1, 2, 3, 4};
 
 const short debug_colors[] = {
-	RGB(0x0A, 0x18, 0x0C), RGB(0x10, 0x0B, 0x07), RGB(0x00, 0x0B, 0x03), RGB(0x00, 0x04, 0x00),
-	RGB(0x0A, 0x18, 0x0C), RGB(0x00, 0x0F, 0x00), RGB_BLACK, RGB_BLACK,
+	RGB(10, 24, 12), RGB(16, 11, 7), RGB(0, 11, 3), RGB(0, 4, 0),
+	RGB(10, 24, 12), RGB(0, 15, 0), RGB(0, 5, 0), RGB(0, 1, 0),
 	RGB_BLACK, RGB_BLACK, RGB_BLACK, RGB_BLACK,
 	RGB_BLACK, RGB_BLACK, RGB_BLACK, RGB_BLACK,
 	RGB_BLACK, RGB_BLACK, RGB_BLACK, RGB_BLACK,
 	RGB_BLACK, RGB_BLACK, RGB_BLACK, RGB_BLACK,
-	RGB(0x0A, 0x18, 0x0C), RGB(31, 0, 0), RGB(16, 0, 0), RGB(8, 0, 0)
+	RGB(10, 24, 12), RGB(31, 0, 0), RGB(16, 0, 0), RGB(8, 0, 0)
 };

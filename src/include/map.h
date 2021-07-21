@@ -37,6 +37,7 @@ typedef struct {
 	const void *post_process;
 	const u8 nb_walls;
 	const char *wall_palette;
+	const u8 exit_tile;
 } mapdata;
 
 // Y, X order.

@@ -177,10 +177,8 @@ void force_render_map() NONBANKED
 			draw_tile(x, y);
 			for (u8 j = 0; j < NB_WORLD_ITEMS; j++)
 				if (world_items[j].data)
-					if (
-						world_items[j].x == x / 2 &&
-						world_items[j].y == y / 2
-					)
+					if (world_items[j].x == x / 2 &&
+					    world_items[j].y == y / 2)
 						render_item(j);
 			y++;
 		}
@@ -210,17 +208,17 @@ void force_walls() BANKED
 */
 bool contain_cursor(uvec8 *cur) BANKED
 {
-	if (cur->x == 255) {
-		cur->x = 0;
+	if (cur->x == 0) {
+		cur->x = 1;
 		return true;
-	} else if (cur->x == 64) {
-		cur->x = 63;
+	} else if (cur->x == 63) {
+		cur->x = 62;
 		return true;
-	} else if (cur->y == 255) {
-		cur->y = 0;
+	} else if (cur->y == 0) {
+		cur->y = 1;
 		return true;
-	} else if (cur->y == 64) {
-		cur->y = 63;
+	} else if (cur->y == 63) {
+		cur->y = 62;
 		return true;
 	}
 	return false;
@@ -319,12 +317,10 @@ void generate_exit() BANKED
 	while (1) {
 		u8 x = rand() & 0b111111;
 		u8 y = rand() & 0b111111;
-		if (!(
-			map[y][x]     || map[y][x + 1]	   || map[y][x - 1] ||
-			map[y + 1][x] || map[y + 1][x + 1] || map[y + 1][x - 1] ||
-			map[y - 1][x] || map[y - 1][x + 1] || map[y - 1][x - 1]
-		)) {
-			map[y][x] = EXIT_COLL;
+		if (!(map[y][x] || map[y][x + 1] || map[y][x - 1] || 
+		    map[y + 1][x] || map[y + 1][x + 1] || map[y + 1][x - 1] ||
+		    map[y - 1][x] || map[y - 1][x + 1] || map[y - 1][x - 1])) {
+			map[y][x] = current_mapdata->exit_tile;
 			return;
 		}
 	}
@@ -347,7 +343,7 @@ void column_postprocess() NONBANKED
 
 	for (u8 y = 1; y < 63; y++) {
 		for (u8 x = 0; x < 64; x++) {
-			if (map[y][x] == NO_COLL)
+			if (map[y][x] != WALL_COLL)
 				continue;
 			else if (map[y - 1][x] != NO_COLL && map[y + 1][x] != NO_COLL)
 				map[y][x] = current_mapdata->wall_palette[1];
@@ -372,8 +368,8 @@ void column_postprocess() NONBANKED
 // Temporary function to test map generation.
 void generate_map() BANKED
 {
-	memset(map, 1, sizeof(map));
-	map[32][32] = 0;
+	memset(map, WALL_COLL, sizeof(map));
+	map[32][32] = NO_COLL;
 	uvec8 cur = {32, 32};
 	generate_room(&cur, 9, 9);
 	for (u8 i = 0; i < 8; i++) {
@@ -384,5 +380,5 @@ void generate_map() BANKED
 	}
 	force_walls();
 	column_postprocess();
-	//generate_exit();
+	generate_exit();
 }

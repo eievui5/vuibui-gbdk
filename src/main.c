@@ -81,10 +81,8 @@ void main()
 		// Waiting and running checks.
 		if (new_keys == J_SELECT)
 			moved = true;
-		if (
-			(cur_keys & J_B) && !(cur_keys & J_A) &&
-			(cur_keys & (J_UP | J_DOWN | J_LEFT | J_RIGHT))
-		)
+		if ((cur_keys & J_B) && !(cur_keys & J_A) &&
+		    (cur_keys & (J_UP | J_DOWN | J_LEFT | J_RIGHT)))
 			move_speed = 2;
 		else
 			move_speed = 1;

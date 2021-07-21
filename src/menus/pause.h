@@ -15,7 +15,6 @@
 // Animation speeds
 #define CURSOR_SPEED 4u
 #define SUBMENU_SLIDE_SPEED 8u
-#define SWIPE_SPEED 12u
 
 #define SUBMENU_SLIDE_POS 0x60u
 #define SUBSUBMENU_SLIDE_POS 0x48u

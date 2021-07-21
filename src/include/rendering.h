@@ -26,6 +26,8 @@ void vblank() NONBANKED;
 void clean_oam() BANKED;
 void fade_to_white(u8 fade_speed) BANKED;
 void render_palettes() BANKED;
+void swipe_left() BANKED;
+void swipe_right() BANKED;
 
 inline void vset(uint16_t dst, uint8_t value) {
 	while(STAT_REG & STAT_BUSY) {}

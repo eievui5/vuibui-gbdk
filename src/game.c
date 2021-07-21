@@ -6,6 +6,8 @@
 #include "include/hud.h"
 #include "include/int.h"
 #include "include/item.h"
+#include "include/map.h"
+#include "include/rendering.h"
 
 #include "entities/luvui.h"
 
@@ -43,14 +45,19 @@ void do_turn() BANKED
 	move_entities();
 
 	if (!PLAYER.data)
-		while(1){wait_vbl_done();};
+		while(1) wait_vbl_done();
 
 	for (u8 i = 0; i < NB_WORLD_ITEMS; i++)
 		if (world_items[i].data)
 			if (PLAYER.x_pos == world_items[i].x && 
-			    PLAYER.y_pos == world_items[i].y
-			)
+			    PLAYER.y_pos == world_items[i].y)
 				pickup_item(i);
+	if (get_collision(PLAYER.x_pos, PLAYER.y_pos) == EXIT_COLL) {
+		swipe_left();
+		generate_map();
+		force_render_map();
+		swipe_right();
+	}
 
 	if (++sub_mins >= TURNS_PER_MIN) {
 		sub_mins = 0;

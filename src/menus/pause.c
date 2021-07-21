@@ -46,35 +46,7 @@ bool pause_menu() BANKED
 	u8 cursor_spr = 20;
 	bool used_turn = false;
 
-	vmemset((void *)(0x9C00), 0x8E, 27 * 32);
-
-	win_pos.y = 8;
-	while (win_pos.x >= 7) {
-		render_entities();
-		wait_vbl_done();
-		win_pos.x -= SWIPE_SPEED;
-	}
-	win_pos.x = 7;
-
-	while (status_position > 1) {
-		win_pos.y--;
-		status_position--;
-		text_position -= 4;
-		wait_vbl_done();
-	}
-
-	fx_mode = NO_UI;
-	wait_vbl_done();
-	lcdc_buffer = \
-		LCDC_ENABLE | LCDC_BG_ENABLE | LCDC_BG_SCRN1 | LCDC_OBJ_ENABLE \
-		| LCDC_OBJ_16;
-	if (_cpu == CGB_TYPE) {
-		BCPS_REG = 0x80 | 56;
-		BCPD_REG = current_ui_pal.colors[0] & 0xFF;
-		BCPD_REG = (current_ui_pal.colors[0] & 0xFF00) >> 8;
-	}
-	SCX_REG = 0;
-	SCY_REG = 0;
+	swipe_left();
 
 	// Draw pause screen.
 	set_bkg_1bit_data(0x00, 0x3E, paw_print, 1);
@@ -142,30 +114,10 @@ bool pause_menu() BANKED
 		}
 	}
 	vmemset((void *)(0x9C00), 0x8E, 27 * 32);
-	vmemset((void *)(0x9FA0), 0x8E, 3 * 32);
 	reload_mapdata();
 	load_item_graphics();
-	fx_mode = GAME_UI;
-	wait_vbl_done();
-	LCDC_REG = lcdc_buffer = \
-		LCDC_ENABLE | LCDC_BG_ENABLE | LCDC_WINDOW_ENABLE | \
-		LCDC_WINDOW_SCRN1 | LCDC_OBJ_ENABLE | LCDC_OBJ_16;
 
-	while (status_position != 8) {
-		win_pos.y++;
-		status_position++;
-		text_position += 4;
-		wait_vbl_done();
-	}
-
-	while (win_pos.x < 168) {
-		render_entities();
-		wait_vbl_done();
-		win_pos.x += SWIPE_SPEED;
-	}
-	win_pos.x = 168;
-	win_pos.y = 72;
-	init_hud();
+	swipe_right();
 
 	return used_turn;
 }
