@@ -1,13 +1,13 @@
 #pragma bank 255
 
 #include <gb/cgb.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 
 #include "include/dir.h"
 #include "include/entity.h"
 #include "include/game.h"
-#include "include/int.h"
 #include "include/rendering.h"
 #include "libs/vwf.h"
 #include "menus/party.h"
@@ -20,9 +20,9 @@ const char health_text[] = "HP: %u/%u";
 const char hunger_text[] = "Fatigue: %u/%u";
 
 // Draws an entity with a static frame and direction.
-void draw_party_entity(u8 i, u8 dir, u8 frame) NONBANKED
+void draw_party_entity(uint8_t i, uint8_t dir, uint8_t frame) NONBANKED
 {
-	u8 temp_bank = _current_bank;
+	uint8_t temp_bank = _current_bank;
 	SWITCH_ROM_MBC1(entities[i].bank);
 	vmemcpy((void *)(0x8040 + i * 64), 64,
 		&entities[i].data->graphics[
@@ -47,12 +47,12 @@ void draw_party_entity(u8 i, u8 dir, u8 frame) NONBANKED
  * @param spacing	Distance between each entry.
  * @param type		The info to display.
 */
-void draw_party(u8 x, u8 y, u8 font_tile, u8 spr_x, u8 spr_y, u8 spacing, 
-	u8 type) BANKED
+void draw_party(uint8_t x, uint8_t y, uint8_t font_tile, uint8_t spr_x, 
+	uint8_t spr_y, uint8_t spacing, uint8_t type) BANKED
 {
 	char buffer[16];
 	vwf_draw_text(0, 0, font_tile, "");
-	for (u8 i = 0; i < NB_ALLIES; i++) {
+	for (uint8_t i = 0; i < NB_ALLIES; i++) {
 		if (entities[i].data) {
 			vwf_draw_text(x, y++, vwf_next_tile(),
 				      entities[i].name);
@@ -82,10 +82,10 @@ void draw_party(u8 x, u8 y, u8 font_tile, u8 spr_x, u8 spr_y, u8 spacing,
 
 void party_menu() BANKED
 {
-	u8 cursor_pos = 0;
-	u8 cursor_spr = 20;
+	uint8_t cursor_pos = 0;
+	uint8_t cursor_spr = 20;
 
-	for (u8 i = 0; i < 16; i++)
+	for (uint8_t i = 0; i < 16; i++)
 		vmemset((void *)(0x9C35 + i * 32), BLANK_TILE, 10);
 	draw_party(22, 1, PARTYFONT_TILE, 20u * 8u + 8u, 8u + 16u, 32,
 		PARTY_HEALTH | PARTY_FATIGUE);
@@ -96,7 +96,7 @@ void party_menu() BANKED
 	while (SCX_REG < SUBMENU_SLIDE_POS) {
 		wait_vbl_done();
 		SCX_REG += SUBMENU_SLIDE_SPEED;
-		for (u8 i = 0; i < 8; i++) {
+		for (uint8_t i = 0; i < 8; i++) {
 			if (!shadow_OAM[i].y)
 				continue;
 			shadow_OAM[i].x -= SUBMENU_SLIDE_SPEED;
@@ -137,7 +137,7 @@ void party_menu() BANKED
 	while (SCX_REG > 0) {
 		wait_vbl_done();
 		SCX_REG -= SUBMENU_SLIDE_SPEED;
-		for (u8 i = 0; i < 8; i++) {
+		for (uint8_t i = 0; i < 8; i++) {
 			if (!shadow_OAM[i].y)
 				continue;
 			shadow_OAM[i].x += SUBMENU_SLIDE_SPEED;

@@ -1,9 +1,9 @@
 #pragma once
 
 #include <gb/gb.h>
+#include <stdint.h>
 
 #include "include/hardware.h"
-#include "include/int.h"
 #include "include/vec.h"
 
 #define WAIT_VRAM while (STAT_REG & STAT_BUSY) {}
@@ -14,17 +14,17 @@ enum fx_modes {
 	GAME_UI
 };
 
-extern u8 lcdc_buffer;
-extern u8 oam_index;
+extern uint8_t lcdc_buffer;
+extern uint8_t oam_index;
 extern uvec8 win_pos;
 extern short palettes[64];
-extern u8 fx_mode;
+extern uint8_t fx_mode;
 
-void vmemcpy(void *dest, u8 len, const void *src) NONBANKED;
-void banked_vmemcpy(void *dest, u8 len, const void *src, u8 bank) NONBANKED;
+void vmemcpy(void *dest, uint8_t len, const void *src) NONBANKED;
+void banked_vmemcpy(void *dest, uint8_t len, const void *src, uint8_t bank) NONBANKED;
 void vblank() NONBANKED;
 void clean_oam() BANKED;
-void fade_to_white(u8 fade_speed) BANKED;
+void fade_to_white(uint8_t fade_speed) BANKED;
 void render_palettes() BANKED;
 void swipe_left() BANKED;
 void swipe_right() BANKED;

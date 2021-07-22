@@ -1,7 +1,6 @@
 #pragma once
 
 #include "include/bank.h"
-#include "include/int.h"
 
 // VRAM allocation
 #define CURSOR_TILE 0x00u

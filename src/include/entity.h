@@ -2,8 +2,8 @@
 
 #include <gb/gb.h>
 #include <stdbool.h>
+#include <stdint.h>
 
-#include "include/int.h"
 #include "include/move.h"
 #include "include/vec.h"
 
@@ -67,39 +67,40 @@ typedef struct {
 */
 typedef struct {
 	const entity_data *data;
-	u8 bank;
-	u8 x_pos;
-	u8 y_pos;
-	u16 x_spr;
-	u16 y_spr;
-	u8 direction;
-	u8 prev_dir;
-	i8 path_dir;
-	u8 spr_frame;
-	u8 prev_frame;
-	u16 health;
-	u16 max_health;
+	uint8_t bank;
+	uint8_t x_pos;
+	uint8_t y_pos;
+	uint16_t x_spr;
+	uint16_t y_spr;
+	uint8_t direction;
+	uint8_t prev_dir;
+	int8_t path_dir;
+	uint8_t spr_frame;
+	uint8_t prev_frame;
+	uint16_t health;
+	uint16_t max_health;
 	char name[ENTITY_NAME_LEN];
 	move moves[4];
 } entity;
 
 extern entity entities[NB_ENTITIES];
-extern u8 move_speed;
+extern uint8_t move_speed;
 
 void move_entities() NONBANKED;
-entity *new_entity(entity_data *data, u8 bank, u8 i, u8 x, u8 y, u16 health) NONBANKED;
+entity *new_entity(entity_data *data, uint8_t bank, uint8_t i, uint8_t x, 
+		   uint8_t y, uint16_t health) NONBANKED;
 
 void attack_animation(entity *self) BANKED;
-bool check_collision(u8 x, u8 y) BANKED;
-entity *check_entity_at(u8 x, u8 y) BANKED;
+bool check_collision(uint8_t x, uint8_t y) BANKED;
+entity *check_entity_at(uint8_t x, uint8_t y) BANKED;
 void defeat_animation(entity *self) BANKED;
 void hurt_animation(entity *self) BANKED;
-void move_direction(vec8 *vec, u8 dir) BANKED;
-void pathfind(entity *self, u8 target_x, u8 target_y) BANKED;
+void move_direction(vec8 *vec, uint8_t dir) BANKED;
+void pathfind(entity *self, uint8_t target_x, uint8_t target_y) BANKED;
 bool player_try_step() BANKED;
-void pursue(entity *self, u8 start, u8 stop) BANKED;
+void pursue(entity *self, uint8_t start, uint8_t stop) BANKED;
 void render_entities() BANKED;
-entity *spawn_enemy(entity_data *data, u8 bank) BANKED;
-bool try_step(entity *self, u8 dir) BANKED;
+entity *spawn_enemy(entity_data *data, uint8_t bank) BANKED;
+bool try_step(entity *self, uint8_t dir) BANKED;
 void use_melee_move(entity *self, move *self_move);
-void reload_entity_graphics(u8 i) NONBANKED;
+void reload_entity_graphics(uint8_t i) NONBANKED;

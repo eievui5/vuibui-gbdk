@@ -1,20 +1,20 @@
 #pragma bank 255
 
 #include <gb/gb.h>
+#include <stdint.h>
 
 #include "include/entity.h"
 #include "include/hardware.h"
 #include "include/hud.h"
-#include "include/int.h"
 #include "include/rendering.h"
 #include "include/vec.h"
 
 #define SWIPE_SPEED 12u
 
-u8 lcdc_buffer;
-u8 oam_index = 0;
+uint8_t lcdc_buffer;
+uint8_t oam_index = 0;
 uvec8 win_pos = {160, 72};
-u8 fx_mode = NO_UI;
+uint8_t fx_mode = NO_UI;
 
 void vblank() NONBANKED
 {
@@ -32,7 +32,7 @@ void vblank() NONBANKED
 
 // TODO: This might be broken? I had some issue with it when doing the
 // inventory. Might have just been a mistake.
-void vmemcpy(void *dest, u8 len, const void *src) NONBANKED
+void vmemcpy(void *dest, uint8_t len, const void *src) NONBANKED
 {
 	dest; len; src;
 	__asm
@@ -59,9 +59,9 @@ void vmemcpy(void *dest, u8 len, const void *src) NONBANKED
 	__endasm;
 }
 
-void banked_vmemcpy(void *dest, u8 len, const void *src, u8 bank) NONBANKED
+void banked_vmemcpy(void *dest, uint8_t len, const void *src, uint8_t bank) NONBANKED
 {
-	u8 temp_bank = _current_bank;
+	uint8_t temp_bank = _current_bank;
 	SWITCH_ROM_MBC1(bank);
 	vmemcpy(dest, len, src);
 	SWITCH_ROM_MBC1(temp_bank);
@@ -74,9 +74,9 @@ void banked_vmemcpy(void *dest, u8 len, const void *src, u8 bank) NONBANKED
 */
 void clean_oam() BANKED
 {
-	static u8 last_oam = 0;
+	static uint8_t last_oam = 0;
 
-	u8 tmp = oam_index;
+	uint8_t tmp = oam_index;
 	while(oam_index < last_oam) {
 		shadow_OAM[oam_index++].y = 0;
 	}
@@ -84,24 +84,24 @@ void clean_oam() BANKED
 	oam_index = 0;
 }
 
-void fade_to_white(u8 fade_speed) BANKED
+void fade_to_white(uint8_t fade_speed) BANKED
 {
 	if (_cpu == CGB_TYPE) {
 		while(1) {
-			u8 completion = 0;
-			for (u8 i = 0; i < 8 * 7;) {
+			uint8_t completion = 0;
+			for (uint8_t i = 0; i < 8 * 7;) {
 				BCPS_REG = i++;
 				WAIT_VRAM;
 				short cur_pal = BCPD_REG;
 				BCPS_REG = i++;
 				WAIT_VRAM;
 				cur_pal |= BCPD_REG << 8;
-				u8 color[3] = {
+				uint8_t color[3] = {
 					cur_pal & 0b11111,
 					(cur_pal & 0b1111100000) >> 5,
 					(cur_pal & 0b111110000000000) >> 10
 				};
-				for (u8 j = 0; j < 3; j++) {
+				for (uint8_t j = 0; j < 3; j++) {
 					if (color[j] + fade_speed < 31) {
 						color[j] += fade_speed;
 					} else {
@@ -115,19 +115,19 @@ void fade_to_white(u8 fade_speed) BANKED
 				BCPD_REG = cur_pal;
 				BCPD_REG = cur_pal >> 8;
 			}
-			for (u8 i = 0; i < 8 * 7;) {
+			for (uint8_t i = 0; i < 8 * 7;) {
 				OCPS_REG = i++;
 				WAIT_VRAM;
 				short cur_pal = OCPD_REG;
 				OCPS_REG = i++;
 				WAIT_VRAM;
 				cur_pal |= OCPD_REG << 8;
-				u8 color[3] = {
+				uint8_t color[3] = {
 					cur_pal & 0b11111,
 					(cur_pal & 0b1111100000) >> 5,
 					(cur_pal & 0b111110000000000) >> 10
 				};
-				for (u8 j = 0; j < 3; j++) {
+				for (uint8_t j = 0; j < 3; j++) {
 					if (color[j] + fade_speed < 31) {
 						color[j] += fade_speed;
 					} else {
@@ -145,7 +145,7 @@ void fade_to_white(u8 fade_speed) BANKED
 				return;
 		}
 	} else {
-		for (u8 i = 0; i < 4; i++) {
+		for (uint8_t i = 0; i < 4; i++) {
 			wait_vbl_done();
 			wait_vbl_done();
 			BGP_REG <<= 2;

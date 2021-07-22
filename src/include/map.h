@@ -1,8 +1,8 @@
 #pragma once
 
 #include <gb/gb.h>
+#include <stdint.h>
 
-#include "include/int.h"
 #include "include/vec.h"
 
 enum collision {
@@ -16,6 +16,11 @@ typedef struct {
 	unsigned char attrs[4];
 	unsigned char collision;
 } metatile;
+
+struct weight_table {
+	uint8_t weight;
+	void *ptr;
+};
 
 /**
  * Data pertaining to the currently loaded map's visuals.
@@ -35,21 +40,24 @@ typedef struct {
 	short *colors;
 	const metatile *metatiles;
 	const void *post_process;
-	const u8 nb_walls;
+	const uint8_t nb_walls;
 	const char *wall_palette;
-	const u8 exit_tile;
+	const uint8_t exit_tile;
+	const uint8_t item_count;
+	const struct weight_table *item_table;
 } mapdata;
 
 // Y, X order.
-extern u8 map[64][64];
+extern uint8_t map[64][64];
 extern uvec16 camera;
 extern const mapdata *current_mapdata;
-extern u8 current_mapdata_bank;
+extern uint8_t current_mapdata_bank;
 
-void draw_tile(u8 x, u8 y) NONBANKED;
-void update_camera(u16 x, u16 y) NONBANKED;
-u8 get_collision(u16 x, u16 y) NONBANKED;
+void draw_tile(uint8_t x, uint8_t y) NONBANKED;
+void update_camera(uint16_t x, uint16_t y) NONBANKED;
+uint8_t get_collision(uint16_t x, uint16_t y) NONBANKED;
 void force_render_map() NONBANKED;
 void reload_mapdata() NONBANKED;
 
 void generate_map() BANKED;
+void create_new_floor() BANKED;

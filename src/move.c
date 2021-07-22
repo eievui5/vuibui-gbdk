@@ -1,6 +1,7 @@
 // Cannot bank this file, It relies too much on formating strings from various
 // sources.
 
+#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -15,14 +16,14 @@ const char defeat_message[] = "%s was defeated.";
 
 void use_melee_move(entity *self, move *self_move)
 {
-	u8 temp_bank = _current_bank;
+	uint8_t temp_bank = _current_bank;
 	SWITCH_ROM_MBC1(self_move->bank);
 
 	// Update positions before using them to attack.
 	move_entities();
 	vec8 target_pos = {self->x_pos, self->y_pos};
 	entity *target = NULL;
-	for (u8 i = 0; i < self_move->data->range; i++) {
+	for (uint8_t i = 0; i < self_move->data->range; i++) {
 		move_direction(&target_pos, self->direction);
 		target = check_entity_at(target_pos.x, target_pos.y);
 		if (target)

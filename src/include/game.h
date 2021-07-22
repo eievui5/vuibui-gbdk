@@ -1,15 +1,15 @@
 #pragma once
 
-#include "include/int.h"
+#include <stdint.h>
 
-extern u8 cur_keys;
-extern u8 new_keys;
-extern u8 rel_keys;
-extern u8 last_keys;
+extern uint8_t cur_keys;
+extern uint8_t new_keys;
+extern uint8_t rel_keys;
+extern uint8_t last_keys;
 
-extern u8 sub_mins;
-extern u8 minutes;
-extern u8 hours;
+extern uint8_t sub_mins;
+extern uint8_t minutes;
+extern uint8_t hours;
 
 void do_turn() BANKED;
 

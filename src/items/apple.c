@@ -3,7 +3,6 @@
 #include <gb/cgb.h>
 #include <gb/incbin.h>
 
-#include "include/int.h"
 #include "include/item.h"
 
 const void __at(255) __bank_apple;

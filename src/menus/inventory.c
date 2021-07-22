@@ -1,20 +1,20 @@
 #pragma bank 255
 
 #include <gb/cgb.h>
+#include <stdint.h>
 #include <string.h>
 
 #include "include/dir.h"
 #include "include/entity.h"
 #include "include/hud.h"
 #include "include/game.h"
-#include "include/int.h"
 #include "include/item.h"
 #include "include/rendering.h"
 #include "libs/vwf.h"
 #include "menus/party.h"
 #include "menus/pause.h"
 
-bool use_item(u8 i, u8 t)
+bool use_item(uint8_t i, uint8_t t)
 {
 	entity *target = &entities[t];
 	item *src_item = &inventory[i];
@@ -26,22 +26,22 @@ bool use_item(u8 i, u8 t)
 			else
 				target->health += ((healitem_data *)src_item->data)->health;
 			draw_party_entity(t, DIR_LEFT, IDLE_FRAME);
-			for (u8 i = 0; i < 15; i++)
+			for (uint8_t i = 0; i < 15; i++)
 				wait_vbl_done();
 			draw_party_entity(t, DIR_LEFT, HURT_FRAME);
-			for (u8 i = 0; i < 8; i++)
+			for (uint8_t i = 0; i < 8; i++)
 				wait_vbl_done();
 			draw_party_entity(t, DIR_LEFT, ATTACK_FRAME);
-			for (u8 i = 0; i < 8; i++)
+			for (uint8_t i = 0; i < 8; i++)
 				wait_vbl_done();
 			draw_party_entity(t, DIR_LEFT, IDLE_FRAME);
-			for (u8 i = 0; i < 15; i++)
+			for (uint8_t i = 0; i < 15; i++)
 				wait_vbl_done();
 			shadow_OAM[0].y = 0;
 			shadow_OAM[1].y = 0;
 			draw_party(22, 18, PARTYFONT_TILE, 7u * 8u + 8u,
 				   9u * 8u + 16u, 24, PARTY_HEALTH);
-			for (u8 i = 0; i < 15; i++)
+			for (uint8_t i = 0; i < 15; i++)
 				wait_vbl_done();
 			goto consume_item;
 		}
@@ -60,13 +60,13 @@ bool use_item(u8 i, u8 t)
 	return true;
 }
 
-void draw_inventory(u8 start) NONBANKED
+void draw_inventory(uint8_t start) NONBANKED
 {
-	u8 temp_bank = _current_bank;
+	uint8_t temp_bank = _current_bank;
 
-	for (u8 i = 0; i < 16; i++)
+	for (uint8_t i = 0; i < 16; i++)
 		vmemset((void *)(0x9C35 + i * 32), BLANK_TILE, 10);
-	for (u8 i = 0; (start < INVENTORY_SIZE) && (i < 8); i++, start++) {
+	for (uint8_t i = 0; (start < INVENTORY_SIZE) && (i < 8); i++, start++) {
 		if (inventory[start].data) {
 			SWITCH_ROM_MBC1(inventory[start].bank);
 			vwf_draw_text(24, 1 + i, SUBFONT_TILE + i * 8, 
@@ -77,9 +77,9 @@ void draw_inventory(u8 start) NONBANKED
 	SWITCH_ROM_MBC1(temp_bank);
 }
 
-void draw_item_cursor(u8 i) NONBANKED
+void draw_item_cursor(uint8_t i) NONBANKED
 {
-	u8 temp_bank = _current_bank;
+	uint8_t temp_bank = _current_bank;
 	SWITCH_ROM_MBC1(inventory[i].bank);
 	vmemcpy((void *)(0x8000), 16, inventory[i].data->graphic);
 	vmemcpy((void *)(0x8010), 16, &inventory[i].data->graphic[32]);
@@ -90,10 +90,10 @@ void draw_item_cursor(u8 i) NONBANKED
 	SWITCH_ROM_MBC1(temp_bank);
 }
 
-bool use_item_menu(u8 base_item, u8 i) BANKED
+bool use_item_menu(uint8_t base_item, uint8_t i) BANKED
 {
-	u8 cursor_pos = 0;
-	u8 cursor_spr = 88;
+	uint8_t cursor_pos = 0;
+	uint8_t cursor_spr = 88;
 
 	// Init
 	// Copy the item sprite to VRAM
@@ -107,7 +107,7 @@ bool use_item_menu(u8 base_item, u8 i) BANKED
 	while (SCY_REG < SUBSUBMENU_SLIDE_POS) {
 		wait_vbl_done();
 		SCY_REG += SUBMENU_SLIDE_SPEED;
-		for (u8 i = 0; i < 8; i++) {
+		for (uint8_t i = 0; i < 8; i++) {
 			if (!shadow_OAM[i].y)
 				continue;
 			shadow_OAM[i].y -= SUBMENU_SLIDE_SPEED;
@@ -153,7 +153,7 @@ bool use_item_menu(u8 base_item, u8 i) BANKED
 	while (SCY_REG > 0) {
 		wait_vbl_done();
 		SCY_REG -= SUBMENU_SLIDE_SPEED;
-		for (u8 i = 0; i < 8; i++) {
+		for (uint8_t i = 0; i < 8; i++) {
 			if (!shadow_OAM[i].y)
 				continue;
 			shadow_OAM[i].y += SUBMENU_SLIDE_SPEED;
@@ -167,14 +167,14 @@ bool use_item_menu(u8 base_item, u8 i) BANKED
 	return false;
 }
 
-void draw_description(u8 i) NONBANKED
+void draw_description(uint8_t i) NONBANKED
 {
 	if (!inventory[i].data) {
-		for (u8 y = 0; y < 4; y++)
+		for (uint8_t y = 0; y < 4; y++)
 			vmemset((void *)(0x9DB5 + y * 32), BLANK_TILE, 10);
 		return;
 	}
-	u8 temp_bank = _current_bank;
+	uint8_t temp_bank = _current_bank;
 	SWITCH_ROM_MBC1(inventory[i].bank);
 	vwf_draw_text(21, 13, DESCFONT_TILE,
 		      inventory[i].data->desc);
@@ -183,9 +183,9 @@ void draw_description(u8 i) NONBANKED
 
 bool item_menu() BANKED
 {
-	u8 cursor_pos = 0;
-	u8 cursor_spr = 20;
-	u8 base_item = 0;
+	uint8_t cursor_pos = 0;
+	uint8_t cursor_spr = 20;
+	uint8_t base_item = 0;
 	bool redraw_flag = true;
 
 	draw_inventory(0);

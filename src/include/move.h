@@ -1,16 +1,16 @@
 #pragma once
 
-#include "include/int.h"
+#include <stdint.h>
 
 extern struct entity;
 
 typedef struct {
 	const char *name;
-	const u8 power;
-	const u8 range;
+	const uint8_t power;
+	const uint8_t range;
 } move_data;
 
 typedef struct {
 	const move_data *data;
-	u8 bank;
+	uint8_t bank;
 } move;

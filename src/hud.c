@@ -3,6 +3,7 @@
 #include <gb/cgb.h>
 #include <gb/gb.h>
 #include <gb/incbin.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -58,13 +59,13 @@ const ui_pal default_ui_pink = {
 };
 
 ui_pal current_ui_pal;
-u8 status_position = 8;
-u8 text_position = 32;
+uint8_t status_position = 8;
+uint8_t text_position = 32;
 
 void init_hud() BANKED
 {
 	memcpy(&current_ui_pal, &default_ui_pink, sizeof(ui_pal));
-	u8 i;
+	uint8_t i;
 	vmemcpy((void *)TILEADDR(HUD_TILE), SIZE(hud_tiles), hud_tiles);
 	vmemcpy((void *)TILEADDR(ARROW_TILE), SIZE(arrow_tiles), arrow_tiles);
 
@@ -101,13 +102,13 @@ void init_hud() BANKED
 */
 void draw_move_window() NONBANKED
 {
-	u8 i = 1;
+	uint8_t i = 1;
 	for (; i < 5; i++) {
 		vset(0x9C01 + i * 32, ARROW_TILE - 1u + i);
 		vmemset((void *)(0x9C02 + i * 32), FONT_TILE - 1u, 8);
 	}
 
-	u8 temp_bank = _current_bank;
+	uint8_t temp_bank = _current_bank;
 
 	move *moves = PLAYER.moves;
 	if (moves->data) {
@@ -161,17 +162,17 @@ void show_hud() NONBANKED
 
 void hi_color() NONBANKED
 {
-	u8 r = current_ui_pal.gradient_start[0] - ((LYC_REG - 112) >> 1);
-	u8 g = current_ui_pal.gradient_start[1] - ((LYC_REG - 112) >> 1);
-	u8 b = current_ui_pal.gradient_start[2] - ((LYC_REG - 112) >> 1);
+	uint8_t r = current_ui_pal.gradient_start[0] - ((LYC_REG - 112) >> 1);
+	uint8_t g = current_ui_pal.gradient_start[1] - ((LYC_REG - 112) >> 1);
+	uint8_t b = current_ui_pal.gradient_start[2] - ((LYC_REG - 112) >> 1);
 	if (r > 31)
 		r = 0;
 	if (g > 31)
 		g = 0;
 	if (b > 31)
 		b = 0;
-	u8 clr0 = r | g << 5;
-	u8 clr1 = g >> 3 | b << 2;
+	uint8_t clr0 = r | g << 5;
+	uint8_t clr1 = g >> 3 | b << 2;
 	BCPS_REG = 7 * 8 | 0x80;
 	LYC_REG += 2;
 	bool done = false;
@@ -212,7 +213,7 @@ void show_game() NONBANKED
 
 void clear_print_hud() BANKED
 {
-	for (u8 i = 0; i < 3; i++)
+	for (uint8_t i = 0; i < 3; i++)
 		vmemset((void *)(0x9FA1 + i * 32), FONT_TILE - 1u,
 			MESSAGE_SIZE / 3);
 }

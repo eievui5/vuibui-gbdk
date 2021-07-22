@@ -1,6 +1,7 @@
 #include <gb/cgb.h>
 #include <gb/gb.h>
 #include <rand.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -9,7 +10,6 @@
 #include "include/game.h"
 #include "include/hardware.h"
 #include "include/hud.h"
-#include "include/int.h"
 #include "include/item.h"
 #include "include/map.h"
 #include "include/rendering.h"
@@ -51,7 +51,7 @@ void main()
 	current_mapdata_bank = BANK(debug_mapdata);
 	reload_mapdata();
 	generate_map();
-	for (u8 i = 0; i < NB_WORLD_ITEMS; i++) {
+	for (uint8_t i = 0; i < NB_WORLD_ITEMS; i++) {
 		world_items[i].data = &apple_item;
 		world_items[i].bank = BANK(apple);
 		world_items[i].x = 30 + i;
@@ -69,8 +69,8 @@ void main()
 		update_input();
 
 		bool moved = false;
-		static u8 window_bounce = 0;
-		static u8 speedup_delay = 0;
+		static uint8_t window_bounce = 0;
+		static uint8_t speedup_delay = 0;
 
 		if (new_keys == J_START && cur_keys == J_START) {
 			if(pause_menu())
@@ -130,7 +130,7 @@ void main()
 				} else
 					window_bounce = 2;
 			}
-			u8 selected = 255;
+			uint8_t selected = 255;
 			if (new_keys & J_UP)
 				selected = 0;
 			else if (new_keys & J_RIGHT)

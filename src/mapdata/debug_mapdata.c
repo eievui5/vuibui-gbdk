@@ -5,6 +5,7 @@
 
 #include "debug_mapdata.h"
 #include "include/map.h"
+#include "items/apple.h"
 
 #define GRASS 6
 
@@ -20,6 +21,8 @@ const mapdata debug_mapdata = {
 	.nb_walls = 1,
 	.wall_palette = debug_wall_palette,
 	.exit_tile = 5,
+	.item_count = 1,
+	.item_table = item_table,
 };
 
 INCBIN(debug_tileset, res/gfx/tilesets/tree_tiles.2bpp)
@@ -67,4 +70,8 @@ const short debug_colors[] = {
 	RGB_BLACK, RGB_BLACK, RGB_BLACK, RGB_BLACK,
 	RGB_BLACK, RGB_BLACK, RGB_BLACK, RGB_BLACK,
 	RGB(10, 24, 12), RGB(31, 0, 0), RGB(16, 0, 0), RGB(8, 0, 0)
+};
+
+const struct weight_table item_table[] = {
+	{.weight = 0x80, .ptr = &apple_item},
 };

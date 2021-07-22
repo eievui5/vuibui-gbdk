@@ -4,13 +4,13 @@
 #include <gb/gb.h>
 #include <rand.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "include/dir.h"
 #include "include/entity.h"
 #include "include/hud.h"
-#include "include/int.h"
 #include "include/map.h"
 #include "include/move.h"
 #include "include/rendering.h"
@@ -22,14 +22,14 @@
 entity entities[NB_ENTITIES];
 // The index of an ally which has been forced to move by the player. This ally
 // loses their turn
-u8 ignore_ally = 0;
-u8 move_speed = 1;
+uint8_t ignore_ally = 0;
+uint8_t move_speed = 1;
 
 // Reload an entity's graphics using its frame
-void reload_entity_graphics(u8 i) NONBANKED
+void reload_entity_graphics(uint8_t i) NONBANKED
 {
 	entity *self = &entities[i];
-	u8 temp_bank = _current_bank;
+	uint8_t temp_bank = _current_bank;
 	SWITCH_ROM_MBC1(self->bank);
 
 	self->prev_dir = self->direction;
@@ -55,9 +55,9 @@ void reload_entity_graphics(u8 i) NONBANKED
 */
 void render_entities() BANKED
 {
-	static u8 anim_timer = 0;
+	static uint8_t anim_timer = 0;
 	entity *self = entities;
-	for (u8 i = 0; i < NB_ENTITIES; i++, self++) {
+	for (uint8_t i = 0; i < NB_ENTITIES; i++, self++) {
 		if (self->data) {
 			if (self->spr_frame == HIDE_FRAME)
 				continue;
@@ -103,8 +103,8 @@ void render_entities() BANKED
 void move_entities() NONBANKED
 {
 	while(1) {
-		u8 progress = 0;
-		for (u8 i = 0; i < NB_ENTITIES; i++) {
+		uint8_t progress = 0;
+		for (uint8_t i = 0; i < NB_ENTITIES; i++) {
 			if (entities[i].data) {
 				entities[i].spr_frame = WALK_FRAME;
 				if (entities[i].x_pos * 16 != entities[i].x_spr) {
@@ -147,7 +147,7 @@ void move_entities() NONBANKED
 */
 void attack_animation(entity *self) BANKED
 {
-	u8 j = 0;
+	uint8_t j = 0;
 	// Delay
 	for (; j < 8; j++) {
 		render_entities();
@@ -193,7 +193,7 @@ void attack_animation(entity *self) BANKED
 
 void hurt_animation(entity *self) BANKED
 {
-	u8 i = 0;
+	uint8_t i = 0;
 
 	self->spr_frame = HURT_FRAME;
 	uvec16 init_spr = {self->x_spr, self->y_spr};
@@ -217,7 +217,7 @@ void hurt_animation(entity *self) BANKED
 		render_entities();
 		wait_vbl_done();
 	}
-	u8 swap_dir = self->direction;
+	uint8_t swap_dir = self->direction;
 	for (i = 0; i < 3; i++) {
 		switch (swap_dir) {
 		case DIR_UP:
@@ -266,7 +266,7 @@ void defeat_animation(entity *self) BANKED
 		self->x_spr -= 3;
 		break;
 	}
-	for (u8 i = 0; i < 10; i++) {
+	for (uint8_t i = 0; i < 10; i++) {
 		self->spr_frame = HIDE_FRAME;
 		render_entities();
 		wait_vbl_done();
@@ -291,9 +291,10 @@ void defeat_animation(entity *self) BANKED
  * @param y
  * @param health	Temporary - Set health and max health.
 */
-entity *new_entity(entity_data *data, u8 bank, u8 i, u8 x, u8 y, u16 health) NONBANKED
+entity *new_entity(entity_data *data, uint8_t bank, uint8_t i, uint8_t x, 
+		   uint8_t y, uint16_t health) NONBANKED
 {
-	u8 temp_bank = _current_bank;
+	uint8_t temp_bank = _current_bank;
 	SWITCH_ROM_MBC1(bank);
 
 	entity *self = &entities[i];
@@ -340,13 +341,13 @@ entity *new_entity(entity_data *data, u8 bank, u8 i, u8 x, u8 y, u16 health) NON
  * @param x		Location to place the entity at.
  * @param y
 */
-entity *spawn_enemy(entity_data *data, u8 bank) BANKED
+entity *spawn_enemy(entity_data *data, uint8_t bank) BANKED
 {
 	entity *self = &entities[3];
-	for (u8 i = 3; i < NB_ENTITIES; i++, self++)
+	for (uint8_t i = 3; i < NB_ENTITIES; i++, self++)
 		if (!self->data) {
-			u8 x;
-			u8 y;
+			uint8_t x;
+			uint8_t y;
 			while(1) {
 				x = rand() & 0b111111;
 				y = rand() & 0b111111;
@@ -365,7 +366,7 @@ entity *spawn_enemy(entity_data *data, u8 bank) BANKED
  * @param vec	Pointer to the target vector.
  * @param dir	The direction to use as an offset.
 */
-void move_direction(vec8 *vec, u8 dir) BANKED
+void move_direction(vec8 *vec, uint8_t dir) BANKED
 {
 	switch (dir) {
 	case DIR_UP:
@@ -392,7 +393,7 @@ void move_direction(vec8 *vec, u8 dir) BANKED
  *
  * @return	Resulting direction value.
 */
-u8 get_direction(i8 x, i8 y)
+uint8_t get_direction(int8_t x, int8_t y)
 {
 	if (abs(x) > abs(y)) {
 		if (x > 0)
@@ -413,7 +414,7 @@ u8 get_direction(i8 x, i8 y)
  *
  * @returns	Whether or not movement succeeded.
 */
-bool try_step(entity *self, u8 dir) BANKED
+bool try_step(entity *self, uint8_t dir) BANKED
 {
 	self->direction = dir;
 	vec8 target = {self->x_pos, self->y_pos};
@@ -434,8 +435,8 @@ bool try_step(entity *self, u8 dir) BANKED
 */
 bool player_try_step() BANKED
 {
-	u8 target_x = PLAYER.x_pos;
-	u8 target_y = PLAYER.y_pos;
+	uint8_t target_x = PLAYER.x_pos;
+	uint8_t target_y = PLAYER.y_pos;
 	switch (PLAYER.direction) {
 	case DIR_UP:
 		target_y--;
@@ -450,9 +451,9 @@ bool player_try_step() BANKED
 		target_x--;
 		break;
 	}
-	if (0 && get_collision(target_x, target_y) == WALL_COLL)
+	if (get_collision(target_x, target_y) == WALL_COLL)
 		return false;
-	for (u8 i = 1; i < NB_ALLIES; i++) {
+	for (uint8_t i = 1; i < NB_ALLIES; i++) {
 		if (!entities[i].data)
 			continue;
 		if (entities[i].x_pos == target_x && \
@@ -464,7 +465,7 @@ bool player_try_step() BANKED
 			goto skip_enemies;
 		}
 	}
-	for (u8 i = BEGIN_ENEMIES; i < NB_ENTITIES; i++)
+	for (uint8_t i = BEGIN_ENEMIES; i < NB_ENTITIES; i++)
 		if (entities[i].x_pos == target_x &&
 		    entities[i].y_pos == target_y)
 			return false;
@@ -482,9 +483,9 @@ bool player_try_step() BANKED
  *
  * @returns		The detected entity. NULL if no entity is found.
 */
-entity *check_entity_at(u8 x, u8 y) BANKED
+entity *check_entity_at(uint8_t x, uint8_t y) BANKED
 {
-	for (u8 i = 0; i < NB_ENTITIES; i++) {
+	for (uint8_t i = 0; i < NB_ENTITIES; i++) {
 		if (!entities[i].data)
 			continue;
 		if (entities[i].x_pos == x && entities[i].y_pos == y)
@@ -498,7 +499,7 @@ entity *check_entity_at(u8 x, u8 y) BANKED
  *
  * @returns	True if the location is valid.
 */
-bool check_collision(u8 x, u8 y) BANKED
+bool check_collision(uint8_t x, uint8_t y) BANKED
 {
 	if (get_collision(x, y) == WALL_COLL)
 		return true;
@@ -512,12 +513,12 @@ bool check_collision(u8 x, u8 y) BANKED
  * @param target_x	Target location.
  * @param target_y
 */
-void pathfind(entity *self, u8 target_x, u8 target_y) BANKED
+void pathfind(entity *self, uint8_t target_x, uint8_t target_y) BANKED
 {
-	i8 dist_x = target_x - self->x_pos;
-	i8 dist_y = target_y - self->y_pos;
-	i8 dir = -1;
-	i8 dir2 = -1; // Secondary choice if choice one fails.
+	int8_t dist_x = target_x - self->x_pos;
+	int8_t dist_y = target_y - self->y_pos;
+	int8_t dir = -1;
+	int8_t dir2 = -1; // Secondary choice if choice one fails.
 	if (abs(dist_x) > abs(dist_y)) {
 		if (dist_x > 0)
 			dir = DIR_RIGHT;
@@ -556,13 +557,13 @@ void pathfind(entity *self, u8 target_x, u8 target_y) BANKED
  * @param start Starting index of the array to pursue (usually 0 or 3)
  * @param stop	Stopping index of the array to pursue (usually 3 or 8)
 */
-void pursue(entity *self, u8 start, u8 stop) BANKED
+void pursue(entity *self, uint8_t start, uint8_t stop) BANKED
 {
 	entity *ally = &entities[start];
-	i8 closest = -1;
-	u16 dist = 65535;
-	for (u8 i = start; i < stop; i++, ally++) {
-		u16 cur_dist = (
+	int8_t closest = -1;
+	uint16_t dist = 65535;
+	for (uint8_t i = start; i < stop; i++, ally++) {
+		uint16_t cur_dist = (
 			abs(self->x_pos - ally->x_pos) +
 			abs(self->y_pos - ally->y_pos)
 		);

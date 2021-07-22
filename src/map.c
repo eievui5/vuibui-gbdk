@@ -4,25 +4,25 @@
 #include <gb/gb.h>
 #include <rand.h>
 #include <stdbool.h>
-#include <string.h>
 #include <stdio.h>
+#include <stdint.h>
+#include <string.h>
 
 #include "include/dir.h"
-#include "include/int.h"
 #include "include/hud.h"
 #include "include/item.h"
 #include "include/map.h"
 #include "include/rendering.h"
 #include "include/vec.h"
 
-u8 map[64][64];
+uint8_t map[64][64];
 uvec16 camera = {0, 0};
-u8 current_mapdata_bank;
+uint8_t current_mapdata_bank;
 const mapdata *current_mapdata;
 
-void draw_tile(u8 x, u8 y) NONBANKED
+void draw_tile(uint8_t x, uint8_t y) NONBANKED
 {
-	u16 tile_ptr = 0x9800 + (x & 0b11111) + ((y & 0b11111) << 5);
+	uint16_t tile_ptr = 0x9800 + (x & 0b11111) + ((y & 0b11111) << 5);
 	vset(
 		tile_ptr,
 		current_mapdata->metatiles[
@@ -41,21 +41,21 @@ void draw_tile(u8 x, u8 y) NONBANKED
 	}
 }
 
-void render_item(u8 i) NONBANKED
+void render_item(uint8_t i) NONBANKED
 {
-	u8 temp_bank = _current_bank;
+	uint8_t temp_bank = _current_bank;
 	SWITCH_ROM_MBC1(world_items[i].bank);
 
 	const item_data *self = world_items[i].data;
-	u16 tile_ptr = 0x9800 + ((world_items[i].x * 2) & 0b11111) + (world_items[i].y * 2 & 0b11111) * 32;
-	u8 tile_id = 0x70 + i * 4;
+	uint16_t tile_ptr = 0x9800 + ((world_items[i].x * 2) & 0b11111) + (world_items[i].y * 2 & 0b11111) * 32;
+	uint8_t tile_id = 0x70 + i * 4;
 	vset(tile_ptr, tile_id++);
 	vset(tile_ptr + 1, tile_id++);
 	vset(tile_ptr + 32, tile_id++);
 	vset(tile_ptr + 33, tile_id++);
 	if (_cpu == CGB_TYPE) {
 		VBK_REG = 1;
-		u8 tile_attr = world_items[i].palette;
+		uint8_t tile_attr = world_items[i].palette;
 		tile_ptr;
 		vset(tile_ptr, tile_attr);
 		vset(tile_ptr + 1, tile_attr);
@@ -67,12 +67,12 @@ void render_item(u8 i) NONBANKED
 	SWITCH_ROM_MBC1(temp_bank);
 }
 
-void update_camera(u16 x, u16 y) NONBANKED
+void update_camera(uint16_t x, uint16_t y) NONBANKED
 {
-	static u16 last_camera_x = 0;
-	static u16 last_camera_y = 0;
-	static u8 last_tile_x = 0;
-	static u8 last_tile_y = 0;
+	static uint16_t last_camera_x = 0;
+	static uint16_t last_camera_y = 0;
+	static uint8_t last_tile_x = 0;
+	static uint8_t last_tile_y = 0;
 
 	if (x > 32 * 64)
 		camera.x = 0;
@@ -86,18 +86,18 @@ void update_camera(u16 x, u16 y) NONBANKED
 		camera.y = 16 * 57;
 	else
 		camera.y = y;
-	u8 cur_tile_x = camera.x >> 3;
-	u8 cur_tile_y = camera.y >> 3;
+	uint8_t cur_tile_x = camera.x >> 3;
+	uint8_t cur_tile_y = camera.y >> 3;
 
 	if (cur_tile_x != last_tile_x) {
-		u8 tmpb = _current_bank;
+		uint8_t tmpb = _current_bank;
 		SWITCH_ROM_MBC1(current_mapdata_bank);
 
-		u8 ptrx = cur_tile_x + (camera.x > last_camera_x ? 20 : 0);
+		uint8_t ptrx = cur_tile_x + (camera.x > last_camera_x ? 20 : 0);
 		if (ptrx > 127)
 			ptrx = 127;
-		u8 ptry = cur_tile_y < 113 ? cur_tile_y : 113;
-		u8 i = 0;
+		uint8_t ptry = cur_tile_y < 113 ? cur_tile_y : 113;
+		uint8_t i = 0;
 		for (; i < 15; i++) {
 			draw_tile(ptrx, ptry);
 			ptry++;
@@ -113,14 +113,14 @@ void update_camera(u16 x, u16 y) NONBANKED
 		SWITCH_ROM_MBC1(tmpb);
 	}
 	if (cur_tile_y != last_tile_y) {
-		u8 tmpb = _current_bank;
+		uint8_t tmpb = _current_bank;
 		SWITCH_ROM_MBC1(current_mapdata_bank);
 
-		u8 ptrx = cur_tile_x < 127 ? cur_tile_x : 127;
-		u8 ptry = cur_tile_y + (camera.y > last_camera_y ? 14 : 0);
+		uint8_t ptrx = cur_tile_x < 127 ? cur_tile_x : 127;
+		uint8_t ptry = cur_tile_y + (camera.y > last_camera_y ? 14 : 0);
 		if (ptry > 127)
 			ptry = 127;
-		u8 i = 0;
+		uint8_t i = 0;
 		for (; i < 21; i++) {
 			draw_tile(ptrx, ptry);
 			ptrx++;
@@ -142,12 +142,12 @@ void update_camera(u16 x, u16 y) NONBANKED
 }
 
 // Return the collision of the tile at (`x`, `y`).
-u8 get_collision(u16 x, u16 y) NONBANKED
+uint8_t get_collision(uint16_t x, uint16_t y) NONBANKED
 {
-	u8 tmpb = _current_bank;
+	uint8_t tmpb = _current_bank;
 	SWITCH_ROM_MBC1(current_mapdata_bank);
 
-	u8 rtrn = current_mapdata->metatiles[map[y][x]].collision;
+	uint8_t rtrn = current_mapdata->metatiles[map[y][x]].collision;
 
 	SWITCH_ROM_MBC1(tmpb);
 	return rtrn;
@@ -155,7 +155,7 @@ u8 get_collision(u16 x, u16 y) NONBANKED
 
 void reload_mapdata() NONBANKED
 {
-	u8 tmpb = _current_bank;
+	uint8_t tmpb = _current_bank;
 	SWITCH_ROM_MBC1(current_mapdata_bank);
 
 	set_bkg_data(0, 128, current_mapdata->tileset);
@@ -167,15 +167,15 @@ void reload_mapdata() NONBANKED
 
 void force_render_map() NONBANKED
 {
-	u8 tmpb = _current_bank;
+	uint8_t tmpb = _current_bank;
 	SWITCH_ROM_MBC1(current_mapdata_bank);
 
-	u8 x = camera.x >> 3;
-	for (u8 i = 0; i < 21; i++) {
-		u8 y = camera.y >> 3;
-		for (u8 j = 0; j < 19; j++) {
+	uint8_t x = camera.x >> 3;
+	for (uint8_t i = 0; i < 21; i++) {
+		uint8_t y = camera.y >> 3;
+		for (uint8_t j = 0; j < 19; j++) {
 			draw_tile(x, y);
-			for (u8 j = 0; j < NB_WORLD_ITEMS; j++)
+			for (uint8_t j = 0; j < NB_WORLD_ITEMS; j++)
 				if (world_items[j].data)
 					if (world_items[j].x == x / 2 &&
 					    world_items[j].y == y / 2)
@@ -192,7 +192,7 @@ void force_render_map() NONBANKED
 void force_walls() BANKED
 {
 	memset(&map[0][0], 1, 64);
-	for (u8 i = 1; i < 63; i++) {
+	for (uint8_t i = 1; i < 63; i++) {
 		map[i][0] = 1;
 		map[i][63] = 1;
 	}
@@ -233,10 +233,10 @@ bool contain_cursor(uvec8 *cur) BANKED
  * @param dir	Direction to draw.
  * @param len	Number of tiles to draw.
 */
-void map_walk(uvec8 *cur, u8 tile, u8 dir, u8 len) BANKED
+void map_walk(uvec8 *cur, uint8_t tile, uint8_t dir, uint8_t len) BANKED
 {
-	for (u8 i = 0; i < len; i++) {
-		u8 sw_dir = dir;
+	for (uint8_t i = 0; i < len; i++) {
+		uint8_t sw_dir = dir;
 		if (!(rand() & 0b111))
 			sw_dir = rand() & 0b11;
 		switch (sw_dir) {
@@ -270,14 +270,14 @@ void map_walk(uvec8 *cur, u8 tile, u8 dir, u8 len) BANKED
  * 
  * @returns 		Cursor at a random edge of the room.
 */
-void generate_room(uvec8 *cur, u8 width, u8 height) BANKED
+void generate_room(uvec8 *cur, uint8_t width, uint8_t height) BANKED
 {
 	cur->x -= width/2;
 	cur->y -= height/2 + 1;
 
-	for (u8 y = height; y; y--) {
+	for (uint8_t y = height; y; y--) {
 		cur->y++;
-		for (u8 x = width; x; x--) {
+		for (uint8_t x = width; x; x--) {
 			contain_cursor(cur);
 			map[cur->y][cur->x] = 0;
 			cur->x++;
@@ -315,8 +315,8 @@ void generate_room(uvec8 *cur, u8 width, u8 height) BANKED
 void generate_exit() BANKED
 {
 	while (1) {
-		u8 x = rand() & 0b111111;
-		u8 y = rand() & 0b111111;
+		uint8_t x = rand() & 0b111111;
+		uint8_t y = rand() & 0b111111;
 		if (!(map[y][x] || map[y][x + 1] || map[y][x - 1] || 
 		    map[y + 1][x] || map[y + 1][x + 1] || map[y + 1][x - 1] ||
 		    map[y - 1][x] || map[y - 1][x + 1] || map[y - 1][x - 1])) {
@@ -332,17 +332,17 @@ void generate_exit() BANKED
 */
 void column_postprocess() NONBANKED
 {
-	u8 tmpb = _current_bank;
+	uint8_t tmpb = _current_bank;
 	SWITCH_ROM_MBC1(current_mapdata_bank);
 
-	for (u8 x = 0; x < 64; x++)
+	for (uint8_t x = 0; x < 64; x++)
 		if (map[1][x] != NO_COLL)
 			map[0][x] = current_mapdata->wall_palette[1];
 		else
 			map[0][x] = current_mapdata->wall_palette[2];
 
-	for (u8 y = 1; y < 63; y++) {
-		for (u8 x = 0; x < 64; x++) {
+	for (uint8_t y = 1; y < 63; y++) {
+		for (uint8_t x = 0; x < 64; x++) {
 			if (map[y][x] != WALL_COLL)
 				continue;
 			else if (map[y - 1][x] != NO_COLL && map[y + 1][x] != NO_COLL)
@@ -356,7 +356,7 @@ void column_postprocess() NONBANKED
 		}
 	}
 
-	for (u8 x = 0; x < 64; x++)
+	for (uint8_t x = 0; x < 64; x++)
 		if (map[62][x] != NO_COLL)
 			map[63][x] = current_mapdata->wall_palette[1];
 		else
@@ -372,7 +372,7 @@ void generate_map() BANKED
 	map[32][32] = NO_COLL;
 	uvec8 cur = {32, 32};
 	generate_room(&cur, 9, 9);
-	for (u8 i = 0; i < 8; i++) {
+	for (uint8_t i = 0; i < 8; i++) {
 		map_walk(&cur, NO_COLL, rand() & 0b11, (rand() & 0b1111) + 4);
 		map_walk(&cur, NO_COLL, rand() & 0b11, (rand() & 0b1111) + 4);
 		map_walk(&cur, NO_COLL, rand() & 0b11, (rand() & 0b1111) + 4);
@@ -381,4 +381,12 @@ void generate_map() BANKED
 	force_walls();
 	column_postprocess();
 	generate_exit();
+}
+
+void create_new_floor() BANKED
+{
+	swipe_left();
+	generate_map();
+	force_render_map();
+	swipe_right();
 }

@@ -1,8 +1,7 @@
 #pragma once
 
 #include <gb/incbin.h>
-
-#include "include/int.h"
+#include <stdint.h>
 
 #define MESSAGE_SIZE 60u
 
@@ -16,8 +15,8 @@ typedef struct {
 } ui_pal;
 
 extern ui_pal current_ui_pal;
-extern u8 status_position;
-extern u8 text_position;
+extern uint8_t status_position;
+extern uint8_t text_position;
 
 void clear_print_hud() BANKED;
 void init_hud() BANKED;

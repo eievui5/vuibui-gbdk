@@ -2,6 +2,7 @@
 
 #include <gb/cgb.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <string.h>
 
 #include "include/bank.h"
@@ -10,7 +11,6 @@
 #include "include/hud.h"
 #include "include/game.h"
 #include "include/hardware.h"
-#include "include/int.h"
 #include "include/item.h"
 #include "include/map.h"
 #include "include/rendering.h"
@@ -42,8 +42,8 @@ const char pause_text[] = \
 bool pause_menu() BANKED
 {
 	// Init.
-	u8 cursor_pos = 0;
-	u8 cursor_spr = 20;
+	uint8_t cursor_pos = 0;
+	uint8_t cursor_spr = 20;
 	bool used_turn = false;
 
 	swipe_left();
@@ -108,7 +108,7 @@ bool pause_menu() BANKED
 	exit:
 	memset(shadow_OAM, 0, 8);
 	wait_vbl_done();
-	for (u8 i = 0; i < NB_ENTITIES; i++) {
+	for (uint8_t i = 0; i < NB_ENTITIES; i++) {
 		if (entities[i].data) {
 			reload_entity_graphics(i);
 		}
