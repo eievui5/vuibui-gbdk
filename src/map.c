@@ -289,19 +289,19 @@ void generate_room(uvec8 *cur, uint8_t width, uint8_t height) BANKED
 	switch (rand() & 0b11) {
 	case DIR_DOWN:
 		// Only offset X when going down...
-		cur->x += rand() % width;
+		cur->x += (uint8_t)rand() % width;
 		break;
 	case DIR_LEFT:
 		// ... Y when going left...
-		cur->y -= rand() % height;
+		cur->y -= (uint8_t)rand() % height;
 		break;
 	case DIR_RIGHT:
 		// ... and both for right and up.
 		cur->x += width;
-		cur->y -= rand() % height;
+		cur->y -= (uint8_t)rand() % height;
 		break;
 	case DIR_UP:
-		cur->x += rand() % width;
+		cur->x += (uint8_t)rand() % width;
 		cur->y -= height;
 		break;
 	}
@@ -312,15 +312,20 @@ void generate_room(uvec8 *cur, uint8_t width, uint8_t height) BANKED
  * Attempts to generate an exit. Will search for a 3x3 area of clear tiles to
  * place the exit tile on.
 */
-void generate_exit() BANKED
+void generate_exit() NONBANKED
 {
 	while (1) {
 		uint8_t x = rand() & 0b111111;
 		uint8_t y = rand() & 0b111111;
-		if (!(map[y][x] || map[y][x + 1] || map[y][x - 1] || 
-		    map[y + 1][x] || map[y + 1][x + 1] || map[y + 1][x - 1] ||
-		    map[y - 1][x] || map[y - 1][x + 1] || map[y - 1][x - 1])) {
+		if (!(get_collision(x, y) | get_collision(x + 1, y) |
+		    get_collision(x - 1, y) | get_collision(x, y + 1) |
+		    get_collision(x + 1, y + 1) | get_collision(x - 1, y + 1) |
+		    get_collision(x, y - 1) | get_collision(x - 1, y - 1) |
+		    get_collision(x - 1, y - 1))) {
+			uint8_t temp_bank = _current_bank;
+			SWITCH_ROM_MBC1(current_mapdata_bank);
 			map[y][x] = current_mapdata->exit_tile;
+			SWITCH_ROM_MBC1(temp_bank);
 			return;
 		}
 	}
@@ -387,6 +392,7 @@ void create_new_floor() BANKED
 {
 	swipe_left();
 	generate_map();
+	generate_items();
 	force_render_map();
 	swipe_right();
 }

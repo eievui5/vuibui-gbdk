@@ -1,3 +1,4 @@
+#include <rand.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
@@ -75,4 +76,38 @@ void load_item_graphics()
 		SWITCH_ROM_MBC1(world_items[i].bank);
 		vmemcpy((void *)(0x9700 + i * 64), 64, world_items[i].data->graphic);
 	}
+}
+
+void generate_items()
+{
+	uint8_t temp_bank = _current_bank;
+	SWITCH_ROM_MBC1(current_mapdata_bank);
+	for (uint8_t i = 0; i < 4; i++) {
+		uint8_t index = rand();
+		uint8_t item_index = 0;
+		while (current_mapdata->item_table[item_index].weight < index)
+			item_index++;
+		if (!current_mapdata->item_table[item_index].ptr)
+			continue;
+		while (1) {
+			uint8_t x = rand() & 0b111111;
+			uint8_t y = rand() & 0b111111;
+			if (!(get_collision(x, y) | 
+			    get_collision(x + 1, y) |
+			    get_collision(x - 1, y) | 
+			    get_collision(x, y + 1) |
+			    get_collision(x + 1, y + 1) | 
+			    get_collision(x - 1, y + 1) |
+			    get_collision(x, y - 1) | 
+			    get_collision(x - 1, y - 1) |
+			    get_collision(x - 1, y - 1))) {
+				world_items[i].data = current_mapdata->item_table[item_index].ptr;
+				world_items[i].bank = current_mapdata->item_table[item_index].bank;
+				world_items[i].x = x;
+				world_items[i].y = y;
+				break;
+			}
+		}
+	}
+	SWITCH_ROM_MBC1(temp_bank);
 }

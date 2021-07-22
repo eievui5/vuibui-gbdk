@@ -46,3 +46,4 @@ extern item inventory[INVENTORY_SIZE];
 
 void pickup_item(uint8_t i);
 void load_item_graphics();
+void generate_items();

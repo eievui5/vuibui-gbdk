@@ -51,13 +51,7 @@ void main()
 	current_mapdata_bank = BANK(debug_mapdata);
 	reload_mapdata();
 	generate_map();
-	for (uint8_t i = 0; i < NB_WORLD_ITEMS; i++) {
-		world_items[i].data = &apple_item;
-		world_items[i].bank = BANK(apple);
-		world_items[i].x = 30 + i;
-		world_items[i].y = 30;
-		world_items[i].palette = 6;
-	}
+	generate_items();
 	load_item_graphics();
 	move_entities();
 	force_render_map();

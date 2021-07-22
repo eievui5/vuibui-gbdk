@@ -1,4 +1,4 @@
-#pragma bank 255
+#pragma bank 2
 
 #include <gb/cgb.h>
 #include <gb/incbin.h>
@@ -12,7 +12,7 @@
 #define TREE_PAL 0
 #define GRASS_PAL 1
 
-const void __at(255) __bank_debug_mapdata;
+const void __at(2) __bank_debug_mapdata;
 
 const mapdata debug_mapdata = {
 	.tileset = debug_tileset,
@@ -21,7 +21,6 @@ const mapdata debug_mapdata = {
 	.nb_walls = 1,
 	.wall_palette = debug_wall_palette,
 	.exit_tile = 5,
-	.item_count = 1,
 	.item_table = item_table,
 };
 
@@ -72,6 +71,7 @@ const short debug_colors[] = {
 	RGB(10, 24, 12), RGB(31, 0, 0), RGB(16, 0, 0), RGB(8, 0, 0)
 };
 
-const struct weight_table item_table[] = {
-	{.weight = 0x80, .ptr = &apple_item},
+const struct weighted_farptr_table item_table[] = {
+	{.weight = 0x80, .bank = BANK(apple), .ptr = &apple_item},
+	{.weight = 0xFF, .ptr = NULL},
 };
