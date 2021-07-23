@@ -9,7 +9,7 @@
 #                                              #
 ################################################
 
-LCC	= lcc -Wa-l -Wa--vc -Wl-m -Isrc -Wb-ext=.rel -autobank
+LCC	= lcc -Wa-l -Wl-m -Isrc -Wb-ext=.rel -autobank
 
 ifeq ($(OS),Windows_NT)
 	ROMUSAGE := ./tools/romusage.exe
@@ -66,10 +66,6 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.c
 $(OBJDIR)/%.o: $(SRCDIR)/%.s
 	@mkdir -p $(@D)
 	lcc -c -o $@ $<
-
-$(OBJDIR)/%.o: $(RESDIR)/%.c
-	@mkdir -p $(@D)
-	$(LCC) -c -o $@ $<
 
 $(OBJDIR)/%.b.o: $(SRCDIR)/%.b.c
 	@mkdir -p $(@D)

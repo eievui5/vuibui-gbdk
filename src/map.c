@@ -9,11 +9,14 @@
 #include <string.h>
 
 #include "include/dir.h"
+#include "include/entity.h"
 #include "include/hud.h"
 #include "include/item.h"
 #include "include/map.h"
 #include "include/rendering.h"
 #include "include/vec.h"
+
+#include "entities/luvui.h"
 
 uint8_t map[64][64];
 uvec16 camera = {0, 0};
@@ -138,11 +141,18 @@ uint8_t get_collision(uint16_t x, uint16_t y) NONBANKED
 {
 	uint8_t tmpb = _current_bank;
 	SWITCH_ROM_MBC1(current_mapdata_bank);
-
 	uint8_t rtrn = current_mapdata->metatiles[map[y][x]].collision;
-
 	SWITCH_ROM_MBC1(tmpb);
 	return rtrn;
+}
+
+bool is_open_location(uint8_t x, uint8_t y) BANKED
+{
+	return !(get_collision(x, y) || get_collision(x + 1, y) ||
+		get_collision(x - 1, y) || get_collision(x, y + 1) ||
+		get_collision(x + 1, y + 1) || get_collision(x - 1, y + 1) ||
+		get_collision(x, y - 1) || get_collision(x - 1, y - 1) ||
+		get_collision(x - 1, y - 1));
 }
 
 void reload_mapdata() NONBANKED
@@ -309,11 +319,7 @@ void generate_exit() NONBANKED
 	while (1) {
 		uint8_t x = rand() & 0b111111;
 		uint8_t y = rand() & 0b111111;
-		if (!(get_collision(x, y) | get_collision(x + 1, y) |
-		    get_collision(x - 1, y) | get_collision(x, y + 1) |
-		    get_collision(x + 1, y + 1) | get_collision(x - 1, y + 1) |
-		    get_collision(x, y - 1) | get_collision(x - 1, y - 1) |
-		    get_collision(x - 1, y - 1))) {
+		if (is_open_location(x, y)) {
 			uint8_t temp_bank = _current_bank;
 			SWITCH_ROM_MBC1(current_mapdata_bank);
 			map[y][x] = current_mapdata->exit_tile;
@@ -382,10 +388,36 @@ void generate_map() BANKED
 
 void create_new_floor() BANKED
 {
+	memset(world_items, 0, sizeof(world_items));
+	memset(&entities[3], 0, sizeof(entity) * 5);
 	swipe_left();
 	generate_map();
 	generate_items();
 	load_item_graphics();
+	while (1) {
+		uint8_t x = rand() & 0b111111;
+		uint8_t y = rand() & 0b111111;
+		if (is_open_location(x, y)) {
+			PLAYER.x_pos = x;
+			PLAYER.x_spr = x * 16;
+			PLAYER.y_pos = y;
+			PLAYER.y_spr = y * 16;
+			uint8_t dir = rand() & 0b11;
+			for (uint8_t i = 1; i < NB_ALLIES; i++) {
+				vec8 pos = {x, y};
+				move_direction(&pos, dir);
+				entities[i].x_pos = pos.x;
+				entities[i].x_spr = pos.x * 16;
+				entities[i].y_pos = pos.y;
+				entities[i].y_spr = pos.y * 16;
+				dir = TURN_RIGHT(dir);
+			}
+			break;
+		}
+	}
+	for (uint8_t i = 0; i < 5; i++)
+		spawn_enemy(&luvui_entity, BANK(luvui));
+	move_entities();
 	force_render_map();
 	swipe_right();
 }

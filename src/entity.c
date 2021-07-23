@@ -351,7 +351,11 @@ entity *spawn_enemy(entity_data *data, uint8_t bank) BANKED
 			while(1) {
 				x = rand() & 0b111111;
 				y = rand() & 0b111111;
-				if (!check_collision(x, y))
+				if (!check_collision(x, y) && 
+				    !(self->x_spr + 16 >= camera.x &&
+				    self->x_spr <= camera.x + 160 &&
+				    self->y_spr + 16 >= camera.y &&
+				    self->y_spr <= camera.y + 144))
 					break;
 			}
 			return new_entity(data, bank, i, x, y, 4);
@@ -551,7 +555,7 @@ void pathfind(entity *self, uint8_t target_x, uint8_t target_y) BANKED
 }
 
 /**
- * Attempt to chase the allies and attack them if within range.
+ * Attempt to chase a group of entities and attack them if within range.
  *
  * @param i	Index of the pursuing entity.
  * @param start Starting index of the array to pursue (usually 0 or 3)
@@ -563,10 +567,10 @@ void pursue(entity *self, uint8_t start, uint8_t stop) BANKED
 	int8_t closest = -1;
 	uint16_t dist = 65535;
 	for (uint8_t i = start; i < stop; i++, ally++) {
-		uint16_t cur_dist = (
-			abs(self->x_pos - ally->x_pos) +
-			abs(self->y_pos - ally->y_pos)
-		);
+		if (!*ally)
+			continue;
+		uint16_t cur_dist = abs(self->x_pos - ally->x_pos) +
+				    abs(self->y_pos - ally->y_pos);
 		if (cur_dist < dist) {
 			dist = cur_dist;
 			closest = i;
@@ -574,9 +578,8 @@ void pursue(entity *self, uint8_t start, uint8_t stop) BANKED
 	}
 	ally = &entities[closest];
 	if (dist == 1) {
-		self->direction = get_direction(
-			ally->x_pos - self->x_pos, ally->y_pos - self->y_pos
-		);
+		self->direction = get_direction(ally->x_pos - self->x_pos,
+						ally->y_pos - self->y_pos);
 		use_melee_move(self, &self->moves[0]);
 	} else
 		pathfind(self, ally->x_pos, ally->y_pos);

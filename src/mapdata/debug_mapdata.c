@@ -11,6 +11,7 @@
 
 #define TREE_PAL 0
 #define GRASS_PAL 1
+#define STAIR_PAL 2
 
 const void __at(2) __bank_debug_mapdata;
 
@@ -54,7 +55,7 @@ const metatile debug_metatiles[] = {
 	},
 	{
 		.tiles = {7, 8, 16, 17},
-		.attrs = {GRASS_PAL, GRASS_PAL, GRASS_PAL, GRASS_PAL},
+		.attrs = {STAIR_PAL, STAIR_PAL, STAIR_PAL, STAIR_PAL},
 		.collision = EXIT_COLL
 	},
 };
@@ -64,7 +65,7 @@ const char debug_wall_palette[] = {1, 2, 3, 4};
 const short debug_colors[] = {
 	RGB(10, 24, 12), RGB(16, 11, 7), RGB(0, 11, 3), RGB(0, 4, 0),
 	RGB(10, 24, 12), RGB(0, 15, 0), RGB(0, 5, 0), RGB(0, 1, 0),
-	RGB_BLACK, RGB_BLACK, RGB_BLACK, RGB_BLACK,
+	RGB(0, 0, 31), RGB(0, 0, 16), RGB(0, 0, 8), RGB(0, 0, 4),
 	RGB_BLACK, RGB_BLACK, RGB_BLACK, RGB_BLACK,
 	RGB_BLACK, RGB_BLACK, RGB_BLACK, RGB_BLACK,
 	RGB_BLACK, RGB_BLACK, RGB_BLACK, RGB_BLACK,

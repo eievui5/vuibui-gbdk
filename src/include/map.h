@@ -1,6 +1,7 @@
 #pragma once
 
 #include <gb/gb.h>
+#include <stdbool.h>
 #include <stdint.h>
 
 #include "include/vec.h"
@@ -62,3 +63,4 @@ void reload_mapdata() NONBANKED;
 
 void generate_map() BANKED;
 void create_new_floor() BANKED;
+bool is_open_location(uint8_t x, uint8_t y) BANKED;
