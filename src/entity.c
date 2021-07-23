@@ -16,9 +16,6 @@
 #include "include/rendering.h"
 #include "include/vec.h"
 
-#include "moves/scratch.h"
-#include "moves/lunge.h"
-
 entity entities[NB_ENTITIES];
 // The index of an ally which has been forced to move by the player. This ally
 // loses their turn
@@ -280,6 +277,15 @@ void defeat_animation(entity *self) BANKED
 	}
 }
 
+uint16_t get_max_health(entity *self) NONBANKED
+{
+	uint8_t temp_bank = _current_bank;
+	SWITCH_ROM_MBC1(self->bank);
+	uint16_t max_health = self->data->base_health + (self->data->base_health >> 3u) * self->level;
+	SWITCH_ROM_MBC1(temp_bank);
+	return max_health;
+}
+
 /**
  * Create a new entity inside the entity array. Requires an index to load the
  * sprites into VRAM.
@@ -292,7 +298,7 @@ void defeat_animation(entity *self) BANKED
  * @param health	Temporary - Set health and max health.
 */
 entity *new_entity(entity_data *data, uint8_t bank, uint8_t i, uint8_t x, 
-		   uint8_t y, uint16_t health) NONBANKED
+		   uint8_t y, uint8_t level) NONBANKED
 {
 	uint8_t temp_bank = _current_bank;
 	SWITCH_ROM_MBC1(bank);
@@ -319,12 +325,19 @@ entity *new_entity(entity_data *data, uint8_t bank, uint8_t i, uint8_t x,
 	self->y_pos = y;
 	self->y_spr = y * 16;
 	self->path_dir = -1;
-	self->health = health;
-	self->max_health = health;
-	self->moves[0].data = &scratch_move;
-	self->moves[0].bank = BANK(scratch);
-	self->moves[1].data = &lunge_move;
-	self->moves[1].bank = BANK(lunge);
+	self->level = level;
+	self->health = get_max_health(self);
+	self->max_health = get_max_health(self);
+	// Grab the last 4 moves the entity learned, unless they have not yet
+	// learned 4.
+	int8_t current_move = 0;
+	while (data->level_moves[current_move + 1].level < level)
+		current_move++;
+	for (uint8_t i = 0; i < 4 && current_move >= 0; i++, current_move--) {
+		self->moves[i].bank = data->level_moves[current_move].bank;
+		self->moves[i].data = data->level_moves[current_move].data;
+	}
+
 	strcpy(self->name, data->name);
 	reload_entity_graphics(i);
 
@@ -358,7 +371,7 @@ entity *spawn_enemy(entity_data *data, uint8_t bank) BANKED
 				    self->y_spr <= camera.y + 144))
 					break;
 			}
-			return new_entity(data, bank, i, x, y, 4);
+			return new_entity(data, bank, i, x, y, 2);
 		}
 	return NULL;
 }

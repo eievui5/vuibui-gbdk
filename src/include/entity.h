@@ -35,6 +35,12 @@ enum special_frames {
 	HIDE_FRAME = 255
 };
 
+struct leveled_move {
+	uint8_t level;
+	uint8_t bank;
+	move_data *data;
+};
+
 /**
  * Contains constant data for entities.
  * 
@@ -46,6 +52,9 @@ typedef struct {
 	const char *graphics;
 	short *colors;
 	const char *name;
+	const struct leveled_move *level_moves;
+	// Max health is (base_health + base_health/8 * level)
+	const uint8_t base_health;
 } entity_data;
 
 /**
@@ -64,6 +73,8 @@ typedef struct {
  * @param prev_frame	Which frame the sprite displayed the last time its 
  * graphics were reloaded.
  * @param moves		The entity's 4 available moves.
+ * @param level		The entity's current level.
+ * @param xp		The entity's progress to the next level.
 */
 typedef struct {
 	const entity_data *data;
@@ -81,6 +92,8 @@ typedef struct {
 	uint16_t max_health;
 	char name[ENTITY_NAME_LEN];
 	move moves[4];
+	uint8_t level;
+	uint16_t xp;
 } entity;
 
 extern entity entities[NB_ENTITIES];
@@ -88,7 +101,7 @@ extern uint8_t move_speed;
 
 void move_entities() NONBANKED;
 entity *new_entity(entity_data *data, uint8_t bank, uint8_t i, uint8_t x, 
-		   uint8_t y, uint16_t health) NONBANKED;
+		   uint8_t y, uint8_t level) NONBANKED;
 
 void attack_animation(entity *self) BANKED;
 bool check_collision(uint8_t x, uint8_t y) BANKED;

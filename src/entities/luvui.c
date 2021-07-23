@@ -4,6 +4,9 @@
 #include <gb/incbin.h>
 #include "include/entity.h"
 
+#include "moves/scratch.h"
+#include "moves/lunge.h"
+
 INCBIN(gfx_luvui, res/gfx/sprites/luvui.h.2bpp)
 INCBIN_EXTERN(gfx_luvui)
 
@@ -14,6 +17,8 @@ const entity_data luvui_entity = {
 	.graphics = gfx_luvui,
 	.colors = luvui_colors,
 	.name = luvui_name,
+	.level_moves = luvui_moves,
+	.base_health = 64,
 };
 
 const char luvui_metasprite[] = {
@@ -36,3 +41,9 @@ const short luvui_colors[] = {
 };
 
 const char luvui_name[] = "Luvui";
+
+const struct leveled_move luvui_moves[] = {
+	{.level = 1, .bank = BANK(scratch), .data = &scratch_move},
+	{.level = 3, .bank = BANK(lunge), .data = &lunge_move},
+	{.level = 0xFF},
+};
