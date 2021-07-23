@@ -71,7 +71,7 @@ const short debug_colors[] = {
 	RGB(10, 24, 12), RGB(31, 0, 0), RGB(16, 0, 0), RGB(8, 0, 0)
 };
 
-const struct weighted_farptr_table item_table[] = {
-	{.weight = 0x80, .bank = BANK(apple), .ptr = &apple_item},
+const struct item_weight item_table[] = {
+	{.weight = 0x80, .bank = BANK(apple), .ptr = &apple_item, .pal = 6},
 	{.weight = 0xFF, .ptr = NULL},
 };

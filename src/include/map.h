@@ -17,10 +17,11 @@ typedef struct {
 	unsigned char collision;
 } metatile;
 
-struct weighted_farptr_table {
+struct item_weight {
 	uint8_t weight;
 	uint8_t bank;
 	void *ptr;
+	uint8_t pal;
 };
 
 /**
@@ -44,7 +45,7 @@ typedef struct {
 	const uint8_t nb_walls;
 	const char *wall_palette;
 	const uint8_t exit_tile;
-	const struct weighted_farptr_table *item_table;
+	const struct item_weight *item_table;
 } mapdata;
 
 // Y, X order.

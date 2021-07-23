@@ -23,20 +23,16 @@ const mapdata *current_mapdata;
 void draw_tile(uint8_t x, uint8_t y) NONBANKED
 {
 	uint16_t tile_ptr = 0x9800 + (x & 0b11111) + ((y & 0b11111) << 5);
-	vset(
-		tile_ptr,
-		current_mapdata->metatiles[
-			map[y >> 1][x >> 1]
-		].tiles[(x & 1) + (y & 1) * 2]
-	);
+	vset(tile_ptr,
+	     current_mapdata->metatiles[
+		map[y >> 1][x >> 1]
+	     ].tiles[(x & 1) + (y & 1) * 2]);
 	if (_cpu == CGB_TYPE) {
 		VBK_REG = 1;
-		vset(
-			tile_ptr,
-			current_mapdata->metatiles[
-				map[y >> 1][x >> 1]
-			].attrs[(x & 1) + (y & 1) * 2]
-		);
+		vset(tile_ptr,
+		     current_mapdata->metatiles[
+			map[y >> 1][x >> 1]
+		     ].attrs[(x & 1) + (y & 1) * 2]);
 		VBK_REG = 0;
 	}
 }
@@ -104,11 +100,9 @@ void update_camera(uint16_t x, uint16_t y) NONBANKED
 		}
 		for (i = 0; i < NB_WORLD_ITEMS; i++)
 			if (world_items[i].data)
-				if (
-					world_items[i].x == ptrx / 2 &&
-					world_items[i].y < ptry / 2 &&
-					world_items[i].y > (ptry - 17) / 2
-				)
+				if (world_items[i].x == ptrx / 2 &&
+				    world_items[i].y < ptry / 2 &&
+				    world_items[i].y > (ptry - 17) / 2)
 					render_item(i);
 		SWITCH_ROM_MBC1(tmpb);
 	}
@@ -127,11 +121,9 @@ void update_camera(uint16_t x, uint16_t y) NONBANKED
 		}
 		for (i = 0; i < NB_WORLD_ITEMS; i++)
 			if (world_items[i].data)
-				if (
-					world_items[i].y == ptry / 2 &&
-					world_items[i].x < ptrx / 2 &&
-					world_items[i].x > (ptrx - 23) / 2
-				)
+				if (world_items[i].y == ptry / 2 &&
+				    world_items[i].x < ptrx / 2 &&
+				    world_items[i].x > (ptrx - 23) / 2)
 					render_item(i);
 		SWITCH_ROM_MBC1(tmpb);
 	}
@@ -393,6 +385,7 @@ void create_new_floor() BANKED
 	swipe_left();
 	generate_map();
 	generate_items();
+	load_item_graphics();
 	force_render_map();
 	swipe_right();
 }

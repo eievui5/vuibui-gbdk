@@ -92,19 +92,20 @@ void generate_items()
 		while (1) {
 			uint8_t x = rand() & 0b111111;
 			uint8_t y = rand() & 0b111111;
-			if (!(get_collision(x, y) | 
+			if (!(get_collision(x, y) |
 			    get_collision(x + 1, y) |
-			    get_collision(x - 1, y) | 
+			    get_collision(x - 1, y) |
 			    get_collision(x, y + 1) |
-			    get_collision(x + 1, y + 1) | 
+			    get_collision(x + 1, y + 1) |
 			    get_collision(x - 1, y + 1) |
-			    get_collision(x, y - 1) | 
+			    get_collision(x, y - 1) |
 			    get_collision(x - 1, y - 1) |
 			    get_collision(x - 1, y - 1))) {
 				world_items[i].data = current_mapdata->item_table[item_index].ptr;
 				world_items[i].bank = current_mapdata->item_table[item_index].bank;
 				world_items[i].x = x;
 				world_items[i].y = y;
+				world_items[i].palette = current_mapdata->item_table[item_index].pal;
 				break;
 			}
 		}
