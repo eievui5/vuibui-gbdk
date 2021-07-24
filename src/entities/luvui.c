@@ -17,8 +17,9 @@ const entity_data luvui_entity = {
 	.graphics = gfx_luvui,
 	.colors = luvui_colors,
 	.name = luvui_name,
-	.level_moves = luvui_moves,
+	.base_xp = 64,
 	.base_health = 64,
+	.level_moves = luvui_moves,
 };
 
 const char luvui_metasprite[] = {

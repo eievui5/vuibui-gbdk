@@ -22,5 +22,5 @@ const healitem_data apple_item = {
 		.type = HEAL_ITEM,
 		.colors = apple_palette,
 	},
-	.health = 5,
+	.health = 50,
 };

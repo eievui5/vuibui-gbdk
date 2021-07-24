@@ -65,7 +65,7 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.c
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.s
 	@mkdir -p $(@D)
-	lcc -c -o $@ $<
+	$(LCC) -c -o $@ $<
 
 $(OBJDIR)/%.b.o: $(SRCDIR)/%.b.c
 	@mkdir -p $(@D)

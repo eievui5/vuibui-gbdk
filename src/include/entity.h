@@ -46,15 +46,22 @@ struct leveled_move {
  * 
  * @param metasprites	A pointer to the entity's metasprites.
  * @param graphics	A pointer to the entity's graphics.
+ * @param colors	The entity's palette.
+ * @param name		The entity's custom name.
+ * @param base_xp	Used to calculate XP reward. XP reward is 
+ * (base_xp + base_xp / 4 * level)
+ * @param base_health	Used to calculat maximum health. Max health is 
+ * (base_health + base_health / 8 * level)
+ * @param leveled_move	A list of learnable moves sorted by level.
 */
 typedef struct {
 	const char *metasprites;
 	const char *graphics;
 	short *colors;
 	const char *name;
-	const struct leveled_move *level_moves;
-	// Max health is (base_health + base_health/8 * level)
+	const uint8_t base_xp;
 	const uint8_t base_health;
+	const struct leveled_move *level_moves;
 } entity_data;
 
 /**
@@ -102,10 +109,12 @@ extern uint8_t move_speed;
 void move_entities() NONBANKED;
 entity *new_entity(entity_data *data, uint8_t bank, uint8_t i, uint8_t x, 
 		   uint8_t y, uint8_t level) NONBANKED;
+uint16_t get_max_health(entity *self) NONBANKED;
+uint16_t get_xp_reward(entity *self) NONBANKED;
 
 void attack_animation(entity *self) BANKED;
 bool check_collision(uint8_t x, uint8_t y) BANKED;
-entity *check_entity_at(uint8_t x, uint8_t y) BANKED;
+int8_t check_entity_at(uint8_t x, uint8_t y) BANKED;
 void defeat_animation(entity *self) BANKED;
 void hurt_animation(entity *self) BANKED;
 void move_direction(vec8 *vec, uint8_t dir) BANKED;
@@ -115,5 +124,10 @@ void pursue(entity *self, uint8_t start, uint8_t stop) BANKED;
 void render_entities() BANKED;
 entity *spawn_enemy(entity_data *data, uint8_t bank) BANKED;
 bool try_step(entity *self, uint8_t dir) BANKED;
-void use_melee_move(entity *self, move *self_move);
+void use_melee_move(entity *self, move *self_move, bool is_ally);
 void reload_entity_graphics(uint8_t i) NONBANKED;
+
+inline uint16_t get_xp_threshold(uint8_t level)
+{
+	return level * 256u;
+}

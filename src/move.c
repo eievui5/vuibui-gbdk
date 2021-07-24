@@ -1,6 +1,7 @@
 // Cannot bank this file, It relies too much on formating strings from various
 // sources.
 
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
@@ -12,9 +13,9 @@
 
 const char attack_message[] = "%s used %s!";
 const char missed_message[] = "%s missed.";
-const char defeat_message[] = "%s was defeated.";
+const char defeat_message[] = "%s was defeated.\n%s gained %u experience.\n%u/%u";
 
-void use_melee_move(entity *self, move *self_move)
+void use_melee_move(entity *self, move *self_move, bool is_ally)
 {
 	uint8_t temp_bank = _current_bank;
 	SWITCH_ROM_MBC1(self_move->bank);
@@ -22,12 +23,17 @@ void use_melee_move(entity *self, move *self_move)
 	// Update positions before using them to attack.
 	move_entities();
 	vec8 target_pos = {self->x_pos, self->y_pos};
+	int8_t result;
 	entity *target = NULL;
 	for (uint8_t i = 0; i < self_move->data->range; i++) {
 		move_direction(&target_pos, self->direction);
-		target = check_entity_at(target_pos.x, target_pos.y);
-		if (target)
+		result = check_entity_at(target_pos.x, target_pos.y);
+		if (result < 3 && is_ally)
+			continue;
+		if (result != -1) {
+			target = &entities[result];
 			break;
+		}
 	}
 
 	// Construct attack message
@@ -48,10 +54,24 @@ void use_melee_move(entity *self, move *self_move)
 
 	if (target->health <= self_move->data->power) {
 		defeat_animation(target);
-		sprintf(message, defeat_message, target->name);
-		vwf_wrap_str(20 * 8, message);
-		print_hud(message);
-		memset(target, 0, sizeof(entity));
+		if (is_ally) {
+			SWITCH_ROM_MBC1(target->bank);
+			uint16_t reward = get_xp_reward(target);
+			self->xp += reward * 5;
+			sprintf(message, defeat_message, target->name,
+				self->name, reward, self->xp, get_xp_threshold(self->level));
+			vwf_wrap_str(20 * 8, message);
+			print_hud(message);
+			memset(target, 0, sizeof(entity));
+			if (self->xp >= get_xp_threshold(self->level)) {
+				self->xp -= get_xp_threshold(self->level);
+				self->level++;
+				sprintf(message, "%s leveled up to level %u",
+					self->name, self->level);
+				vwf_wrap_str(20 * 8, message);
+				print_hud(message);
+			}
+		}
 	} else {
 		hurt_animation(target);
 		target->health -= self_move->data->power;

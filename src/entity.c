@@ -277,6 +277,15 @@ void defeat_animation(entity *self) BANKED
 	}
 }
 
+uint16_t get_xp_reward(entity *self) NONBANKED
+{
+	uint8_t temp_bank = _current_bank;
+	SWITCH_ROM_MBC1(self->bank);
+	uint16_t reward = self->data->base_xp + (self->data->base_xp >> 1u) * self->level;
+	SWITCH_ROM_MBC1(temp_bank);
+	return reward;
+}
+
 uint16_t get_max_health(entity *self) NONBANKED
 {
 	uint8_t temp_bank = _current_bank;
@@ -371,7 +380,7 @@ entity *spawn_enemy(entity_data *data, uint8_t bank) BANKED
 				    self->y_spr <= camera.y + 144))
 					break;
 			}
-			return new_entity(data, bank, i, x, y, 2);
+			return new_entity(data, bank, i, x, y, 1);
 		}
 	return NULL;
 }
@@ -495,20 +504,20 @@ bool player_try_step() BANKED
 /**
  * Check for an entity at a given grid position.
  *
- * @param x		X position to check.
- * @param y		Y position to check.
- *
- * @returns		The detected entity. NULL if no entity is found.
+ * @param x	X position to check.
+ * @param y	Y position to check.
+ *		
+ * @returns	The index of the detected entity. -1 if no entity is found.
 */
-entity *check_entity_at(uint8_t x, uint8_t y) BANKED
+int8_t check_entity_at(uint8_t x, uint8_t y) BANKED
 {
 	for (uint8_t i = 0; i < NB_ENTITIES; i++) {
 		if (!entities[i].data)
 			continue;
 		if (entities[i].x_pos == x && entities[i].y_pos == y)
-			return &entities[i];
+			return i;
 	}
-	return NULL;
+	return -1;
 }
 
 /**
@@ -520,7 +529,7 @@ bool check_collision(uint8_t x, uint8_t y) BANKED
 {
 	if (get_collision(x, y) == WALL_COLL)
 		return true;
-	return (bool)check_entity_at(x, y);
+	return check_entity_at(x, y) != -1;
 }
 
 /**
@@ -593,7 +602,7 @@ void pursue(entity *self, uint8_t start, uint8_t stop) BANKED
 	if (dist == 1) {
 		self->direction = get_direction(ally->x_pos - self->x_pos,
 						ally->y_pos - self->y_pos);
-		use_melee_move(self, &self->moves[0]);
+		use_melee_move(self, &self->moves[0], false);
 	} else
 		pathfind(self, ally->x_pos, ally->y_pos);
 }
