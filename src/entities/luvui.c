@@ -19,6 +19,7 @@ const entity_data luvui_entity = {
 	.name = luvui_name,
 	.base_xp = 255,
 	.base_health = 64,
+	.base_fatigue = 45,
 	.level_moves = luvui_moves,
 };
 

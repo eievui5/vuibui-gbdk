@@ -1,4 +1,4 @@
-#pragma bank 2
+#pragma bank 255
 
 #include <gb/cgb.h>
 #include <gb/incbin.h>
@@ -13,7 +13,7 @@
 #define GRASS_PAL 1
 #define STAIR_PAL 2
 
-const void __at(2) __bank_debug_mapdata;
+const void __at(255) __bank_debug_mapdata;
 
 const mapdata debug_mapdata = {
 	.tileset = debug_tileset,

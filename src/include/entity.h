@@ -24,6 +24,8 @@
 
 #define PLAYER entities[0]
 
+#define WALK_COST 1
+
 enum special_frames {
 	IDLE_FRAME = 0,
 	IDLE_FRAME_2 = 1,
@@ -61,6 +63,7 @@ typedef struct {
 	const char *name;
 	const uint8_t base_xp;
 	const uint8_t base_health;
+	const uint8_t base_fatigue;
 	const struct leveled_move *level_moves;
 } entity_data;
 
@@ -96,6 +99,7 @@ typedef struct {
 	uint8_t spr_frame;
 	uint8_t prev_frame;
 	uint16_t health;
+	uint16_t fatigue;
 	char name[ENTITY_NAME_LEN];
 	move moves[4];
 	uint8_t level;
@@ -108,6 +112,7 @@ extern uint8_t move_speed;
 void move_entities() NONBANKED;
 entity *new_entity(entity_data *data, uint8_t bank, uint8_t i, uint8_t x, 
 		   uint8_t y, uint8_t level) NONBANKED;
+uint16_t get_max_fatigue(entity *self) NONBANKED;
 uint16_t get_max_health(entity *self) NONBANKED;
 uint16_t get_xp_reward(entity *self) NONBANKED;
 

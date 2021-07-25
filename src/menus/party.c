@@ -16,8 +16,7 @@
 #define ENTITY_TILE 0x04u
 #define ENTITY_PALETTE 1u
 
-const char name_text[] = "%s - Lvl %u";
-const char level_text[] = "LVL: %u";
+const char level_text[] = "Lvl: %u";
 const char health_text[] = "Hp: %u/%u";
 const char hunger_text[] = "Ftg: %u/%u";
 
@@ -67,8 +66,10 @@ void draw_party(uint8_t x, uint8_t y, uint8_t font_tile, uint8_t spr_x,
 				vwf_draw_text(x, y++, vwf_next_tile(), buffer);
 			}
 			if (type & PARTY_FATIGUE) {
-				vwf_draw_text(x, y++, vwf_next_tile(),
-					      "Ftg: 100/100");
+				sprintf(buffer, hunger_text,
+					entities[i].fatigue >> 4u,
+					get_max_fatigue(&entities[i]) >> 4u);
+				vwf_draw_text(x, y++, vwf_next_tile(), buffer);
 			}
 			char *entry = (char *)&shadow_OAM[2 + i * 2];
 			*entry++ = spr_y + i * spacing;

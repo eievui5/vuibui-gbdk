@@ -295,6 +295,15 @@ uint16_t get_max_health(entity *self) NONBANKED
 	return max_health;
 }
 
+uint16_t get_max_fatigue(entity *self) NONBANKED
+{
+	uint8_t temp_bank = _current_bank;
+	SWITCH_ROM_MBC1(self->bank);
+	uint16_t max_fatigue = (self->data->base_fatigue + ((self->data->base_fatigue * self->level) >> 8u)) * 16;
+	SWITCH_ROM_MBC1(temp_bank);
+	return max_fatigue;
+}
+
 /**
  * Create a new entity inside the entity array. Requires an index to load the
  * sprites into VRAM.
@@ -336,6 +345,7 @@ entity *new_entity(entity_data *data, uint8_t bank, uint8_t i, uint8_t x,
 	self->path_dir = -1;
 	self->level = level;
 	self->health = get_max_health(self);
+	self->fatigue = get_max_fatigue(self);
 	// Grab the last 4 moves the entity learned, unless they have not yet
 	// learned 4.
 	int8_t current_move = 0;
@@ -445,6 +455,11 @@ bool try_step(entity *self, uint8_t dir) BANKED
 	vec8 target = {self->x_pos, self->y_pos};
 	move_direction(&target, dir);
 	if (!check_collision(target.x, target.y)) {
+		if (self->fatigue) {
+			self->fatigue -= WALK_COST;
+		} else {
+			self->health--;
+		}
 		self->x_pos = target.x;
 		self->y_pos = target.y;
 		return true;
