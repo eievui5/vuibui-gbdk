@@ -20,9 +20,9 @@ bool use_item(uint8_t i, uint8_t t)
 	item *src_item = &inventory[i];
 	switch (src_item->data->type) {
 	case HEAL_ITEM:
-		if (target->health < target->max_health) {
-			if (target->health + ((healitem_data *)src_item->data)->health >= target->max_health)
-				target->health = target->max_health;
+		if (target->health < get_max_health(target)) {
+			if (target->health + ((healitem_data *)src_item->data)->health >= get_max_health(target))
+				target->health = get_max_health(target);
 			else
 				target->health += ((healitem_data *)src_item->data)->health;
 			draw_party_entity(t, DIR_LEFT, IDLE_FRAME);

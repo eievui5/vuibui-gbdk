@@ -16,8 +16,10 @@
 #define ENTITY_TILE 0x04u
 #define ENTITY_PALETTE 1u
 
-const char health_text[] = "HP: %u/%u";
-const char hunger_text[] = "Fatigue: %u/%u";
+const char name_text[] = "%s - Lvl %u";
+const char level_text[] = "LVL: %u";
+const char health_text[] = "Hp: %u/%u";
+const char hunger_text[] = "Ftg: %u/%u";
 
 // Draws an entity with a static frame and direction.
 void draw_party_entity(uint8_t i, uint8_t dir, uint8_t frame) NONBANKED
@@ -54,16 +56,19 @@ void draw_party(uint8_t x, uint8_t y, uint8_t font_tile, uint8_t spr_x,
 	vwf_draw_text(0, 0, font_tile, "");
 	for (uint8_t i = 0; i < NB_ALLIES; i++) {
 		if (entities[i].data) {
-			vwf_draw_text(x, y++, vwf_next_tile(),
-				      entities[i].name);
+			vwf_draw_text(x, y++, vwf_next_tile(), entities[i].name);
+			if (type & PARTY_LEVEL) {
+				sprintf(buffer, level_text, entities[i].level);
+				vwf_draw_text(x, y++, vwf_next_tile(), buffer);
+			}
 			if (type & PARTY_HEALTH) {
 				sprintf(buffer, health_text, entities[i].health,
-					entities[i].max_health);
+					get_max_health(&entities[i]));
 				vwf_draw_text(x, y++, vwf_next_tile(), buffer);
 			}
 			if (type & PARTY_FATIGUE) {
 				vwf_draw_text(x, y++, vwf_next_tile(),
-					      "Fatigue: 100/100");
+					      "Ftg: 100/100");
 			}
 			char *entry = (char *)&shadow_OAM[2 + i * 2];
 			*entry++ = spr_y + i * spacing;
@@ -87,8 +92,8 @@ void party_menu() BANKED
 
 	for (uint8_t i = 0; i < 16; i++)
 		vmemset((void *)(0x9C35 + i * 32), BLANK_TILE, 10);
-	draw_party(22, 1, PARTYFONT_TILE, 20u * 8u + 8u, 8u + 16u, 32,
-		PARTY_HEALTH | PARTY_FATIGUE);
+	draw_party(22, 1, PARTYFONT_TILE, 20u * 8u + 8u, 8u + 16u, 40,
+		PARTY_LEVEL | PARTY_HEALTH | PARTY_FATIGUE);
 	shadow_OAM[0].x = 19u * 8u;
 	shadow_OAM[1].x = 19u * 8u + 8u;
 	shadow_OAM[0].y = 24;
@@ -120,9 +125,9 @@ void party_menu() BANKED
 			}
 			break;
 		}
-		if (cursor_pos * 32 + 24 - cursor_spr > 0)
+		if (cursor_pos * 40 + 24 - cursor_spr > 0)
 			cursor_spr += CURSOR_SPEED;
-		else if (cursor_pos * 32 + 24 - cursor_spr < 0)
+		else if (cursor_pos * 40 + 24 - cursor_spr < 0)
 			cursor_spr -= CURSOR_SPEED;
 		shadow_OAM[0].y = cursor_spr;
 		shadow_OAM[1].y = cursor_spr;

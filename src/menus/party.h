@@ -6,6 +6,7 @@ enum party_type {
 	PARTY_NULL = 0,
 	PARTY_HEALTH = 1,
 	PARTY_FATIGUE = 2,
+	PARTY_LEVEL = 4
 };
 
 void draw_party_entity(uint8_t i, uint8_t dir, uint8_t frame) NONBANKED;

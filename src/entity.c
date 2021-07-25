@@ -336,7 +336,6 @@ entity *new_entity(entity_data *data, uint8_t bank, uint8_t i, uint8_t x,
 	self->path_dir = -1;
 	self->level = level;
 	self->health = get_max_health(self);
-	self->max_health = get_max_health(self);
 	// Grab the last 4 moves the entity learned, unless they have not yet
 	// learned 4.
 	int8_t current_move = 0;

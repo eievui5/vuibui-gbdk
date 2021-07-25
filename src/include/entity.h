@@ -96,7 +96,6 @@ typedef struct {
 	uint8_t spr_frame;
 	uint8_t prev_frame;
 	uint16_t health;
-	uint16_t max_health;
 	char name[ENTITY_NAME_LEN];
 	move moves[4];
 	uint8_t level;
