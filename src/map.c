@@ -280,7 +280,8 @@ void generate_room(uvec8 *cur, uint8_t width, uint8_t height) BANKED
 	for (uint8_t y = height; y; y--) {
 		cur->y++;
 		for (uint8_t x = width; x; x--) {
-			contain_cursor(cur);
+			if(contain_cursor(cur))
+				return;
 			map[cur->y][cur->x] = 0;
 			cur->x++;
 		}
@@ -299,7 +300,7 @@ void generate_room(uvec8 *cur, uint8_t width, uint8_t height) BANKED
 		break;
 	case DIR_RIGHT:
 		// ... and both for right and up.
-		cur->x += width;
+		cur->x += width - 1;
 		cur->y -= (uint8_t)rand() % height;
 		break;
 	case DIR_UP:

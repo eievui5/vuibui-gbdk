@@ -281,7 +281,7 @@ uint16_t get_xp_reward(entity *self) NONBANKED
 {
 	uint8_t temp_bank = _current_bank;
 	SWITCH_ROM_MBC1(self->bank);
-	uint16_t reward = self->data->base_xp + (self->data->base_xp >> 1u) * self->level;
+	uint16_t reward = self->data->base_xp + (self->data->base_xp / 2) * self->level;
 	SWITCH_ROM_MBC1(temp_bank);
 	return reward;
 }
@@ -290,7 +290,7 @@ uint16_t get_max_health(entity *self) NONBANKED
 {
 	uint8_t temp_bank = _current_bank;
 	SWITCH_ROM_MBC1(self->bank);
-	uint16_t max_health = self->data->base_health + (self->data->base_health >> 3u) * self->level;
+	uint16_t max_health = self->data->base_health + (self->data->base_health / 8) * self->level;
 	SWITCH_ROM_MBC1(temp_bank);
 	return max_health;
 }
@@ -299,9 +299,27 @@ uint16_t get_max_fatigue(entity *self) NONBANKED
 {
 	uint8_t temp_bank = _current_bank;
 	SWITCH_ROM_MBC1(self->bank);
-	uint16_t max_fatigue = (self->data->base_fatigue + ((self->data->base_fatigue * self->level) >> 8u)) * 16;
+	uint16_t max_fatigue = (self->data->base_fatigue + ((self->data->base_fatigue * self->level) / 256)) * 16;
 	SWITCH_ROM_MBC1(temp_bank);
 	return max_fatigue;
+}
+
+uint16_t get_attack_bonus(entity *self) NONBANKED
+{
+	uint8_t temp_bank = _current_bank;
+	SWITCH_ROM_MBC1(self->bank);
+	uint16_t attack_bonus = (2 * self->data->base_attack + self->data->base_attack * self->level) / 16;
+	SWITCH_ROM_MBC1(temp_bank);
+	return attack_bonus;
+}
+
+uint16_t get_defense_bonus(entity *self) NONBANKED
+{
+	uint8_t temp_bank = _current_bank;
+	SWITCH_ROM_MBC1(self->bank);
+	uint16_t defense_bonus = (self->data->base_defense + (self->data->base_defense * self->level) / 8) / 8;
+	SWITCH_ROM_MBC1(temp_bank);
+	return defense_bonus;
 }
 
 /**

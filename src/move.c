@@ -52,7 +52,8 @@ void use_melee_move(entity *self, move *self_move, bool is_ally)
 		return;
 	}
 
-	if (target->health <= self_move->data->power) {
+	uint16_t damage = self_move->data->power + get_attack_bonus(self) - get_defense_bonus(target);
+	if (target->health <= damage) {
 		defeat_animation(target);
 		if (is_ally) {
 			SWITCH_ROM_MBC1(target->bank);
@@ -74,7 +75,7 @@ void use_melee_move(entity *self, move *self_move, bool is_ally)
 		}
 	} else {
 		hurt_animation(target);
-		target->health -= self_move->data->power;
+		target->health -= damage;
 	}
 
 	SWITCH_ROM_MBC1(temp_bank);

@@ -64,6 +64,8 @@ typedef struct {
 	const uint8_t base_xp;
 	const uint8_t base_health;
 	const uint8_t base_fatigue;
+	const uint8_t base_attack;
+	const uint8_t base_defense;
 	const struct leveled_move *level_moves;
 } entity_data;
 
@@ -112,6 +114,8 @@ extern uint8_t move_speed;
 void move_entities() NONBANKED;
 entity *new_entity(entity_data *data, uint8_t bank, uint8_t i, uint8_t x, 
 		   uint8_t y, uint8_t level) NONBANKED;
+uint16_t get_attack_bonus(entity *self) NONBANKED;
+uint16_t get_defense_bonus(entity *self) NONBANKED;
 uint16_t get_max_fatigue(entity *self) NONBANKED;
 uint16_t get_max_health(entity *self) NONBANKED;
 uint16_t get_xp_reward(entity *self) NONBANKED;
