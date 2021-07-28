@@ -3,9 +3,13 @@
 To build, run `make` in the root directory.
 
 ## Dependancies
- - GBDK 2020 - Added to the PATH (Master branch as of July 2021)
+ - RGBDS 0.5.2
+ - GBDK 2020 (Must compile the current master branch as of July 2021)
  - GNU Make 4.3
- - For Windows users: A Unix environment. This means something like MSYS2 or WSL.
+### Windows:
+ - A Unix environment, such as MSYS2 or WSL.
+### Linux:
+ - WINE
 
 ## Makefile
 
