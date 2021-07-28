@@ -25,6 +25,9 @@ const mapdata *current_mapdata;
 
 void draw_tile(uint8_t x, uint8_t y) NONBANKED
 {
+	uint8_t tmpb = _current_bank;
+	SWITCH_ROM_MBC1(current_mapdata_bank);
+
 	uint16_t tile_ptr = 0x9800 + (x & 0b11111) + ((y & 0b11111) << 5);
 	vset(tile_ptr,
 	     current_mapdata->metatiles[
@@ -38,6 +41,8 @@ void draw_tile(uint8_t x, uint8_t y) NONBANKED
 		     ].attrs[(x & 1) + (y & 1) * 2]);
 		VBK_REG = 0;
 	}
+
+	SWITCH_ROM_MBC1(tmpb);
 }
 
 void render_item(uint8_t i) NONBANKED
@@ -66,7 +71,7 @@ void render_item(uint8_t i) NONBANKED
 	SWITCH_ROM_MBC1(temp_bank);
 }
 
-void update_camera(uint16_t x, uint16_t y) NONBANKED
+void update_camera(uint16_t x, uint16_t y) BANKED
 {
 	static uint16_t last_camera_x = 0;
 	static uint16_t last_camera_y = 0;
@@ -89,46 +94,42 @@ void update_camera(uint16_t x, uint16_t y) NONBANKED
 	uint8_t cur_tile_y = camera.y >> 3;
 
 	if (cur_tile_x != last_tile_x) {
-		uint8_t tmpb = _current_bank;
-		SWITCH_ROM_MBC1(current_mapdata_bank);
+		uint8_t i;
 
 		uint8_t ptrx = cur_tile_x + (camera.x > last_camera_x ? 20 : 0);
 		if (ptrx > 127)
 			ptrx = 127;
 		uint8_t ptry = cur_tile_y < 113 ? cur_tile_y : 113;
-		uint8_t i = 0;
-		for (; i < 15; i++) {
+		for (i = 0; i < 15; i++) {
 			draw_tile(ptrx, ptry);
 			ptry++;
 		}
-		for (i = 0; i < NB_WORLD_ITEMS; i++)
-			if (world_items[i].data)
-				if (world_items[i].x == ptrx / 2 &&
-				    world_items[i].y < ptry / 2 &&
-				    world_items[i].y > (ptry - 17) / 2)
+		world_item *cur_item = world_items;
+		for (i = 0; i < NB_WORLD_ITEMS; i++, cur_item++)
+			if (cur_item->data)
+				if (cur_item->x == (ptrx >> 1u) &&
+				    cur_item->y < (ptry >> 1u) &&
+				    cur_item->y > (ptry - 17) >> 1u)
 					render_item(i);
-		SWITCH_ROM_MBC1(tmpb);
 	}
 	if (cur_tile_y != last_tile_y) {
-		uint8_t tmpb = _current_bank;
-		SWITCH_ROM_MBC1(current_mapdata_bank);
+		uint8_t i;
 
 		uint8_t ptrx = cur_tile_x < 127 ? cur_tile_x : 127;
 		uint8_t ptry = cur_tile_y + (camera.y > last_camera_y ? 14 : 0);
 		if (ptry > 127)
 			ptry = 127;
-		uint8_t i = 0;
-		for (; i < 21; i++) {
+		for (i = 0; i < 21; i++) {
 			draw_tile(ptrx, ptry);
 			ptrx++;
 		}
+		world_item *cur_item = world_items;
 		for (i = 0; i < NB_WORLD_ITEMS; i++)
-			if (world_items[i].data)
-				if (world_items[i].y == ptry / 2 &&
-				    world_items[i].x < ptrx / 2 &&
-				    world_items[i].x > (ptrx - 23) / 2)
+			if (cur_item->data)
+				if (cur_item->y == (ptry >> 1u) &&
+				    cur_item->x < (ptrx >> 1u) &&
+				    cur_item->x > (ptrx - 23) >> 1u)
 					render_item(i);
-		SWITCH_ROM_MBC1(tmpb);
 	}
 	last_tile_x = cur_tile_x;
 	last_tile_y = cur_tile_y;
@@ -339,11 +340,12 @@ void column_postprocess() NONBANKED
 	uint8_t tmpb = _current_bank;
 	SWITCH_ROM_MBC1(current_mapdata_bank);
 
-	for (uint8_t x = 0; x < 64; x++)
+	for (uint8_t x = 0; x < 64; x++) {
 		if (map[1][x] != NO_COLL)
 			map[0][x] = current_mapdata->wall_palette[1];
 		else
 			map[0][x] = current_mapdata->wall_palette[2];
+	}
 
 	for (uint8_t y = 1; y < 63; y++) {
 		for (uint8_t x = 0; x < 64; x++) {

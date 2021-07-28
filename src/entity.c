@@ -322,6 +322,39 @@ uint16_t get_defense_bonus(entity *self) NONBANKED
 	return defense_bonus;
 }
 
+// Banked portion of `new_entity`
+void generate_moves(entity *self) NONBANKED
+{
+	uint8_t temp_bank = _current_bank;
+	SWITCH_ROM_MBC1(self->bank);
+	const entity_data *self_data = self->data;
+
+	// Grab the last 4 moves the entity learned, unless they have not yet
+	// learned 4.
+	int8_t cur_move_num = 0;
+	const struct leveled_move *cur_move = self_data->level_moves;
+	while ((cur_move + 1)->level < self->level) {
+		cur_move++;
+		cur_move_num++;
+	}
+
+	uint8_t i;
+	move *self_move = self->moves;
+	for (i = 0; i < 4 && cur_move_num >= 0; i++) {
+		self_move->bank = cur_move->bank;
+		self_move->data = cur_move->data;
+		self_move++;
+		cur_move--;
+		cur_move_num--;
+	}
+
+	// Also copy the name from ROM while you're at it - this is only for
+	// `new_entity` after all.
+	strcpy(self->name, self_data->name);
+
+	SWITCH_ROM_MBC1(temp_bank);
+}
+
 /**
  * Create a new entity inside the entity array. Requires an index to load the
  * sprites into VRAM.
@@ -334,10 +367,8 @@ uint16_t get_defense_bonus(entity *self) NONBANKED
  * @param health	Temporary - Set health and max health.
 */
 entity *new_entity(entity_data *data, uint8_t bank, uint8_t i, uint8_t x, 
-		   uint8_t y, uint8_t level) NONBANKED
+		   uint8_t y, uint8_t level) BANKED
 {
-	uint8_t temp_bank = _current_bank;
-	SWITCH_ROM_MBC1(bank);
 
 	entity *self = &entities[i];
 	memset(self, 0, sizeof(entity));
@@ -364,20 +395,8 @@ entity *new_entity(entity_data *data, uint8_t bank, uint8_t i, uint8_t x,
 	self->level = level;
 	self->health = get_max_health(self);
 	self->fatigue = get_max_fatigue(self);
-	// Grab the last 4 moves the entity learned, unless they have not yet
-	// learned 4.
-	int8_t current_move = 0;
-	while (data->level_moves[current_move + 1].level < level)
-		current_move++;
-	for (uint8_t i = 0; i < 4 && current_move >= 0; i++, current_move--) {
-		self->moves[i].bank = data->level_moves[current_move].bank;
-		self->moves[i].data = data->level_moves[current_move].data;
-	}
-
-	strcpy(self->name, data->name);
+	generate_moves(self);
 	reload_entity_graphics(i);
-
-	SWITCH_ROM_MBC1(temp_bank);
 	return self;
 }
 
@@ -400,11 +419,11 @@ entity *spawn_enemy(entity_data *data, uint8_t bank) BANKED
 			while(1) {
 				x = rand() & 0b111111;
 				y = rand() & 0b111111;
-				if (!check_collision(x, y) && 
-				    !(self->x_spr + 16 >= camera.x &&
-				    self->x_spr <= camera.x + 160 &&
-				    self->y_spr + 16 >= camera.y &&
-				    self->y_spr <= camera.y + 144))
+				if (!check_collision(x, y))// && 
+				//    !(self->x_spr + 16 >= camera.x &&
+				//    self->x_spr <= camera.x + 160 &&
+				//    self->y_spr + 16 >= camera.y &&
+				//    self->y_spr <= camera.y + 144))
 					break;
 			}
 			return new_entity(data, bank, i, x, y, 1);

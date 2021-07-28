@@ -48,11 +48,7 @@ void main()
 	current_mapdata = &debug_mapdata;
 	current_mapdata_bank = BANK(debug_mapdata);
 	reload_mapdata();
-	generate_map();
-	generate_items();
-	load_item_graphics();
-	move_entities();
-	force_render_map();
+	create_new_floor();
 
 	LCDC_REG = lcdc_buffer = \
 		LCDC_ENABLE | LCDC_BG_ENABLE | LCDC_WINDOW_ENABLE | \

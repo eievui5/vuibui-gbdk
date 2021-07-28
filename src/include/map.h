@@ -56,7 +56,7 @@ extern const mapdata *current_mapdata;
 extern uint8_t current_mapdata_bank;
 
 void draw_tile(uint8_t x, uint8_t y) NONBANKED;
-void update_camera(uint16_t x, uint16_t y) NONBANKED;
+void update_camera(uint16_t x, uint16_t y) BANKED;
 uint8_t get_collision(uint16_t x, uint16_t y) NONBANKED;
 void force_render_map() NONBANKED;
 void reload_mapdata() NONBANKED;

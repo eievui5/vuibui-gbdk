@@ -9,14 +9,16 @@
 #                                              #
 ################################################
 
-LCC	= lcc -Wa-l -Wl-m -Isrc -Wb-ext=.rel -autobank
+LCC	= lcc -Wa-l -Wl-m -debug -Isrc -Wb-ext=.rel -autobank
 
 ifeq ($(OS),Windows_NT)
 	ROMUSAGE := ./tools/romusage.exe
 	SUPERFAMICONV := ./tools/superfamiconv.exe
+	RGB2SDAS := ./tools/rgb2sdas.exe
 else
 	ROMUSAGE := ./tools/romusage
 	SUPERFAMICONV := ./tools/superfamiconv
+	RGB2SDAS := ./tools/rgb2sdas
 endif
 
 SRCDIR := src
@@ -29,7 +31,8 @@ ROM 	= $(BINDIR)/$(ROMNAME).$(ROMEXT)
 GFXS	= $(patsubst $(SRCDIR)%.png, $(RESDIR)%.2bpp, $(GFXSRC))
 
 OBJS	= $(patsubst $(SRCDIR)/%.c, $(OBJDIR)/%.o, $(CSRC)) \
-	  $(patsubst $(SRCDIR)/%.s, $(OBJDIR)/%.o, $(SSRC))
+		$(patsubst $(SRCDIR)/%.s, $(OBJDIR)/%.o, $(SSRC))
+#		$(OBJDIR)/libs/hUGEDriver.obj.o
 
 include project.mk
 
@@ -57,6 +60,13 @@ map: $(MAPS)
 #                 COMPILATION                 #
 #                                             #
 ###############################################
+
+# Special rules
+
+$(OBJDIR)/libs/hUGEDriver.obj.o:
+	@mkdir -p $(@D)
+	rgbasm -o $(OBJDIR)/libs/hUGEDriver.obj $(SRCDIR)/libs/hUGEDriver.asm
+	$(RGB2SDAS) $(OBJDIR)/libs/hUGEDriver.obj
 
 # Compile source code.
 $(OBJDIR)/%.o: $(SRCDIR)/%.c

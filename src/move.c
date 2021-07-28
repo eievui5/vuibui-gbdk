@@ -1,6 +1,3 @@
-// Cannot bank this file, It relies too much on formating strings from various
-// sources.
-
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -67,10 +64,10 @@ void use_melee_move(entity *self, move *self_move, bool is_ally)
 			if (self->xp >= get_xp_threshold(self->level)) {
 				self->xp -= get_xp_threshold(self->level);
 				self->level++;
-				sprintf(message, "%s leveled up to level %u",
-					self->name, self->level);
-				vwf_wrap_str(20 * 8, message);
-				print_hud(message);
+				//sprintf(message, "%s leveled up to level %u",
+				//	self->name, self->level);
+				//vwf_wrap_str(20 * 8, message);
+				//print_hud(message);
 			}
 		}
 	} else {

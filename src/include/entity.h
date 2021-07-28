@@ -112,8 +112,6 @@ extern entity entities[NB_ENTITIES];
 extern uint8_t move_speed;
 
 void move_entities() NONBANKED;
-entity *new_entity(entity_data *data, uint8_t bank, uint8_t i, uint8_t x, 
-		   uint8_t y, uint8_t level) NONBANKED;
 uint16_t get_attack_bonus(entity *self) NONBANKED;
 uint16_t get_defense_bonus(entity *self) NONBANKED;
 uint16_t get_max_fatigue(entity *self) NONBANKED;
@@ -126,6 +124,8 @@ int8_t check_entity_at(uint8_t x, uint8_t y) BANKED;
 void defeat_animation(entity *self) BANKED;
 void hurt_animation(entity *self) BANKED;
 void move_direction(vec8 *vec, uint8_t dir) BANKED;
+entity *new_entity(entity_data *data, uint8_t bank, uint8_t i, uint8_t x, 
+		   uint8_t y, uint8_t level) BANKED;
 void pathfind(entity *self, uint8_t target_x, uint8_t target_y) BANKED;
 bool player_try_step() BANKED;
 void pursue(entity *self, uint8_t start, uint8_t stop) BANKED;
