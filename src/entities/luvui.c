@@ -13,7 +13,6 @@ INCBIN_EXTERN(gfx_luvui)
 const void __at(255) __bank_luvui;
 
 const entity_data luvui_entity = {
-	.metasprites = luvui_metasprite,
 	.graphics = gfx_luvui,
 	.colors = luvui_colors,
 	.name = luvui_name,
@@ -23,21 +22,6 @@ const entity_data luvui_entity = {
 	.base_attack = 64,
 	.base_defense = 64,
 	.level_moves = luvui_moves,
-};
-
-const char luvui_metasprite[] = {
-	// Idle.
-	0, 0,
-	2, 0,
-	// Idle Flip.
-	4, 0,
-	6, 0,
-	// Step.
-	8, 0,
-	10, 0,
-	// Step Flip.
-	12, 0,
-	14, 0,
 };
 
 const short luvui_colors[] = {

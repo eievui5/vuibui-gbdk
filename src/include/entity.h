@@ -57,7 +57,6 @@ struct leveled_move {
  * @param leveled_move	A list of learnable moves sorted by level.
 */
 typedef struct {
-	const char *metasprites;
 	const char *graphics;
 	short *colors;
 	const char *name;

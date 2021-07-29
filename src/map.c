@@ -23,6 +23,8 @@ uvec16 camera = {0, 0};
 uint8_t current_mapdata_bank;
 const mapdata *current_mapdata;
 
+uvec8 cursor;
+
 void draw_tile(uint8_t x, uint8_t y) NONBANKED
 {
 	uint8_t tmpb = _current_bank;
@@ -209,19 +211,19 @@ void force_walls() BANKED
  * 
  * @returns 	Boolean; whether or not the cursor was adjusted.
 */
-bool contain_cursor(uvec8 *cur) BANKED
+bool contain_cursor() BANKED
 {
-	if (cur->x == 0) {
-		cur->x = 1;
+	if (cursor.x == 0) {
+		cursor.x = 1;
 		return true;
-	} else if (cur->x == 63) {
-		cur->x = 62;
+	} else if (cursor.x == 63) {
+		cursor.x = 62;
 		return true;
-	} else if (cur->y == 0) {
-		cur->y = 1;
+	} else if (cursor.y == 0) {
+		cursor.y = 1;
 		return true;
-	} else if (cur->y == 63) {
-		cur->y = 62;
+	} else if (cursor.y == 63) {
+		cursor.y = 62;
 		return true;
 	}
 	return false;
@@ -236,7 +238,7 @@ bool contain_cursor(uvec8 *cur) BANKED
  * @param dir	Direction to draw.
  * @param len	Number of tiles to draw.
 */
-void map_walk(uvec8 *cur, uint8_t tile, uint8_t dir, uint8_t len) BANKED
+void map_walk(uint8_t tile, uint8_t dir, uint8_t len) BANKED
 {
 	for (uint8_t i = 0; i < len; i++) {
 		uint8_t sw_dir = dir;
@@ -244,21 +246,21 @@ void map_walk(uvec8 *cur, uint8_t tile, uint8_t dir, uint8_t len) BANKED
 			sw_dir = rand() & 0b11;
 		switch (sw_dir) {
 		case DIR_UP:
-			cur->y--;
+			cursor.y--;
 			break;
 		case DIR_RIGHT:
-			cur->x++;
+			cursor.x++;
 			break;
 		case DIR_DOWN:
-			cur->y++;
+			cursor.y++;
 			break;
 		case DIR_LEFT:
-			cur->x--;
+			cursor.x--;
 			break;
 		}
-		if (contain_cursor(cur))
+		if (contain_cursor())
 			return;
-		map[cur->y][cur->x] = tile;
+		map[cursor.y][cursor.x] = tile;
 	}
 }
 
@@ -273,43 +275,43 @@ void map_walk(uvec8 *cur, uint8_t tile, uint8_t dir, uint8_t len) BANKED
  * 
  * @returns 		Cursor at a random edge of the room.
 */
-void generate_room(uvec8 *cur, uint8_t width, uint8_t height) BANKED
+void generate_room(uint8_t width, uint8_t height) BANKED
 {
-	cur->x -= width/2;
-	cur->y -= height/2 + 1;
+	cursor.x -= width/2;
+	cursor.y -= height/2 + 1;
 
 	for (uint8_t y = height; y; y--) {
-		cur->y++;
+		cursor.y++;
 		for (uint8_t x = width; x; x--) {
-			if(contain_cursor(cur))
+			if (contain_cursor())
 				return;
-			map[cur->y][cur->x] = 0;
-			cur->x++;
+			map[cursor.y][cursor.x] = 0;
+			cursor.x++;
 		}
-		cur->x -= width;
+		cursor.x -= width;
 	}
 
 	// We left off at the bottom-left corner. Offset to an exit position.
 	switch (rand() & 0b11) {
 	case DIR_DOWN:
 		// Only offset X when going down...
-		cur->x += (uint8_t)rand() % width;
+		cursor.x += (uint8_t)rand() % width;
 		break;
 	case DIR_LEFT:
 		// ... Y when going left...
-		cur->y -= (uint8_t)rand() % height;
+		cursor.y -= (uint8_t)rand() % height;
 		break;
 	case DIR_RIGHT:
 		// ... and both for right and up.
-		cur->x += width - 1;
-		cur->y -= (uint8_t)rand() % height;
+		cursor.x += width - 1;
+		cursor.y -= (uint8_t)rand() % height;
 		break;
 	case DIR_UP:
-		cur->x += (uint8_t)rand() % width;
-		cur->y -= height;
+		cursor.x += (uint8_t)rand() % width;
+		cursor.y -= height;
 		break;
 	}
-	contain_cursor(cur);
+	contain_cursor();
 }
 
 /**
@@ -376,13 +378,14 @@ void generate_map() BANKED
 {
 	memset(map, WALL_COLL, sizeof(map));
 	map[32][32] = NO_COLL;
-	uvec8 cur = {32, 32};
-	generate_room(&cur, 9, 9);
+	cursor.x = 32;
+	cursor.y = 32;
+	generate_room(9, 9);
 	for (uint8_t i = 0; i < 8; i++) {
-		map_walk(&cur, NO_COLL, rand() & 0b11, (rand() & 0b1111) + 4);
-		map_walk(&cur, NO_COLL, rand() & 0b11, (rand() & 0b1111) + 4);
-		map_walk(&cur, NO_COLL, rand() & 0b11, (rand() & 0b1111) + 4);
-		generate_room(&cur, (rand() & 0b11) + 4, (rand() & 0b11) + 4);
+		map_walk(NO_COLL, rand() & 0b11, (rand() & 0b1111) + 4);
+		map_walk(NO_COLL, rand() & 0b11, (rand() & 0b1111) + 4);
+		map_walk(NO_COLL, rand() & 0b11, (rand() & 0b1111) + 4);
+		generate_room((rand() & 0b11) + 4, (rand() & 0b11) + 4);
 	}
 	force_walls();
 	column_postprocess();

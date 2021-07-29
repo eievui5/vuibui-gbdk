@@ -22,6 +22,21 @@ entity entities[NB_ENTITIES];
 uint8_t ignore_ally = 0;
 uint8_t move_speed = 1;
 
+const char metasprite_table[] = {
+	// Idle.
+	0, 0,
+	2, 0,
+	// Idle Flip.
+	4, 0,
+	6, 0,
+	// Step.
+	8, 0,
+	10, 0,
+	// Step Flip.
+	12, 0,
+	14, 0,
+};
+
 // Reload an entity's graphics using its frame
 void reload_entity_graphics(uint8_t i) NONBANKED
 {
@@ -59,36 +74,35 @@ void render_entities() BANKED
 			if (self->spr_frame == HIDE_FRAME)
 				continue;
 			if ((16 + self->x_spr - camera.x & 0xFF) > win_pos.x &&
-			    (16 + self->y_spr - camera.y & 0xFF) > win_pos.y
-			)
+			    (16 + self->y_spr - camera.y & 0xFF) > win_pos.y)
 				continue;
 			if (!(self->x_spr + 16 >= camera.x &&
 			    self->x_spr <= camera.x + 160 &&
 			    self->y_spr + 16 >= camera.y &&
-			    self->y_spr <= camera.y + 144
-			))
+			    self->y_spr <= camera.y + 144))
 				continue;
 
 			// Update the entity's graphics if needed.
 			if (self->direction != self->prev_dir ||
-			    self->spr_frame != self->prev_frame
-			)
+			    self->spr_frame != self->prev_frame)
 				reload_entity_graphics(i);
-			const char *metasprite = self->data->metasprites;
+
+			uint8_t sprite_offset = 0;
 			if (self->spr_frame > IDLE_FRAME)
-				metasprite += 8;
+				sprite_offset += 8;
 			if (self->spr_frame <= WALK_FRAME && anim_timer & 0b10000)
-				metasprite += 4;
+				sprite_offset += 4;
+			const char *metasprite = &metasprite_table[sprite_offset];
 
 			shadow_OAM[oam_index].y = 16 + self->y_spr - camera.y;
 			shadow_OAM[oam_index].x = 8 + self->x_spr - camera.x;
-			shadow_OAM[oam_index].tile = metasprite[0] + i * NB_ENTITY_TILES;
-			shadow_OAM[oam_index].prop = i | metasprite[1];
+			shadow_OAM[oam_index].tile = *metasprite++ + i * NB_ENTITY_TILES;
+			shadow_OAM[oam_index].prop = i | *metasprite++;
 			oam_index++;
 			shadow_OAM[oam_index].y = 16 + self->y_spr - camera.y;
 			shadow_OAM[oam_index].x = 16 + self->x_spr - camera.x;
-			shadow_OAM[oam_index].tile = metasprite[2] + i * NB_ENTITY_TILES;
-			shadow_OAM[oam_index].prop = i | metasprite[3];
+			shadow_OAM[oam_index].tile = *metasprite++ + i * NB_ENTITY_TILES;
+			shadow_OAM[oam_index].prop = i | *metasprite;
 			oam_index++;
 		}
 	}
@@ -419,11 +433,11 @@ entity *spawn_enemy(entity_data *data, uint8_t bank) BANKED
 			while(1) {
 				x = rand() & 0b111111;
 				y = rand() & 0b111111;
-				if (!check_collision(x, y))// && 
-				//    !(self->x_spr + 16 >= camera.x &&
-				//    self->x_spr <= camera.x + 160 &&
-				//    self->y_spr + 16 >= camera.y &&
-				//    self->y_spr <= camera.y + 144))
+				if (!check_collision(x, y) && 
+				    !(x * 16 + 16 >= camera.x &&
+				    x * 16 <= camera.x + 160 &&
+				    y * 16 + 16 >= camera.y &&
+				    y * 16 <= camera.y + 144))
 					break;
 			}
 			return new_entity(data, bank, i, x, y, 1);
