@@ -2,6 +2,7 @@
 
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "include/entity.h"
 #include "include/hud.h"
@@ -13,6 +14,7 @@
 
 #define TURNS_PER_MIN 15
 #define MINS_PER_SPAWN 5
+#define ALLY_DETECTION 6
 
 extern uint8_t ignore_ally;
 
@@ -36,8 +38,21 @@ void do_turn() BANKED
 			ignore_ally = 0;
 			continue;
 		}
-		if (entities[i].data)
-			pathfind(&entities[i], PLAYER.x_pos, PLAYER.y_pos);
+		if (entities[i]) {
+			uint8_t closest_entity = 0;
+			uint8_t closest_distance = 6;
+			for (uint8_t j = 3; j < NB_ENTITIES; j++) {
+				uint8_t distance = abs(entities[i].x_pos - entities[j].x_pos) + abs(entities[i].y_pos - entities[j].y_pos);
+				if (distance < closest_distance) {
+					closest_distance = distance;
+					closest_entity = j;
+				}
+			}
+			if (closest_entity)
+				pursue(&entities[i], closest_entity, closest_entity + 1);
+			else
+				pathfind(&entities[i], PLAYER.x_pos, PLAYER.y_pos);
+		}
 	}
 	for (uint8_t i = BEGIN_ENEMIES; i < NB_ENTITIES; i++)
 		if (entities[i].data)

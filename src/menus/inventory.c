@@ -14,17 +14,18 @@
 #include "menus/party.h"
 #include "menus/pause.h"
 
-bool use_item(uint8_t i, uint8_t t)
+bool use_item(uint8_t i, uint8_t t) BANKED
 {
 	entity *target = &entities[t];
 	item *src_item = &inventory[i];
-	switch (src_item->data->type) {
+	switch (banked_get(&src_item->data->type, src_item->bank)) {
 	case HEAL_ITEM:
 		if (target->health < get_max_health(target)) {
-			if (target->health + ((healitem_data *)src_item->data)->health >= get_max_health(target))
+			uint8_t heal_amnt = banked_get(&((healitem_data *)src_item->data)->health, src_item->bank);
+			if (target->health + heal_amnt >= get_max_health(target))
 				target->health = get_max_health(target);
 			else
-				target->health += ((healitem_data *)src_item->data)->health;
+				target->health += heal_amnt;
 			draw_party_entity(t, DIR_LEFT, IDLE_FRAME);
 			for (uint8_t i = 0; i < 15; i++)
 				wait_vbl_done();

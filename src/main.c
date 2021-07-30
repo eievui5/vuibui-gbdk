@@ -134,8 +134,7 @@ void main()
 					win_pos.x = 168;
 					window_bounce = 0;
 					use_melee_move(&PLAYER,
-						       &PLAYER.moves[selected],
-						       true);
+						       &PLAYER.moves[selected]);
 					moved = true;
 				}
 
@@ -173,4 +172,33 @@ void main()
 		}
 
 	}
+}
+
+// Trampoline for accessing banked ROM.
+uint8_t banked_get(const uint8_t *value, uint8_t bank) __naked
+{
+	//uint8_t temp_bank = _current_bank;
+	//SWITCH_ROM_MBC1(bank);
+	//uint8_t ret_val = *value;
+	//SWITCH_ROM_MBC1(temp_bank);
+	//return ret_val;
+
+	value; bank;
+	__asm
+		ldh a, (__current_bank)
+		ld b, a
+		ldhl sp,	#4
+		ld a, (hl-)
+		ldh (__current_bank), a
+		ld (#0x2000), a
+		dec hl
+		ld a, (hl+)
+		ld h, (hl)
+		ld l, a
+		ld e, (hl)
+		ld a, b
+		ldh (__current_bank), a
+		ld (#0x2000), a
+		ret
+	__endasm;
 }

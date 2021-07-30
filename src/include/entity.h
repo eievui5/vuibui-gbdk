@@ -43,6 +43,12 @@ struct leveled_move {
 	move_data *data;
 };
 
+enum entity_team {
+	ENEMY_TEAM = 0,
+	PLAYER_TEAM,
+	ALLY_TEAM
+};
+
 /**
  * Contains constant data for entities.
  * 
@@ -105,6 +111,7 @@ typedef struct {
 	move moves[4];
 	uint8_t level;
 	uint16_t xp;
+	uint8_t team;
 } entity;
 
 extern entity entities[NB_ENTITIES];
@@ -131,7 +138,7 @@ void pursue(entity *self, uint8_t start, uint8_t stop) BANKED;
 void render_entities() BANKED;
 entity *spawn_enemy(entity_data *data, uint8_t bank) BANKED;
 bool try_step(entity *self, uint8_t dir) BANKED;
-void use_melee_move(entity *self, move *self_move, bool is_ally);
+void use_melee_move(entity *self, move *self_move);
 void reload_entity_graphics(uint8_t i) NONBANKED;
 
 inline uint16_t get_xp_threshold(uint8_t level)

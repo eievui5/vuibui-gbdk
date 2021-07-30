@@ -12,7 +12,7 @@ const char attack_message[] = "%s used %s!";
 const char missed_message[] = "%s missed.";
 const char defeat_message[] = "%s was defeated.\n%s gained %u experience.\n%u/%u";
 
-void use_melee_move(entity *self, move *self_move, bool is_ally)
+void use_melee_move(entity *self, move *self_move)
 {
 	uint8_t temp_bank = _current_bank;
 	SWITCH_ROM_MBC1(self_move->bank);
@@ -25,7 +25,7 @@ void use_melee_move(entity *self, move *self_move, bool is_ally)
 	for (uint8_t i = 0; i < self_move->data->range; i++) {
 		move_direction(&target_pos, self->direction);
 		result = check_entity_at(target_pos.x, target_pos.y);
-		if (result < 3 && is_ally)
+		if (result < 3 && self->team != ENEMY_TEAM)
 			continue;
 		if (result != -1) {
 			target = &entities[result];
@@ -52,7 +52,7 @@ void use_melee_move(entity *self, move *self_move, bool is_ally)
 	uint16_t damage = self_move->data->power + get_attack_bonus(self) - get_defense_bonus(target);
 	if (target->health <= damage) {
 		defeat_animation(target);
-		if (is_ally) {
+		if (self->team != ENEMY_TEAM) {
 			SWITCH_ROM_MBC1(target->bank);
 			uint16_t reward = get_xp_reward(target);
 			self->xp += reward;
