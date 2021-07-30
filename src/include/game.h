@@ -1,5 +1,6 @@
 #pragma once
 
+#include <gb/gb.h>
 #include <stdint.h>
 
 extern uint8_t cur_keys;

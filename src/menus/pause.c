@@ -16,6 +16,7 @@
 #include "include/rendering.h"
 #include "libs/vwf.h"
 #include "menus/inventory.h"
+#include "menus/options.h"
 #include "menus/party.h"
 #include "menus/pause.h"
 
@@ -37,6 +38,36 @@ DEF_BANK(pause_menu)
 
 const char pause_text[] = \
 "Return\n\nItems\n\nParty\n\nSave\n\nOptions\n\nEscape!";
+
+// Scroll the screen and OAM entires to the right.
+void slide_into_submenu_x() BANKED
+{
+	while (SCX_REG < SUBMENU_SLIDE_POS) {
+		wait_vbl_done();
+		SCX_REG += SUBMENU_SLIDE_SPEED;
+		for (uint8_t i = 0; i < 8; i++) {
+			if (!shadow_OAM[i].y)
+				continue;
+			shadow_OAM[i].x -= SUBMENU_SLIDE_SPEED;
+		}
+	}
+	SCX_REG = SUBMENU_SLIDE_POS;
+}
+
+// Scroll the screen and OAM entires to the left.
+void slide_out_submenu_x() BANKED
+{
+	while (SCX_REG > 0) {
+		wait_vbl_done();
+		SCX_REG -= SUBMENU_SLIDE_SPEED;
+		for (uint8_t i = 0; i < 8; i++) {
+			if (!shadow_OAM[i].y)
+				continue;
+			shadow_OAM[i].x += SUBMENU_SLIDE_SPEED;
+		}
+	}
+	SCX_REG = 0;
+}
 
 // Show and handle the pause menu. Return true if a turn has been taken.
 bool pause_menu() BANKED
@@ -91,8 +122,9 @@ bool pause_menu() BANKED
 				break;
 			//case SAVE_CHOICE:
 			//	break;
-			//case OPTIONS_CHOICE:
-			//	break;
+			case OPTIONS_CHOICE:
+				options_menu();
+				break;
 			//case ESCAPE_CHOICE:
 			//	break;
 			};

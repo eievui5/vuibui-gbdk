@@ -45,17 +45,46 @@ const unsigned char arrow_window[] = {
 	FONT_TILE - 1u, FONT_TILE - 1u, FONT_TILE - 1u,
 };
 
+// Default UI colors.
 const ui_pal default_ui_white = {
 	.colors = {RGB_WHITE, RGB_LIGHTGRAY, RGB_DARKGRAY, RGB_BLACK},
 	.gradient_start = {31, 31, 31}
 };
+const ui_pal default_ui_black = {
+	.colors = {RGB(4, 4, 4), RGB(8, 8, 8), RGB(16, 16, 16), RGB_WHITE},
+	.gradient_start = {8, 8, 8}
+};
+const ui_pal default_ui_red = {
+	.colors = {RGB(31, 20, 20), RGB_RED, RGB_DARKRED, RGB_BLACK},
+	.gradient_start = {31, 8, 12}
+};
+const ui_pal default_ui_green = {
+	.colors = {RGB(20, 31, 20), RGB_GREEN, RGB_DARKGREEN, RGB_BLACK},
+	.gradient_start = {12, 31, 8}
+};
 const ui_pal default_ui_blue = {
 	.colors = {RGB(20, 20, 31), RGB_BLUE, RGB_DARKBLUE, RGB_BLACK},
-	.gradient_start = {16, 16, 31}
+	.gradient_start = {8, 12, 31}
 };
 const ui_pal default_ui_pink = {
 	.colors = {RGB(31, 20, 31), RGB(31, 3, 31), RGB(16, 0, 16), RGB_BLACK},
 	.gradient_start = {31, 3, 31}
+};
+const ui_pal default_ui_festive = {
+	.colors = {RGB(20, 31, 20), RGB_RED, RGB_DARKRED, RGB_BLACK},
+	.gradient_start = {12, 31, 8}
+};
+const ui_pal default_ui_grape = {
+	.colors = {RGB(31, 31, 16), RGB_PURPLE, RGB(12, 0, 12), RGB_BLACK},
+	.gradient_start = {24, 6, 24}
+};
+const ui_pal default_ui_retro = {
+	.colors = {RGB(31, 24, 12), RGB(24, 12, 6), RGB(12, 6, 0), RGB_BLACK},
+	.gradient_start = {8, 12, 31}
+};
+const ui_pal default_ui_dmg = {
+	.colors = {RGB(26, 26, 9), RGB(17, 21, 9), RGB(8, 14, 8), RGB(0, 6, 4)},
+	.gradient_start = {20, 26, 10}
 };
 
 ui_pal current_ui_pal;
@@ -64,7 +93,7 @@ uint8_t text_position = 32;
 
 void init_hud() BANKED
 {
-	memcpy(&current_ui_pal, &default_ui_pink, sizeof(ui_pal));
+	memcpy(&current_ui_pal, &default_ui_dmg, sizeof(ui_pal));
 	uint8_t i;
 	vmemcpy((void *)TILEADDR(HUD_TILE), SIZE(hud_tiles), hud_tiles);
 	vmemcpy((void *)TILEADDR(ARROW_TILE), SIZE(arrow_tiles), arrow_tiles);

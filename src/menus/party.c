@@ -1,4 +1,4 @@
-#pragma bank 3
+#pragma bank 255
 
 #include <gb/cgb.h>
 #include <stdint.h>
@@ -99,16 +99,7 @@ void party_menu() BANKED
 	shadow_OAM[1].x = 19u * 8u + 8u;
 	shadow_OAM[0].y = 24;
 	shadow_OAM[1].y = 24;
-	while (SCX_REG < SUBMENU_SLIDE_POS) {
-		wait_vbl_done();
-		SCX_REG += SUBMENU_SLIDE_SPEED;
-		for (uint8_t i = 0; i < 8; i++) {
-			if (!shadow_OAM[i].y)
-				continue;
-			shadow_OAM[i].x -= SUBMENU_SLIDE_SPEED;
-		}
-	}
-	SCX_REG = SUBMENU_SLIDE_POS;
+	slide_into_submenu_x();
 
 	while (1) {
 		update_input();
@@ -140,15 +131,6 @@ void party_menu() BANKED
 	shadow_OAM[1].x = 180;
 	shadow_OAM[0].y = 20 + 32;
 	shadow_OAM[1].y = 20 + 32;
-	while (SCX_REG > 0) {
-		wait_vbl_done();
-		SCX_REG -= SUBMENU_SLIDE_SPEED;
-		for (uint8_t i = 0; i < 8; i++) {
-			if (!shadow_OAM[i].y)
-				continue;
-			shadow_OAM[i].x += SUBMENU_SLIDE_SPEED;
-		}
-	}
-	SCX_REG = 0;
+	slide_out_submenu_x();
 	memset(&shadow_OAM[2], 0, 3 * 4);
 }

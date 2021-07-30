@@ -1,5 +1,8 @@
 #pragma once
 
+#include <gb/gb.h>
+#include <stdbool.h>
+
 #include "include/bank.h"
 
 // VRAM allocation
@@ -23,3 +26,5 @@ BANK_EXTERN(pause_menu)
 INCBIN_EXTERN(paw_cursor)
 
 bool pause_menu() BANKED;
+void slide_into_submenu_x() BANKED;
+void slide_out_submenu_x() BANKED;

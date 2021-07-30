@@ -194,13 +194,7 @@ bool item_menu() BANKED
 	shadow_OAM[1].x = 22u * 8u + 12u;
 	shadow_OAM[0].y = 20;
 	shadow_OAM[1].y = 20;
-	while (SCX_REG < SUBMENU_SLIDE_POS) {
-		wait_vbl_done();
-		SCX_REG += SUBMENU_SLIDE_SPEED;
-		shadow_OAM[0].x -= SUBMENU_SLIDE_SPEED;
-		shadow_OAM[1].x -= SUBMENU_SLIDE_SPEED;
-	}
-	SCX_REG = SUBMENU_SLIDE_POS;
+	slide_into_submenu_x();
 
 	while (1) {
 
@@ -257,13 +251,7 @@ bool item_menu() BANKED
 	shadow_OAM[1].x = 180;
 	shadow_OAM[0].y = 20 + 16;
 	shadow_OAM[1].y = 20 + 16;
-	while (SCX_REG > 0) {
-		wait_vbl_done();
-		SCX_REG -= SUBMENU_SLIDE_SPEED;
-		shadow_OAM[0].x += SUBMENU_SLIDE_SPEED;
-		shadow_OAM[1].x += SUBMENU_SLIDE_SPEED;
-	}
-	SCX_REG = 0;
+	slide_out_submenu_x();
 
 	return false;
 }
