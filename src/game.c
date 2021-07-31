@@ -50,8 +50,10 @@ void do_turn() BANKED
 			}
 			if (closest_entity)
 				pursue(&entities[i], closest_entity, closest_entity + 1);
+			else if (i == 2 && entities[1])
+				ally_pathfind(&entities[i], entities[1].x_pos, entities[1].y_pos);
 			else
-				pathfind(&entities[i], PLAYER.x_pos, PLAYER.y_pos);
+				ally_pathfind(&entities[i], PLAYER.x_pos, PLAYER.y_pos);
 		}
 	}
 	for (uint8_t i = BEGIN_ENEMIES; i < NB_ENTITIES; i++)

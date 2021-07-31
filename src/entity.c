@@ -523,16 +523,16 @@ bool try_step(entity *self, uint8_t dir) BANKED
 }
 
 /**
- * A variation of try_step() to alow the player to swap positions with their
- * allies.
+ * A variation of try_step() to alow the allies to swap positions with each 
+ * other.
  *
  * @returns	Whether or not movement succeeded.
 */
-bool player_try_step() BANKED
+bool ally_try_step(entity *self) BANKED
 {
-	uint8_t target_x = PLAYER.x_pos;
-	uint8_t target_y = PLAYER.y_pos;
-	switch (PLAYER.direction) {
+	uint8_t target_x = self->x_pos;
+	uint8_t target_y = self->y_pos;
+	switch (self->direction) {
 	case DIR_UP:
 		target_y--;
 		break;
@@ -553,9 +553,9 @@ bool player_try_step() BANKED
 			continue;
 		if (entities[i].x_pos == target_x && \
 		    entities[i].y_pos == target_y) {
-			entities[i].x_pos = PLAYER.x_pos;
-			entities[i].y_pos = PLAYER.y_pos;
-			entities[i].direction = FLIP(PLAYER.direction);
+			entities[i].x_pos = self->x_pos;
+			entities[i].y_pos = self->y_pos;
+			entities[i].direction = FLIP(self->direction);
 			ignore_ally = i;
 			goto skip_enemies;
 		}
@@ -565,8 +565,8 @@ bool player_try_step() BANKED
 		    entities[i].y_pos == target_y)
 			return false;
 	skip_enemies:
-	PLAYER.x_pos = target_x;
-	PLAYER.y_pos = target_y;
+	self->x_pos = target_x;
+	self->y_pos = target_y;
 	return true;
 }
 
@@ -602,7 +602,9 @@ bool check_collision(uint8_t x, uint8_t y) BANKED
 }
 
 /**
- * Attempt to move toward a given location.
+ * Attempt to move toward a given location. Pathfinding will always attempt to
+ * move as close to the target as possible, turning to move around objects if
+ * needed.
  *
  * @param self		A pointer to the entity to move.
  * @param target_x	Target location.
@@ -612,37 +614,87 @@ void pathfind(entity *self, uint8_t target_x, uint8_t target_y) BANKED
 {
 	int8_t dist_x = target_x - self->x_pos;
 	int8_t dist_y = target_y - self->y_pos;
-	int8_t dir = -1;
-	int8_t dir2 = -1; // Secondary choice if choice one fails.
+	int8_t dir;
+	int8_t dir2; // Secondary choice if choice one fails.
 	if (abs(dist_x) > abs(dist_y)) {
 		if (dist_x > 0)
 			dir = DIR_RIGHT;
 		else
 			dir = DIR_LEFT;
-		if (dist_y) {
-			if (dist_y > 0)
-				dir2 = DIR_DOWN;
-			else
-				dir2 = DIR_UP;
-		}
-	} else if (dist_y) {
+		if (dist_y > 0)
+			dir2 = DIR_DOWN;
+		else
+			dir2 = DIR_UP;
+	} else {
 		if (dist_y > 0)
 			dir = DIR_DOWN;
 		else
 			dir = DIR_UP;
-		if (dist_x) {
-			if (dist_x > 0)
-				dir2 = DIR_RIGHT;
-			else
-				dir2 = DIR_LEFT;
-		}
+		if (dist_x > 0)
+			dir2 = DIR_RIGHT;
+		else
+			dir2 = DIR_LEFT;
 	}
-	if (dir != -1)
-		if (!try_step(self, dir))
-			if (dir2 != -1)
-				try_step(self, dir2);
-	else if (dir2 != -1)
-		try_step(self, dir2);
+	// Try to move towards the enemy. If you cannot move directly, find a
+	if (!try_step(self, dir)) {
+		vec8 target_pos = {self->x_pos, self->y_pos};
+		move_direction(&target_pos, dir2);
+		move_direction(&target_pos, dir);
+		if (get_collision(target_pos.x, target_pos.y) != WALL_COLL)
+			if (try_step(self, dir2))
+				return;
+		try_step(self, FLIP(dir2));
+	}
+}
+
+/**
+ * Attempt to move toward a given location.
+ *
+ * @param self		A pointer to the entity to move.
+ * @param target_x	Target location.
+ * @param target_y
+*/
+void ally_pathfind(entity *self, uint8_t target_x, uint8_t target_y) BANKED
+{
+	int8_t dist_x = target_x - self->x_pos;
+	int8_t dist_y = target_y - self->y_pos;
+	if (abs(dist_x) + abs(dist_y) == 1)
+		return;
+	int8_t dir;
+	int8_t dir2; // Secondary choice if choice one fails.
+	if (abs(dist_x) > abs(dist_y)) {
+		if (dist_x > 0)
+			dir = DIR_RIGHT;
+		else
+			dir = DIR_LEFT;
+		if (dist_y > 0)
+			dir2 = DIR_DOWN;
+		else
+			dir2 = DIR_UP;
+	} else {
+		if (dist_y > 0)
+			dir = DIR_DOWN;
+		else
+			dir = DIR_UP;
+		if (dist_x > 0)
+			dir2 = DIR_RIGHT;
+		else
+			dir2 = DIR_LEFT;
+	}
+	// Try to move towards the enemy. If you cannot move directly, find a
+	self->direction = dir;
+	if (!ally_try_step(self)) {
+		vec8 target_pos = {self->x_pos, self->y_pos};
+		move_direction(&target_pos, dir2);
+		move_direction(&target_pos, dir);
+		if (get_collision(target_pos.x, target_pos.y) != WALL_COLL) {
+			self->direction = dir2;
+			if (ally_try_step(self))
+				return;
+		}
+		self->direction = FLIP(dir2);
+		ally_try_step(self);
+	}
 }
 
 /**

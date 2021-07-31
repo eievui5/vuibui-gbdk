@@ -154,19 +154,19 @@ void main()
 			}
 			if (cur_keys & J_DOWN) {
 				PLAYER.direction = DIR_DOWN;
-				moved = player_try_step();
+				moved = ally_try_step(&PLAYER);
 			}
 			else if (cur_keys & J_UP) {
 				PLAYER.direction = DIR_UP;
-				moved = player_try_step();
+				moved = ally_try_step(&PLAYER);
 			}
 			else if (cur_keys & J_RIGHT) {
 				PLAYER.direction = DIR_RIGHT;
-				moved = player_try_step();
+				moved = ally_try_step(&PLAYER);
 			}
 			else if (cur_keys & J_LEFT) {
 				PLAYER.direction = DIR_LEFT;
-				moved = player_try_step();
+				moved = ally_try_step(&PLAYER);
 			}
 		}
 
