@@ -48,7 +48,11 @@ void do_turn() BANKED
 					closest_entity = j;
 				}
 			}
-			if (closest_entity)
+			if (closest_entity &&
+			    detection_trace(entities[i].x_pos,
+			    		    entities[i].y_pos,
+			    		    entities[closest_entity].x_pos,
+			    		    entities[closest_entity].y_pos, 4))
 				pursue(&entities[i], closest_entity, closest_entity + 1);
 			else if (i == 2 && entities[1])
 				ally_pathfind(&entities[i], entities[1].x_pos, entities[1].y_pos);

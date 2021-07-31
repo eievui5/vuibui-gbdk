@@ -697,6 +697,59 @@ void ally_pathfind(entity *self, uint8_t target_x, uint8_t target_y) BANKED
 	}
 }
 
+bool detection_trace(uint8_t self_x, uint8_t self_y, uint8_t target_x, 
+		      uint8_t target_y, uint8_t distance) BANKED
+{
+	vec8 self_pos = {self_x, self_y};
+	for (uint8_t i = 0; i < distance; i++) {
+		int8_t dist_x = target_x - self_pos.x;
+		int8_t dist_y = target_y - self_pos.y;
+		if (abs(dist_x) + abs(dist_y) == 1)
+			return true;
+		int8_t dir;
+		int8_t dir2; // Secondary choice if choice one fails.
+		if (abs(dist_x) > abs(dist_y)) {
+			if (dist_x > 0)
+				dir = DIR_RIGHT;
+			else
+				dir = DIR_LEFT;
+			if (dist_y > 0)
+				dir2 = DIR_DOWN;
+			else
+				dir2 = DIR_UP;
+		} else {
+			if (dist_y > 0)
+				dir = DIR_DOWN;
+			else
+				dir = DIR_UP;
+			if (dist_x > 0)
+				dir2 = DIR_RIGHT;
+			else
+				dir2 = DIR_LEFT;
+		}
+		// Try to move towards the enemy. If you cannot move directly, find a
+		vec8 target_pos = {self_pos.x, self_pos.y};
+		move_direction(&target_pos, dir);
+		if (get_collision(target_pos.x, target_pos.y) != WALL_COLL) {
+			move_direction(&self_pos, dir);
+			continue;
+		}
+		move_direction(&target_pos, dir2);
+		if (get_collision(target_pos.x, target_pos.y) != WALL_COLL) {
+			move_direction(&self_pos, dir2);
+			continue;
+		}
+		move_direction(&target_pos, FLIP(dir2));
+		move_direction(&target_pos, FLIP(dir2));
+		if (get_collision(target_pos.x, target_pos.y) != WALL_COLL) {
+			move_direction(&self_pos, FLIP(dir2));
+			continue;
+		}
+		return false;
+	}
+	return false;
+}
+
 /**
  * Attempt to chase a group of entities and attack them if within range.
  *

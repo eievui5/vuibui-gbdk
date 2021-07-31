@@ -169,7 +169,6 @@ void main()
 				moved = ally_try_step(&PLAYER);
 			}
 		}
-
 		if (moved)
 			do_turn();
 		else {
