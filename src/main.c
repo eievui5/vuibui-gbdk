@@ -15,11 +15,12 @@
 #include "include/rendering.h"
 #include "include/vec.h"
 #include "libs/vwf.h"
+#include "menus/pause.h"
+#include "menus/title.h"
 
 #include "entities/luvui.h"
 #include "items/apple.h"
 #include "mapdata/debug_mapdata.h"
-#include "menus/pause.h"
 #include "moves/lunge.h"
 
 void main()
@@ -28,15 +29,25 @@ void main()
 		cpu_fast();
 	wait_vbl_done();
 	LCDC_REG = 0;
-	fx_mode = GAME_UI;
 	add_VBL(&vblank);
+	fx_mode = NO_UI;
 	set_interrupts(VBL_IFLAG | LCD_IFLAG);
 	STAT_REG = STAT_LYC;
 	BGP_REG = 0b11100100;
 	OBP0_REG = 0b11010000;
 	OBP1_REG = 0b11100100;
+
+	LCDC_REG = lcdc_buffer = \
+		LCDC_ENABLE | LCDC_BG_ENABLE | LCDC_WINDOW_ENABLE | \
+		LCDC_BG_SCRN1 | LCDC_OBJ_ENABLE | LCDC_OBJ_16;
+
+	show_title();
+	LCDC_REG = lcdc_buffer = \
+		LCDC_ENABLE | LCDC_BG_ENABLE | LCDC_WINDOW_ENABLE | \
+		LCDC_WINDOW_SCRN1 | LCDC_OBJ_ENABLE | LCDC_OBJ_16;
+
 	init_hud();
-	initrand(7894);
+	initrand(DIV_REG);
 	memset(entities, 0, sizeof(entities));
 	memset(world_items, 0, sizeof(world_items));
 	memset(inventory, 0, sizeof(inventory));
@@ -49,12 +60,7 @@ void main()
 	current_mapdata_bank = BANK(debug_mapdata);
 	reload_mapdata();
 	create_new_floor();
-
-	LCDC_REG = lcdc_buffer = \
-		LCDC_ENABLE | LCDC_BG_ENABLE | LCDC_WINDOW_ENABLE | \
-		LCDC_WINDOW_SCRN1 | LCDC_OBJ_ENABLE | LCDC_OBJ_16;
 	while(1) {
-		update_input();
 
 		bool moved = false;
 		static uint8_t window_bounce = 0;

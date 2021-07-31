@@ -4,6 +4,7 @@
 #include <stdint.h>
 
 #include "include/entity.h"
+#include "include/game.h"
 #include "include/hardware.h"
 #include "include/hud.h"
 #include "include/rendering.h"
@@ -28,6 +29,7 @@ void vblank() NONBANKED
 	}
 	WX_REG = win_pos.x;
 	WY_REG = win_pos.y;
+	update_input();
 }
 
 // TODO: This might be broken? I had some issue with it when doing the

@@ -94,7 +94,6 @@ bool pause_menu() BANKED
 	shadow_OAM[0].prop = OAM_DMG_PAL1;
 	shadow_OAM[1].prop = OAM_DMG_PAL1;
 	while(1) {
-		update_input();
 		if (new_keys & J_UP) {
 			if (cursor_pos > 0)
 				cursor_pos--;

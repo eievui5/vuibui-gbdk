@@ -308,7 +308,7 @@ void generate_room(uint8_t width, uint8_t height) BANKED
 		break;
 	case DIR_UP:
 		cursor.x += (uint8_t)rand() % width;
-		cursor.y -= height;
+		cursor.y -= height - 1;
 		break;
 	}
 	contain_cursor();

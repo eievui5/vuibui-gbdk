@@ -118,7 +118,6 @@ bool use_item_menu(uint8_t base_item, uint8_t i) BANKED
 
 	while (1) {
 		// Handle new inputs.
-		update_input();
 		switch (new_keys) {
 		case J_START: case J_B:
 			goto exit;
@@ -200,7 +199,6 @@ bool item_menu() BANKED
 	while (1) {
 
 		// Handle new inputs.
-		update_input();
 		switch (new_keys) {
 		case J_START: case J_B:
 			goto exit;

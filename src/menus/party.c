@@ -102,7 +102,6 @@ void party_menu() BANKED
 	slide_into_submenu_x();
 
 	while (1) {
-		update_input();
 		switch (new_keys) {
 		case J_START: case J_B:
 			goto exit;
