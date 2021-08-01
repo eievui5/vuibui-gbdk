@@ -18,10 +18,10 @@ bool use_item(uint8_t i, uint8_t t) BANKED
 {
 	entity *target = &entities[t];
 	item *src_item = &inventory[i];
-	switch (banked_get(&src_item->data->type, src_item->bank)) {
+	switch (banked_get(src_item->bank, &src_item->data->type)) {
 	case HEAL_ITEM:
 		if (target->health < get_max_health(target)) {
-			uint8_t heal_amnt = banked_get(&((healitem_data *)src_item->data)->health, src_item->bank);
+			uint8_t heal_amnt = banked_get(src_item->bank, &((healitem_data *)src_item->data)->health);
 			if (target->health + heal_amnt >= get_max_health(target))
 				target->health = get_max_health(target);
 			else
@@ -46,10 +46,8 @@ bool use_item(uint8_t i, uint8_t t) BANKED
 				wait_vbl_done();
 			goto consume_item;
 		}
-		else
-			return false;
-		break;
 	default:
+		memset(shadow_OAM, 0, 160);
 		return false;
 	}
 

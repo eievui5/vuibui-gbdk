@@ -93,7 +93,7 @@ uint8_t text_position = 32;
 
 void init_hud() BANKED
 {
-	memcpy(&current_ui_pal, &default_ui_black, sizeof(ui_pal));
+	memcpy(&current_ui_pal, &default_ui_blue, sizeof(ui_pal));
 	uint8_t i;
 	vmemcpy((void *)TILEADDR(HUD_TILE), SIZE(hud_tiles), hud_tiles);
 	vmemcpy((void *)TILEADDR(ARROW_TILE), SIZE(arrow_tiles), arrow_tiles);

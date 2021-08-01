@@ -50,4 +50,5 @@ BINSRC	:=
 # Add a new $(wildcard $(SRCDIR)/<directory>*.png) when more directories are needed.
 GFXSRC	:= $(shell find $(SRCDIR) -name '*.png')
 
-MAPS 	:= res/gfx/ui/paw_mark.map
+MAPS 	:= res/gfx/ui/paw_mark.map \
+		   res/gfx/maps/crater.map

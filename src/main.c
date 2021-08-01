@@ -5,7 +5,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "include/dir.h"
 #include "include/entity.h"
 #include "include/game.h"
 #include "include/hardware.h"
@@ -15,7 +14,6 @@
 #include "include/rendering.h"
 #include "include/vec.h"
 #include "libs/vwf.h"
-#include "menus/pause.h"
 #include "menus/title.h"
 
 #include "entities/luvui.h"
@@ -37,9 +35,7 @@ void main()
 	OBP0_REG = 0b11010000;
 	OBP1_REG = 0b11100100;
 
-	LCDC_REG = lcdc_buffer = \
-		LCDC_ENABLE | LCDC_BG_ENABLE | LCDC_WINDOW_ENABLE | \
-		LCDC_BG_SCRN1 | LCDC_OBJ_ENABLE | LCDC_OBJ_16;
+	LCDC_REG = lcdc_buffer = LCDC_ENABLE | LCDC_BG_ENABLE | LCDC_BG_SCRN1 | LCDC_OBJ_ENABLE | LCDC_OBJ_16;
 
 	show_title();
 	LCDC_REG = lcdc_buffer = \
@@ -60,127 +56,11 @@ void main()
 	current_mapdata_bank = BANK(debug_mapdata);
 	reload_mapdata();
 	create_new_floor();
-	while(1) {
-
-		bool moved = false;
-		static uint8_t window_bounce = 0;
-		static uint8_t speedup_delay = 0;
-
-		if (new_keys == J_START && cur_keys == J_START) {
-			if(pause_menu())
-				do_turn();
-			continue;
-		}
-
-		// Waiting and running checks.
-		if (new_keys == J_SELECT)
-			moved = true;
-		if ((cur_keys & J_B) && !(cur_keys & J_A) &&
-		    (cur_keys & (J_UP | J_DOWN | J_LEFT | J_RIGHT)))
-			move_speed = 2;
-		else
-			move_speed = 1;
-
-		if ((cur_keys & J_A) && (cur_keys & J_B)) {
-			if ((new_keys & J_A) || (new_keys & J_B)) {
-				win_pos.x = 168;
-				window_bounce = 0;
-				draw_dir_window();
-			}
-			// Handle window animation
-			if (win_pos.x > 168 - 48 && window_bounce == 0) {
-				win_pos.x -= 8;
-			} else if (window_bounce != 2) {
-				window_bounce = 1;
-				if (win_pos.x < 168 - 40) {
-					win_pos.x += 1;
-				} else
-					window_bounce = 2;
-			}
-			if (new_keys & J_UP)
-				PLAYER.direction = DIR_UP;
-			else if (new_keys & J_RIGHT)
-				PLAYER.direction = DIR_RIGHT;
-			else if (new_keys & J_DOWN)
-				PLAYER.direction = DIR_DOWN;
-			else if (new_keys & J_LEFT)
-				PLAYER.direction = DIR_LEFT;
-			vset(0x9C42, 0x8A + PLAYER.direction);
-
-		// Attack check.
-		} else if (cur_keys & J_A) {
-			if ((new_keys & J_A) || (last_keys & J_B)) {
-				//win_pos.x = 168;
-				window_bounce = 0;
-				draw_move_window();
-			}
-			// Handle window animation
-			if (win_pos.x > 168 - 80 && window_bounce == 0) {
-				win_pos.x -= 8;
-			} else if (window_bounce != 2) {
-				window_bounce = 1;
-				if (win_pos.x < 168 - 72) {
-					win_pos.x += 1;
-				} else
-					window_bounce = 2;
-			}
-			uint8_t selected = 255;
-			if (new_keys & J_UP)
-				selected = 0;
-			else if (new_keys & J_RIGHT)
-				selected = 1;
-			else if (new_keys & J_DOWN)
-				selected = 2;
-			else if (new_keys & J_LEFT) {
-				selected = 3;
-				PLAYER.moves[0].data = &lunge_move;
-			}
-			if (selected != 255)
-				if (PLAYER.moves[selected].data) {
-					win_pos.x = 168;
-					window_bounce = 0;
-					use_melee_move(&PLAYER,
-						       &PLAYER.moves[selected]);
-					moved = true;
-				}
-
-		// If not holding the attack button, hide the window
-		// and check for movement.
-		} else {
-			// Reset window if needed.
-			if (win_pos.x < 168) {
-				win_pos.x = 168;
-				window_bounce = 0;
-			}
-			if (cur_keys & J_DOWN) {
-				PLAYER.direction = DIR_DOWN;
-				moved = ally_try_step(&PLAYER);
-			}
-			else if (cur_keys & J_UP) {
-				PLAYER.direction = DIR_UP;
-				moved = ally_try_step(&PLAYER);
-			}
-			else if (cur_keys & J_RIGHT) {
-				PLAYER.direction = DIR_RIGHT;
-				moved = ally_try_step(&PLAYER);
-			}
-			else if (cur_keys & J_LEFT) {
-				PLAYER.direction = DIR_LEFT;
-				moved = ally_try_step(&PLAYER);
-			}
-		}
-		if (moved)
-			do_turn();
-		else {
-			render_entities();
-			wait_vbl_done();
-		}
-
-	}
+	simulate_gameplay();
 }
 
 // Trampoline for accessing banked ROM.
-uint8_t banked_get(const uint8_t *value, uint8_t bank) __naked
+uint8_t banked_get(uint8_t bank, const uint8_t *value) __naked
 {
 	//uint8_t temp_bank = _current_bank;
 	//SWITCH_ROM_MBC1(bank);
@@ -192,11 +72,10 @@ uint8_t banked_get(const uint8_t *value, uint8_t bank) __naked
 	__asm
 		ldh a, (__current_bank)
 		ld b, a
-		ldhl sp,	#4
-		ld a, (hl-)
+		ldhl sp, #2
+		ld a, (hl+)
 		ldh (__current_bank), a
 		ld (#0x2000), a
-		dec hl
 		ld a, (hl+)
 		ld h, (hl)
 		ld l, a

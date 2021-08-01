@@ -57,7 +57,8 @@ void use_melee_move(entity *self, move *self_move)
 			uint16_t reward = get_xp_reward(target);
 			self->xp += reward;
 			sprintf(message, defeat_message, target->name,
-				self->name, reward, self->xp, get_xp_threshold(self->level));
+				self->name, reward, self->xp, 
+				get_xp_threshold(self->level));
 			vwf_wrap_str(20 * 8, message);
 			print_hud(message);
 			memset(target, 0, sizeof(entity));

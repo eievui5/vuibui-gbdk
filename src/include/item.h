@@ -44,6 +44,6 @@ typedef struct {
 extern world_item world_items[NB_WORLD_ITEMS];
 extern item inventory[INVENTORY_SIZE];
 
-void pickup_item(uint8_t i);
-void load_item_graphics();
-void generate_items();
+void pickup_item(uint8_t i) BANKED;
+void load_item_graphics() NONBANKED;
+void generate_items() NONBANKED;

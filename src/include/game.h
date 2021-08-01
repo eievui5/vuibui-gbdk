@@ -13,6 +13,7 @@ extern uint8_t minutes;
 extern uint8_t hours;
 
 void do_turn() BANKED;
+void simulate_gameplay() BANKED;
 
 inline void update_input()
 {

@@ -131,5 +131,5 @@ void party_menu() BANKED
 	shadow_OAM[0].y = 20 + 32;
 	shadow_OAM[1].y = 20 + 32;
 	slide_out_submenu_x();
-	memset(&shadow_OAM[2], 0, 3 * 4);
+	memset(&shadow_OAM[2], 0, 6 * 4);
 }

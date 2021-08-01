@@ -99,7 +99,7 @@ $(RESDIR)/%.map: $(SRCDIR)/%.1bpp.png
 	$(SUPERFAMICONV) -i $< -t $(patsubst %.map, %.2bpp, $@) -m $@ -R -M gb -B 1
 
 $(RESDIR)/%.map: $(SRCDIR)/%.png
-	$(SUPERFAMICONV) -i $< -t $(patsubst %.map, %.2bpp, $@) -m $@ -M gb
+	$(SUPERFAMICONV) -i $< -t $(patsubst %.map, %.2bpp, $@) -m $@ -R -M gb
 
 $(ROM): $(GFXS) $(MAPS) $(OBJS)
 	@mkdir -p $(@D)
