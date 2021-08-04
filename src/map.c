@@ -396,7 +396,6 @@ void create_new_floor() BANKED
 {
 	memset(world_items, 0, sizeof(world_items));
 	memset(&entities[3], 0, sizeof(entity) * 5);
-	swipe_left();
 	generate_map();
 	generate_items();
 	load_item_graphics();
@@ -425,5 +424,4 @@ void create_new_floor() BANKED
 		spawn_enemy(&luvui_entity, BANK(luvui));
 	move_entities();
 	force_render_map();
-	swipe_right();
 }

@@ -75,8 +75,11 @@ void do_turn() BANKED
 			if (PLAYER.x_pos == world_items[i].x && 
 			    PLAYER.y_pos == world_items[i].y)
 				pickup_item(i);
-	if (get_collision(PLAYER.x_pos, PLAYER.y_pos) == EXIT_COLL)
+	if (get_collision(PLAYER.x_pos, PLAYER.y_pos) == EXIT_COLL) {
+		swipe_left(true);
 		create_new_floor();
+		swipe_right();
+	}
 
 	if (++sub_mins >= TURNS_PER_MIN) {
 		sub_mins = 0;

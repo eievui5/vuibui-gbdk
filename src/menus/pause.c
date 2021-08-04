@@ -29,7 +29,7 @@ enum choice {
 	ESCAPE_CHOICE
 };
 
-INCBIN(paw_print, res/gfx/ui/paw_mark.2bpp)
+INCBIN(paw_print, res/gfx/ui/paw_mark.1bpp)
 INCBIN_EXTERN(paw_print)
 INCBIN(paw_print_map, res/gfx/ui/paw_mark.map)
 INCBIN_EXTERN(paw_print_map)
@@ -77,7 +77,10 @@ bool pause_menu() BANKED
 	uint8_t cursor_spr = 20;
 	bool used_turn = false;
 
-	swipe_left();
+	swipe_left(true);
+	lcdc_buffer = \
+		LCDC_ENABLE | LCDC_BG_ENABLE | LCDC_BG_SCRN1 | LCDC_OBJ_ENABLE \
+		| LCDC_OBJ_16;
 
 	// Draw pause screen.
 	set_bkg_1bit_data(0x00, 0x3E, paw_print, 1);

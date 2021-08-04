@@ -88,8 +88,8 @@ const ui_pal default_ui_dmg = {
 };
 
 ui_pal current_ui_pal;
-uint8_t status_position = 8;
-uint8_t text_position = 32;
+uint8_t status_position = 0;
+uint8_t text_position = 0;
 
 void init_hud() BANKED
 {

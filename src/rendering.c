@@ -1,6 +1,7 @@
 #pragma bank 255
 
 #include <gb/gb.h>
+#include <stdbool.h>
 #include <stdint.h>
 
 #include "include/entity.h"
@@ -14,7 +15,7 @@
 
 uint8_t lcdc_buffer;
 uint8_t oam_index = 0;
-uvec8 win_pos = {160, 72};
+uvec8 win_pos = {168, 72};
 uint8_t fx_mode = NO_UI;
 
 void vblank() NONBANKED
@@ -157,13 +158,14 @@ void fade_to_white(uint8_t fade_speed) BANKED
 	}
 }
 
-void swipe_left() BANKED
+void swipe_left(bool render) BANKED
 {
 	vmemset((void *)(0x9C00), 0x8E, 27 * 32);
 
-	win_pos.y = 8;
+	win_pos.y = 7;
 	while (win_pos.x >= 7) {
-		render_entities();
+		if (render)
+			render_entities();
 		wait_vbl_done();
 		win_pos.x -= SWIPE_SPEED;
 	}

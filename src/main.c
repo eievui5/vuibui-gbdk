@@ -13,6 +13,7 @@
 #include "include/map.h"
 #include "include/rendering.h"
 #include "include/vec.h"
+#include "include/world.h"
 #include "libs/vwf.h"
 #include "menus/title.h"
 
@@ -35,27 +36,32 @@ void main()
 	OBP0_REG = 0b11010000;
 	OBP1_REG = 0b11100100;
 
-	LCDC_REG = lcdc_buffer = LCDC_ENABLE | LCDC_BG_ENABLE | LCDC_BG_SCRN1 | LCDC_OBJ_ENABLE | LCDC_OBJ_16;
 
-	show_title();
-	LCDC_REG = lcdc_buffer = \
-		LCDC_ENABLE | LCDC_BG_ENABLE | LCDC_WINDOW_ENABLE | \
-		LCDC_WINDOW_SCRN1 | LCDC_OBJ_ENABLE | LCDC_OBJ_16;
-
-	init_hud();
-	initrand(DIV_REG);
 	memset(entities, 0, sizeof(entities));
 	memset(world_items, 0, sizeof(world_items));
 	memset(inventory, 0, sizeof(inventory));
+
+	LCDC_REG = lcdc_buffer = \
+		LCDC_ENABLE | LCDC_BG_ENABLE | LCDC_BG_SCRN1 | \
+		LCDC_OBJ_ENABLE | LCDC_OBJ_16;
+
+	show_title();
+	simulate_worldmap();
+	memset(shadow_OAM, 0, 160);
+
+	init_hud(); 
+	initrand(DIV_REG);
+
+	//current_mapdata = &debug_mapdata;
+	//current_mapdata_bank = BANK(debug_mapdata);
+	reload_mapdata();
+	swipe_left(false);
 	new_entity(&luvui_entity, BANK(luvui), 0, 32, 32, 5);
 	new_entity(&luvui_entity, BANK(luvui), 1, 33, 32, 5);
 	new_entity(&luvui_entity, BANK(luvui), 2, 32, 33, 5);
 	strcpy(PLAYER.name, "Eievui");
-
-	current_mapdata = &debug_mapdata;
-	current_mapdata_bank = BANK(debug_mapdata);
-	reload_mapdata();
 	create_new_floor();
+	swipe_right();
 	simulate_gameplay();
 }
 

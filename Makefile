@@ -68,6 +68,22 @@ $(OBJDIR)/libs/hUGEDriver.obj.o:
 	rgbasm -o $(OBJDIR)/libs/hUGEDriver.obj $(SRCDIR)/libs/hUGEDriver.asm
 	$(RGB2SDAS) $(OBJDIR)/libs/hUGEDriver.obj
 
+res/gfx/ui/paw_mark.map res/gfx/ui/paw_mark.1bpp: src/gfx/ui/paw_mark.png
+	@mkdir -p $(@D)
+	$(SUPERFAMICONV) \
+		-i $< \
+		-t res/gfx/ui/paw_mark.1bpp \
+		-m res/gfx/ui/paw_mark.map \
+		-R -M gb -B 1
+
+res/gfx/maps/crater.map res/gfx/maps/crater.2bpp: src/gfx/maps/crater.png
+	@mkdir -p $(@D)
+	$(SUPERFAMICONV) \
+		-i $< \
+		-t res/gfx/maps/crater.2bpp \
+		-m res/gfx/maps/crater.map \
+		-R -M gb
+
 # Compile source code.
 $(OBJDIR)/%.o: $(SRCDIR)/%.c
 	@mkdir -p $(@D)
@@ -93,13 +109,6 @@ $(RESDIR)/%.2bpp: $(SRCDIR)/%.png
 $(RESDIR)/%.h.2bpp: $(SRCDIR)/%.h.png
 	@mkdir -p $(@D)
 	$(SUPERFAMICONV) tiles -i $< -d $@ -M gbc -H 16 -R -D -F
-
-# Convert .png files to tilemaps.
-$(RESDIR)/%.map: $(SRCDIR)/%.1bpp.png
-	$(SUPERFAMICONV) -i $< -t $(patsubst %.map, %.2bpp, $@) -m $@ -R -M gb -B 1
-
-$(RESDIR)/%.map: $(SRCDIR)/%.png
-	$(SUPERFAMICONV) -i $< -t $(patsubst %.map, %.2bpp, $@) -m $@ -R -M gb
 
 $(ROM): $(GFXS) $(MAPS) $(OBJS)
 	@mkdir -p $(@D)

@@ -129,7 +129,6 @@ bool check_collision(uint8_t x, uint8_t y) BANKED;
 int8_t check_entity_at(uint8_t x, uint8_t y) BANKED;
 void defeat_animation(entity *self) BANKED;
 void hurt_animation(entity *self) BANKED;
-void move_direction(vec8 *vec, uint8_t dir) BANKED;
 entity *new_entity(entity_data *data, uint8_t bank, uint8_t i, uint8_t x, 
 		   uint8_t y, uint8_t level) BANKED;
 void pathfind(entity *self, uint8_t target_x, uint8_t target_y) BANKED;

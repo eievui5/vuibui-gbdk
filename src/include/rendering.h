@@ -1,6 +1,7 @@
 #pragma once
 
 #include <gb/gb.h>
+#include <stdbool.h>
 #include <stdint.h>
 
 #include "include/hardware.h"
@@ -26,7 +27,7 @@ void vblank() NONBANKED;
 void clean_oam() BANKED;
 void fade_to_white(uint8_t fade_speed) BANKED;
 void render_palettes() BANKED;
-void swipe_left() BANKED;
+void swipe_left(bool render) BANKED;
 void swipe_right() BANKED;
 
 inline void vset(uint16_t dst, uint8_t value) {
