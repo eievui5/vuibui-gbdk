@@ -143,7 +143,6 @@ bool try_step(entity *self, uint8_t dir) BANKED;
 void use_melee_move(entity *self, move *self_move);
 void reload_entity_graphics(uint8_t i) NONBANKED;
 
-inline uint16_t get_xp_threshold(uint8_t level)
-{
-	return level * 256u;
+inline uint16_t get_xp_threshold(uint8_t level) {
+	return level * 256;
 }

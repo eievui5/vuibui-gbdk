@@ -12,7 +12,7 @@
 #include "include/rendering.h"
 #include "menus/pause.h"
 
-#include "entities/luvui.h"
+#include "entities/forest_rat.h"
 
 #define TURNS_PER_MIN 15
 #define MINS_PER_SPAWN 5
@@ -92,7 +92,7 @@ void do_turn() BANKED
 
 		if ((uint8_t)(spawn_ticker++ >= MINS_PER_SPAWN)) {
 			spawn_ticker = 0;
-			spawn_enemy(&luvui_entity, BANK(luvui));
+			spawn_enemy(&forest_rat_entity, BANK(forest_rat));
 		}
 	}
 }

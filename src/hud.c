@@ -200,12 +200,13 @@ void hi_color() NONBANKED
 		g = 0;
 	if (b > 31)
 		b = 0;
+
 	uint8_t clr0 = r | g << 5;
 	uint8_t clr1 = g >> 3 | b << 2;
 	BCPS_REG = 7 * 8 | 0x80;
 	LYC_REG += 2;
-	bool done = false;
 	WAIT_VRAM;
+
 	BCPD_REG = clr0;
 	BCPD_REG = clr1;
 	if (LYC_REG >= 143) {
@@ -215,17 +216,17 @@ void hi_color() NONBANKED
 
 void show_text() NONBANKED
 {
+	remove_LCD(&show_text);
+	LYC_REG += 2;
+	if (_cpu == CGB_TYPE) {
+		add_LCD(&hi_color);
+	}
 	WAIT_VRAM;
+
 	// Disable objects and swap to map 2.
 	LCDC_REG = LCDC_ENABLE | LCDC_BG_ENABLE | LCDC_OBJ_16 | LCDC_BG_SCRN1;
 	SCX_REG = 0;
 	SCY_REG = 112 - (32 - text_position);
-
-	remove_LCD(&show_text);
-	if (_cpu == CGB_TYPE) {
-		add_LCD(&hi_color);
-		LYC_REG += 2;
-	}
 }
 
 void show_game() NONBANKED

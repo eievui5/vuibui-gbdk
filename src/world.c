@@ -10,7 +10,7 @@
 #include "include/world.h"
 
 #include "entities/luvui.h"
-#include "mapdata/debug_mapdata.h"
+#include "mapdata/field_mapdata.h"
 INCBIN(crater_graphics, res/gfx/maps/crater.2bpp)
 INCBIN_EXTERN(crater_graphics)
 INCBIN(crater_map, res/gfx/maps/crater.map)
@@ -27,8 +27,8 @@ const map_node crater_woodland = {
 	.y = 12,
 	.type = DUNGEON_NODE,
 	.connections = {&crater_intersection, &crater_house, NULL, NULL},
-	.level = &debug_mapdata,
-	.bank = BANK(debug_mapdata),
+	.level = &field_mapdata,
+	.bank = BANK(field_mapdata),
 };
 const map_node crater_intersection = {
 	.x = 2,

@@ -10,7 +10,7 @@
 
 const char attack_message[] = "%s used %s!";
 const char missed_message[] = "%s missed.";
-const char defeat_message[] = "%s was defeated.\n%s gained %u experience.\n%u/%u";
+const char defeat_message[] = "%s was defeated.\n%s gained %u experience.";
 
 void use_melee_move(entity *self, move *self_move)
 {
@@ -53,12 +53,10 @@ void use_melee_move(entity *self, move *self_move)
 	if (target->health <= damage) {
 		defeat_animation(target);
 		if (self->team != ENEMY_TEAM) {
-			SWITCH_ROM_MBC1(target->bank);
 			uint16_t reward = get_xp_reward(target);
 			self->xp += reward;
 			sprintf(message, defeat_message, target->name,
-				self->name, reward, self->xp, 
-				get_xp_threshold(self->level));
+				self->name, reward);
 			vwf_wrap_str(20 * 8, message);
 			print_hud(message);
 			memset(target, 0, sizeof(entity));

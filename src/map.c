@@ -16,7 +16,7 @@
 #include "include/rendering.h"
 #include "include/vec.h"
 
-#include "entities/luvui.h"
+#include "entities/forest_rat.h"
 
 uint8_t map[64][64];
 uvec16 camera = {0, 0};
@@ -421,7 +421,7 @@ void create_new_floor() BANKED
 		}
 	}
 	for (uint8_t i = 0; i < 5; i++)
-		spawn_enemy(&luvui_entity, BANK(luvui));
+		spawn_enemy(&forest_rat_entity, BANK(forest_rat));
 	move_entities();
 	force_render_map();
 }

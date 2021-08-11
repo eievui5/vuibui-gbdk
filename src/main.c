@@ -52,14 +52,12 @@ void main()
 	init_hud(); 
 	initrand(DIV_REG);
 
-	//current_mapdata = &debug_mapdata;
-	//current_mapdata_bank = BANK(debug_mapdata);
-	reload_mapdata();
 	swipe_left(false);
 	new_entity(&luvui_entity, BANK(luvui), 0, 32, 32, 5);
 	new_entity(&luvui_entity, BANK(luvui), 1, 33, 32, 5);
 	new_entity(&luvui_entity, BANK(luvui), 2, 32, 33, 5);
 	strcpy(PLAYER.name, "Eievui");
+	reload_mapdata();
 	create_new_floor();
 	swipe_right();
 	simulate_gameplay();
