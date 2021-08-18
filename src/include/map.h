@@ -26,17 +26,21 @@ struct item_weight {
 };
 
 /**
- * Data pertaining to the currently loaded map's visuals.
+ * Data pertaining to the currently loaded level.
  * 
- * @param tileset	Array of 128 tiles for the map to use.
- * @param metatiles	Array of metatiles that contian tiles, attributes, and
- * collision. Packs 9 bytes into 1!
- * @param post_process	Post-processing function to convert the raw map into
- * metatiles.
- * @param nb_walls	The number of wall variants in the wall palette. Used by
- * the post-processing function.
- * @param wall_palette	And array of wall variants. The format depends on the
- * map's post-processing function.
+ * @param tileset		Array of 128 tiles for the map to use.
+ * @param metatiles		Array of metatiles that contian tiles, 
+ * attributes, and collision. Packs 9 bytes into 1!
+ * @param post_process		Post-processing function to convert the raw map
+ * into metatiles.
+ * @param nb_walls		The number of wall variants in the wall palette.
+ * Used by the post-processing function.
+ * @param wall_palette		An array of wall variants. The format depends on
+ * the map's post-processing function.
+ * @param completion_flag	SRAM flag to set after successfully completing
+ * the level.
+ * @param final_floor		Successfully exit the dungeon when reaching this
+ * floor.
 */
 typedef struct {
 	const char *tileset;
@@ -47,6 +51,8 @@ typedef struct {
 	const char *wall_palette;
 	const uint8_t exit_tile;
 	const struct item_weight *item_table;
+	const uint8_t completion_flag;
+	const uint8_t final_floor;
 } mapdata;
 
 // Y, X order.

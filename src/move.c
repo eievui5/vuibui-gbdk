@@ -46,6 +46,7 @@ void use_melee_move(entity *self, move *self_move)
 		sprintf(message, missed_message, self->name);
 		vwf_wrap_str(20 * 8, message);
 		print_hud(message);
+		SWITCH_ROM_MBC1(temp_bank);
 		return;
 	}
 

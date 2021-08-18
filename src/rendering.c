@@ -15,6 +15,7 @@
 
 uint8_t lcdc_buffer;
 uint8_t oam_index = 0;
+uvec8 scr_pos = {0, 0};
 uvec8 win_pos = {168, 72};
 uint8_t fx_mode = NO_UI;
 
@@ -22,6 +23,8 @@ void vblank() NONBANKED
 {
 	switch(fx_mode) {
 	case NO_UI:
+		SCX_REG = scr_pos.x;
+		SCY_REG = scr_pos.y;
 		LCDC_REG = lcdc_buffer;
 		break;
 	case GAME_UI:

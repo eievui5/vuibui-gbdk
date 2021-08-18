@@ -5,6 +5,7 @@
 
 #include "debug_mapdata.h"
 #include "include/map.h"
+#include "include/save.h"
 #include "items/apple.h"
 
 #define GRASS 6
@@ -23,6 +24,7 @@ const mapdata debug_mapdata = {
 	.wall_palette = debug_wall_palette,
 	.exit_tile = 5,
 	.item_table = item_table,
+	.completion_flag = FLAG_WORLD_1_1,
 };
 
 INCBIN(debug_tileset, res/gfx/tilesets/tree_tiles.2bpp)

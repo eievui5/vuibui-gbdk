@@ -4,7 +4,7 @@
 #define TURN_RIGHT(dir) (((dir) + 1) & 0b11)
 #define FLIP(dir) (((dir) + 2) & 0b11)
 
-enum dir {
+enum Direction {
 	DIR_UP,
 	DIR_RIGHT,
 	DIR_DOWN,

@@ -1,6 +1,5 @@
 #include <gb/cgb.h>
 #include <gb/gb.h>
-#include <rand.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
@@ -12,6 +11,7 @@
 #include "include/item.h"
 #include "include/map.h"
 #include "include/rendering.h"
+#include "include/save.h"
 #include "include/vec.h"
 #include "include/world.h"
 #include "libs/vwf.h"
@@ -29,38 +29,29 @@ void main()
 	wait_vbl_done();
 	LCDC_REG = 0;
 	add_VBL(&vblank);
-	fx_mode = NO_UI;
 	set_interrupts(VBL_IFLAG | LCD_IFLAG);
 	STAT_REG = STAT_LYC;
 	BGP_REG = 0b11100100;
 	OBP0_REG = 0b11010000;
 	OBP1_REG = 0b11100100;
 
+	test_sram_corruption();
 
 	memset(entities, 0, sizeof(entities));
 	memset(world_items, 0, sizeof(world_items));
 	memset(inventory, 0, sizeof(inventory));
+	new_entity(&luvui_entity, BANK(luvui), 0, 32, 32, 5);
+	new_entity(&luvui_entity, BANK(luvui), 1, 33, 32, 5);
+	new_entity(&luvui_entity, BANK(luvui), 2, 32, 33, 5);
+	strcpy(PLAYER.name, "Eievui");
 
 	LCDC_REG = lcdc_buffer = \
 		LCDC_ENABLE | LCDC_BG_ENABLE | LCDC_BG_SCRN1 | \
 		LCDC_OBJ_ENABLE | LCDC_OBJ_16;
 
 	show_title();
-	simulate_worldmap();
-	memset(shadow_OAM, 0, 160);
-
-	init_hud(); 
-	initrand(DIV_REG);
-
-	swipe_left(false);
-	new_entity(&luvui_entity, BANK(luvui), 0, 32, 32, 5);
-	new_entity(&luvui_entity, BANK(luvui), 1, 33, 32, 5);
-	new_entity(&luvui_entity, BANK(luvui), 2, 32, 33, 5);
-	strcpy(PLAYER.name, "Eievui");
-	reload_mapdata();
-	create_new_floor();
-	swipe_right();
-	simulate_gameplay();
+	game_state = WORLDMAP_STATE;
+	game_loop();
 }
 
 // Trampoline for accessing banked ROM.

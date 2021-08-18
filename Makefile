@@ -9,7 +9,7 @@
 #                                              #
 ################################################
 
-LCC	= lcc -Wa-l -Wl-m -debug -Isrc -Wb-ext=.rel -autobank
+LCC	= lcc -Wa-l -Wl-m -Isrc -Wb-ext=.rel -autobank
 
 ifeq ($(OS),Windows_NT)
 	ROMUSAGE := ./tools/romusage.exe

@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <string.h>
 
+#include "include/bank.h"
 #include "include/dir.h"
 #include "include/entity.h"
 #include "include/hud.h"
