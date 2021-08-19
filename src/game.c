@@ -117,7 +117,7 @@ void do_turn() BANKED
 
 		if ((uint8_t)(spawn_ticker++ >= MINS_PER_SPAWN)) {
 			spawn_ticker = 0;
-			spawn_enemy(&forest_rat_entity, BANK(forest_rat));
+			generate_enemy();
 		}
 	}
 }

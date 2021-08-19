@@ -380,10 +380,9 @@ void generate_moves(entity *self) NONBANKED
  * @param y
  * @param health	Temporary - Set health and max health.
 */
-entity *new_entity(entity_data *data, uint8_t bank, uint8_t i, uint8_t x, 
+entity *new_entity(const entity_data *data, uint8_t bank, uint8_t i, uint8_t x, 
 		   uint8_t y, uint8_t level) BANKED
 {
-
 	entity *self = &entities[i];
 	memset(self, 0, sizeof(entity));
 	if (PLAYER.data) {
@@ -427,10 +426,10 @@ entity *new_entity(entity_data *data, uint8_t bank, uint8_t i, uint8_t x,
  * @param x		Location to place the entity at.
  * @param y
 */
-entity *spawn_enemy(entity_data *data, uint8_t bank) BANKED
+entity *spawn_enemy(const entity_data *data, uint8_t bank, uint8_t level) BANKED
 {
 	entity *self = &entities[3];
-	for (uint8_t i = 3; i < NB_ENTITIES; i++, self++)
+	for (uint8_t i = 3; i < NB_ENTITIES; i++, self++) {
 		if (!self->data) {
 			uint8_t x;
 			uint8_t y;
@@ -444,8 +443,9 @@ entity *spawn_enemy(entity_data *data, uint8_t bank) BANKED
 				    y * 16 <= camera.y + 144))
 					break;
 			}
-			return new_entity(data, bank, i, x, y, 1);
+			return new_entity(data, bank, i, x, y, level);
 		}
+	}
 	return NULL;
 }
 

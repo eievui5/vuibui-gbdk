@@ -38,6 +38,8 @@ void select_node(enum Direction dir) NONBANKED {
 
 void init_worldmap() NONBANKED
 {
+	scr_pos.x = 0;
+	scr_pos.y = 0;
 	uint8_t temp_bank = _current_bank;
 	SWITCH_ROM_MBC1(current_worldmap_bank);
 	fx_mode = NO_UI;

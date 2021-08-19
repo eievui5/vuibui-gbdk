@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "include/entity.h"
 #include "include/vec.h"
 
 enum collision {
@@ -17,6 +18,12 @@ typedef struct {
 	unsigned char attrs[4];
 	unsigned char collision;
 } metatile;
+
+struct enemy_spawn_data {
+	const entity_data *ptr;
+	const uint8_t bank;
+	const uint8_t level;
+};
 
 struct item_weight {
 	uint8_t weight;
@@ -41,18 +48,22 @@ struct item_weight {
  * the level.
  * @param final_floor		Successfully exit the dungeon when reaching this
  * floor.
+ * @param enemy_levels		4 possible levels for entities in the level.
+ * @param enemy_list		A list of 8 enemies that can spawn in the level.
+ * NULL entries will reduce the spawn rate.
 */
 typedef struct {
 	const char *tileset;
 	short *colors;
 	const metatile *metatiles;
 	const void *post_process;
-	const uint8_t nb_walls;
 	const char *wall_palette;
 	const uint8_t exit_tile;
 	const struct item_weight *item_table;
 	const uint8_t completion_flag;
 	const uint8_t final_floor;
+	const uint8_t enemy_levels[4];
+	const struct enemy_spawn_data enemy_list[8];
 } mapdata;
 
 // Y, X order.
@@ -62,6 +73,7 @@ extern const mapdata *current_mapdata;
 extern uint8_t current_mapdata_bank;
 
 void draw_tile(uint8_t x, uint8_t y) NONBANKED;
+void generate_enemy() NONBANKED;void generate_enemy() NONBANKED;
 void update_camera(uint16_t x, uint16_t y) BANKED;
 uint8_t get_collision(uint16_t x, uint16_t y) NONBANKED;
 void force_render_map() NONBANKED;

@@ -129,7 +129,7 @@ bool check_collision(uint8_t x, uint8_t y) BANKED;
 int8_t check_entity_at(uint8_t x, uint8_t y) BANKED;
 void defeat_animation(entity *self) BANKED;
 void hurt_animation(entity *self) BANKED;
-entity *new_entity(entity_data *data, uint8_t bank, uint8_t i, uint8_t x, 
+entity *new_entity(const entity_data *data, uint8_t bank, uint8_t i, uint8_t x, 
 		   uint8_t y, uint8_t level) BANKED;
 void pathfind(entity *self, uint8_t target_x, uint8_t target_y) BANKED;
 void ally_pathfind(entity *self, uint8_t target_x, uint8_t target_y) BANKED;
@@ -138,7 +138,7 @@ bool detection_trace(uint8_t self_x, uint8_t self_y, uint8_t target_x,
 		      uint8_t target_y, uint8_t distance) BANKED;
 void pursue(entity *self, uint8_t start, uint8_t stop) BANKED;
 void render_entities() BANKED;
-entity *spawn_enemy(entity_data *data, uint8_t bank) BANKED;
+entity *spawn_enemy(const entity_data *data, uint8_t bank, uint8_t level) BANKED;
 bool try_step(entity *self, uint8_t dir) BANKED;
 void use_melee_move(entity *self, move *self_move);
 void reload_entity_graphics(uint8_t i) NONBANKED;

@@ -3,6 +3,7 @@
 #include <gb/cgb.h>
 #include <gb/incbin.h>
 
+#include "entities/forest_rat.h"
 #include "field_mapdata.h"
 #include "include/map.h"
 #include "items/apple.h"
@@ -17,10 +18,20 @@ const mapdata field_mapdata = {
 	.tileset = field_tileset,
 	.colors = field_colors,
 	.metatiles = field_metatiles,
-	.nb_walls = 1,
 	.wall_palette = field_wall_palette,
 	.exit_tile = 5,
 	.item_table = field_item_table,
+	.final_floor = 4,
+	.enemy_list = {
+		{.ptr = &forest_rat_entity, .bank = BANK(forest_rat), .level = 1},
+		{.ptr = &forest_rat_entity, .bank = BANK(forest_rat), .level = 2},
+		{.ptr = &forest_rat_entity, .bank = BANK(forest_rat), .level = 2},
+		{.ptr = &forest_rat_entity, .bank = BANK(forest_rat), .level = 2},
+		{.ptr = &forest_rat_entity, .bank = BANK(forest_rat), .level = 3},
+		{.ptr = &forest_rat_entity, .bank = BANK(forest_rat), .level = 3},
+		{.ptr = &forest_rat_entity, .bank = BANK(forest_rat), .level = 4},
+		{.ptr = &forest_rat_entity, .bank = BANK(forest_rat), .level = 5},
+	},
 };
 
 INCBIN(field_tileset, res/gfx/tilesets/field_tiles.2bpp)

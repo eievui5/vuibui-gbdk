@@ -18,6 +18,7 @@ enum fx_modes {
 extern uint8_t lcdc_buffer;
 extern uint8_t oam_index;
 extern uvec8 win_pos;
+extern uvec8 scr_pos;
 extern short palettes[64];
 extern uint8_t fx_mode;
 

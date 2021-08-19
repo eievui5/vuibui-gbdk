@@ -392,6 +392,20 @@ void generate_map() BANKED
 	generate_exit();
 }
 
+void generate_enemy() NONBANKED
+{
+	uint8_t temp_bank = _current_bank;
+	SWITCH_ROM_MBC1(current_mapdata_bank);
+	uint8_t index = rand() & 0b111;
+	const entity_data *chosen_enemy = current_mapdata->enemy_list[index].ptr;
+	if (!chosen_enemy)
+		return;
+	spawn_enemy(chosen_enemy,
+			current_mapdata->enemy_list[index].bank,
+			current_mapdata->enemy_list[index].level);
+	SWITCH_ROM_MBC1(temp_bank);
+}
+
 void create_new_floor() BANKED
 {
 	memset(world_items, 0, sizeof(world_items));
@@ -420,8 +434,8 @@ void create_new_floor() BANKED
 			break;
 		}
 	}
-	//for (uint8_t i = 0; i < 5; i++)
-	//	spawn_enemy(&forest_rat_entity, BANK(forest_rat));
+	for (uint8_t i = 0; i < 5; i++)
+		generate_enemy();
 	move_entities();
 	force_render_map();
 }

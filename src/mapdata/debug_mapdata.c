@@ -4,6 +4,7 @@
 #include <gb/incbin.h>
 
 #include "debug_mapdata.h"
+#include "entities/forest_rat.h"
 #include "include/map.h"
 #include "include/save.h"
 #include "items/apple.h"
@@ -20,11 +21,21 @@ const mapdata debug_mapdata = {
 	.tileset = debug_tileset,
 	.colors = debug_colors,
 	.metatiles = debug_metatiles,
-	.nb_walls = 1,
 	.wall_palette = debug_wall_palette,
 	.exit_tile = 5,
 	.item_table = item_table,
 	.completion_flag = FLAG_WORLD_1_1,
+	.final_floor = 4,
+	.enemy_list = {
+		{.ptr = &forest_rat_entity, .bank = BANK(forest_rat), .level = 1},
+		{.ptr = &forest_rat_entity, .bank = BANK(forest_rat), .level = 1},
+		{.ptr = &forest_rat_entity, .bank = BANK(forest_rat), .level = 1},
+		{.ptr = &forest_rat_entity, .bank = BANK(forest_rat), .level = 2},
+		{.ptr = &forest_rat_entity, .bank = BANK(forest_rat), .level = 2},
+		{.ptr = &forest_rat_entity, .bank = BANK(forest_rat), .level = 3},
+		{.ptr = &forest_rat_entity, .bank = BANK(forest_rat), .level = 3},
+		{.ptr = &forest_rat_entity, .bank = BANK(forest_rat), .level = 4},
+	},
 };
 
 INCBIN(debug_tileset, res/gfx/tilesets/tree_tiles.2bpp)

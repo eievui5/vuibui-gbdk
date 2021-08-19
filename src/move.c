@@ -50,7 +50,9 @@ void use_melee_move(entity *self, move *self_move)
 		return;
 	}
 
-	uint16_t damage = self_move->data->power + get_attack_bonus(self) - get_defense_bonus(target);
+	int16_t damage = self_move->data->power + get_attack_bonus(self) - get_defense_bonus(target);
+	if (damage <= 0)
+		damage = 1;
 	if (target->health <= damage) {
 		defeat_animation(target);
 		if (self->team != ENEMY_TEAM) {

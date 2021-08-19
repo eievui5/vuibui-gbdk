@@ -48,7 +48,6 @@ bool use_item(uint8_t i, uint8_t t) BANKED
 			goto consume_item;
 		}
 	default:
-		memset(shadow_OAM, 0, 160);
 		return false;
 	}
 
@@ -104,16 +103,16 @@ bool use_item_menu(uint8_t base_item, uint8_t i) BANKED
 	shadow_OAM[0].y = 88u + SUBSUBMENU_SLIDE_POS;
 	shadow_OAM[1].y = 88u + SUBSUBMENU_SLIDE_POS;
 	draw_item_cursor(i);
-	while (SCY_REG < SUBSUBMENU_SLIDE_POS) {
+	while (scr_pos.y < SUBSUBMENU_SLIDE_POS) {
 		wait_vbl_done();
-		SCY_REG += SUBMENU_SLIDE_SPEED;
+		scr_pos.y += SUBMENU_SLIDE_SPEED;
 		for (uint8_t i = 0; i < 8; i++) {
 			if (!shadow_OAM[i].y)
 				continue;
 			shadow_OAM[i].y -= SUBMENU_SLIDE_SPEED;
 		}
 	}
-	SCY_REG = SUBSUBMENU_SLIDE_POS;
+	scr_pos.y = SUBSUBMENU_SLIDE_POS;
 
 	while (1) {
 		// Handle new inputs.
@@ -149,19 +148,19 @@ bool use_item_menu(uint8_t base_item, uint8_t i) BANKED
 	exit:
 	draw_inventory(base_item);
 
-	while (SCY_REG > 0) {
+	while (scr_pos.y > 0) {
 		wait_vbl_done();
-		SCY_REG -= SUBMENU_SLIDE_SPEED;
+		scr_pos.y -= SUBMENU_SLIDE_SPEED;
 		for (uint8_t i = 0; i < 8; i++) {
 			if (!shadow_OAM[i].y)
 				continue;
 			shadow_OAM[i].y += SUBMENU_SLIDE_SPEED;
 		}
 	}
-	SCY_REG = 0;
+	scr_pos.y = 0;
 	shadow_OAM[0].x = 10u * 8u + 4u;
 	shadow_OAM[1].x = 10u * 8u + 12u;
-	vmemcpy((void *)(0x8000), SIZE(paw_cursor), paw_cursor);
+	banked_vmemcpy((void *)(0x8000), SIZE(paw_cursor), paw_cursor, BANK(paw_cursor));
 	set_sprite_palette(0, 1, current_ui_pal.colors);
 	return false;
 }
