@@ -16,6 +16,7 @@
 #include "include/rendering.h"
 #include "include/world.h"
 #include "menus/pause.h"
+#include "menus/title.h"
 
 #include "entities/forest_rat.h"
 
@@ -255,7 +256,7 @@ void simulate_dungeon() BANKED {
 // Please prefer states in the game loop rather than while loops!
 void game_loop() BANKED {
 	while (1) {
-		static enum GameState prev_game_state = -1;
+		static enum GameState prev_game_state = 255;
 		// Initiallize new game states.
 		if (prev_game_state != game_state) {
 			prev_game_state = game_state;
@@ -267,6 +268,9 @@ void game_loop() BANKED {
 			case WORLDMAP_STATE:
 				init_worldmap();
 				break;
+			case TITLESCREEN_STATE:
+				init_title();
+				break;
 			}
 		}
 
@@ -277,6 +281,9 @@ void game_loop() BANKED {
 			break;
 		case WORLDMAP_STATE:
 			simulate_worldmap();
+			break;
+		case TITLESCREEN_STATE:
+			simulate_title();
 			break;
 		};
 		wait_vbl_done();

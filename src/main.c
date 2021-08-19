@@ -45,12 +45,8 @@ void main()
 	new_entity(&luvui_entity, BANK(luvui), 2, 32, 33, 5);
 	strcpy(PLAYER.name, "Eievui");
 
-	LCDC_REG = lcdc_buffer = \
-		LCDC_ENABLE | LCDC_BG_ENABLE | LCDC_BG_SCRN1 | \
-		LCDC_OBJ_ENABLE | LCDC_OBJ_16;
-
-	show_title();
-	game_state = WORLDMAP_STATE;
+	LCDC_REG = lcdc_buffer = LCDC_ENABLE;
+	game_state = TITLESCREEN_STATE;
 	game_loop();
 }
 

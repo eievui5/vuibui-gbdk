@@ -18,7 +18,12 @@ typedef struct {
 	enum SramFlag unlock_flag;
 } map_node;
 
+typedef struct {
+	const char *name;
+	const map_node *nodes[];
+} world_map;
+
 extern map_node *current_mapnode;
 
-void init_worldmap() BANKED;
-void simulate_worldmap() BANKED;
+void init_worldmap() NONBANKED;
+void simulate_worldmap() NONBANKED;

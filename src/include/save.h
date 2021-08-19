@@ -1,6 +1,7 @@
 #pragma once
 
 #include <gb/gb.h>
+#include <stdbool.h>
 
 enum SramFlag {
 	FLAG_NULL = 0, // Define a null flag.

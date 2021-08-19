@@ -1,3 +1,4 @@
 #pragma once
 
-void show_title() BANKED;
+void init_title() BANKED;
+void simulate_title() BANKED;

@@ -163,7 +163,7 @@ void reload_mapdata() NONBANKED
 	uint8_t tmpb = _current_bank;
 	SWITCH_ROM_MBC1(current_mapdata_bank);
 
-	set_bkg_data(0, 128, current_mapdata->tileset);
+	vmemcpy((void *) 0x9000, 0x800, current_mapdata->tileset);
 	if (_cpu == CGB_TYPE)
 		set_bkg_palette(0, 7, current_mapdata->colors);
 

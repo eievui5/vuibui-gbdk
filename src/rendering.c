@@ -38,7 +38,7 @@ void vblank() NONBANKED
 
 // TODO: This might be broken? I had some issue with it when doing the
 // inventory. Might have just been a mistake.
-void vmemcpy(void *dest, uint8_t len, const void *src) NONBANKED
+void vmemcpy(void *dest, uint16_t len, const void *src) NONBANKED
 {
 	dest; len; src;
 	__asm
@@ -49,10 +49,15 @@ void vmemcpy(void *dest, uint8_t len, const void *src) NONBANKED
 		ld a, (hl+)
 		ld d, a
 		ld a, (hl+)
+		ld c, a
+		ld a, (hl+)
 		ld b, a
 		ld a, (hl+)
 		ld h, (hl)
 		ld l, a
+		dec bc
+		inc b
+		inc c
 	00001$:
 		ldh a, (_STAT_REG)
 		and a, #2
@@ -60,16 +65,36 @@ void vmemcpy(void *dest, uint8_t len, const void *src) NONBANKED
 		ld a, (hl+)
 		ld (de), a
 		inc de
+		dec c
+		jr nz, 00001$
 		dec b
 		jr nz, 00001$
 	__endasm;
 }
 
-void banked_vmemcpy(void *dest, uint8_t len, const void *src, uint8_t bank) NONBANKED
+void banked_vmemcpy(void *dest, uint16_t len, const void *src, uint8_t bank) NONBANKED
 {
 	uint8_t temp_bank = _current_bank;
 	SWITCH_ROM_MBC1(bank);
 	vmemcpy(dest, len, src);
+	SWITCH_ROM_MBC1(temp_bank);
+}
+
+void vsetmap(uint8_t *vram_addr, uint8_t w, uint8_t h, const uint8_t *tiles) NONBANKED
+{
+	for (; h; h--) {
+		vmemcpy(vram_addr, w, tiles);
+		vram_addr += 0x20;
+		tiles += w;
+	}
+}
+
+void banked_vsetmap(uint8_t *vram_addr, uint8_t w, uint8_t h, const uint8_t *tiles,
+		    uint8_t bank) NONBANKED
+{
+	uint8_t temp_bank = _current_bank;
+	SWITCH_ROM_MBC1(bank);
+	vsetmap(vram_addr, w, h, tiles);
 	SWITCH_ROM_MBC1(temp_bank);
 }
 

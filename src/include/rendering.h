@@ -21,8 +21,11 @@ extern uvec8 win_pos;
 extern short palettes[64];
 extern uint8_t fx_mode;
 
-void vmemcpy(void *dest, uint8_t len, const void *src) NONBANKED;
-void banked_vmemcpy(void *dest, uint8_t len, const void *src, uint8_t bank) NONBANKED;
+void vmemcpy(void *dest, uint16_t len, const void *src) NONBANKED;
+void banked_vmemcpy(void *dest, uint16_t len, const void *src, uint8_t bank) NONBANKED;
+void vsetmap(uint8_t *vram_addr, uint8_t w, uint8_t h, const uint8_t *tiles) NONBANKED;
+void banked_vsetmap(uint8_t *vram_addr, uint8_t w, uint8_t h, const uint8_t *tiles,
+		      uint8_t bank) NONBANKED;
 void vblank() NONBANKED;
 void clean_oam() BANKED;
 void fade_to_white(uint8_t fade_speed) BANKED;

@@ -84,7 +84,7 @@ bool pause_menu() BANKED
 
 	// Draw pause screen.
 	set_bkg_1bit_data(0x00, 0x3E, paw_print, 1);
-	set_bkg_tiles(9, 8, 11, 10, paw_print_map);
+	vsetmap((void *) 0x9D09, 11, 10, paw_print_map);
 	vmemcpy((void *)(0x8000), SIZE(paw_cursor), paw_cursor);
 	set_sprite_palette(0, 1, current_ui_pal.colors);
 	vwf_activate_font(0);

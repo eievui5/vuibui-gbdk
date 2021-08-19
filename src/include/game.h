@@ -3,7 +3,7 @@
 #include <gb/gb.h>
 #include <stdint.h>
 
-enum GameState {DUNGEON_STATE, WORLDMAP_STATE};
+enum GameState {DUNGEON_STATE, WORLDMAP_STATE, TITLESCREEN_STATE};
 
 extern enum GameState game_state;
 

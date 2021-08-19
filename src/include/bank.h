@@ -1,3 +1,4 @@
+#include <gb/gb.h>
 #include <gb/incbin.h>
 
 #define DEF_BANK(VARNAME) const void __at(255) __bank_ ## VARNAME;
