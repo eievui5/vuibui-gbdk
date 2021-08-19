@@ -1,5 +1,6 @@
 #pragma bank 255
 
+#include <gb/cgb.h>
 #include <gb/incbin.h>
 
 #include "include/bank.h"
@@ -11,6 +12,7 @@
 
 INCBIN(crater_graphics, res/gfx/maps/crater.2bpp)
 INCBIN(crater_map, res/gfx/maps/crater.map)
+INCBIN(crater_attr, src/gfx/maps/crater.attr)
 DEF_BANK(crater)
 
 const map_node crater_house = {
@@ -37,8 +39,17 @@ const map_node crater_fields = {
 	.unlock_flag = FLAG_WORLD_1_1,
 };
 
+const short crater_pals[] = {
+	RGB(11, 27, 13), RGB(11, 14, 19), RGB(10, 5, 5), RGB_BLACK,
+	RGB(11, 27, 13), RGB(6, 15, 8), RGB(10, 5, 5), RGB_BLACK,
+	RGB(11, 27, 13), RGB(16, 15, 10), RGB(10, 5, 5), RGB_BLACK,
+	RGB(11, 27, 13), RGB(17, 10, 8), RGB(10, 5, 5), RGB_BLACK,
+	RGB(11, 27, 13), RGB(13, 10, 10), RGB(11, 8, 8), RGB_BLACK,
+};
+
 const world_map crater_worldmap = {
 	.name = "Crater",
+	.pals = crater_pals,
 	.nodes = {
 		&crater_house,
 		&crater_woodland,

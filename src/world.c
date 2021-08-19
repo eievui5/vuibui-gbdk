@@ -13,8 +13,6 @@
 #include "include/world.h"
 
 #include "entities/luvui.h"
-#include "mapdata/debug_mapdata.h"
-#include "mapdata/field_mapdata.h"
 #include "worldmaps/crater.h"
 
 INCBIN(worldmap_ui_gfx, res/gfx/maps/worldmap_ui.2bpp)
@@ -48,6 +46,12 @@ void init_worldmap() NONBANKED
 		LCDC_WINDOW_SCRN1 | LCDC_OBJ_ENABLE | LCDC_OBJ_16;
 	cgb_compatibility();
 	banked_vsetmap((void *) 0x9800, 20, 14, crater_map, BANK(crater_map));
+	if (_cpu == CGB_TYPE) {
+		set_bkg_palette(0, 7, current_worldmap->pals);
+		VBK_REG = 1;
+		banked_vsetmap((void *) 0x9800, 20, 14, crater_attr, BANK(crater_map));
+		VBK_REG = 0;
+	}
 	banked_vmemcpy((void *) 0x9000, 0x800, crater_graphics, BANK(crater_graphics));
 	banked_vmemcpy((void *) 0x8000, 64, &gfx_luvui[24 * 16 * DIR_DOWN], BANK(gfx_luvui));
 	worldmap_pos.x = current_mapnode->x * 8;

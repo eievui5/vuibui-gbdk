@@ -9,7 +9,7 @@
 #                                              #
 ################################################
 
-LCC	= lcc -Wa-l -Wl-m -Isrc -Wb-ext=.rel -autobank
+LCC	= lcc -Wa-l -Wl-m -Isrc -Wb-ext=.rel -Wb-random -autobank
 
 ifeq ($(OS),Windows_NT)
 	ROMUSAGE := ./tools/romusage.exe
@@ -53,8 +53,6 @@ rebuild:
 	$(MAKE) clean
 	$(MAKE) all
 
-map: $(MAPS)
-
 ###############################################
 #                                             #
 #                 COMPILATION                 #
@@ -90,7 +88,7 @@ res/gfx/maps/worldmap_ui.map res/gfx/maps/worldmap_ui.2bpp: src/gfx/maps/worldma
 		-i $< \
 		-t res/gfx/maps/worldmap_ui.2bpp \
 		-m res/gfx/maps/worldmap_ui.map \
-		-W 8 -H 8 -T 128 -R -M gb
+		-T 128 -R -M gb
 
 # Compile source code.
 $(OBJDIR)/%.o: $(SRCDIR)/%.c

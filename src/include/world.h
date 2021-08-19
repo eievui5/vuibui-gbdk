@@ -20,6 +20,7 @@ typedef struct {
 
 typedef struct {
 	const char *name;
+	short *pals;
 	const map_node *nodes[];
 } world_map;
 

@@ -420,8 +420,8 @@ void create_new_floor() BANKED
 			break;
 		}
 	}
-	for (uint8_t i = 0; i < 5; i++)
-		spawn_enemy(&forest_rat_entity, BANK(forest_rat));
+	//for (uint8_t i = 0; i < 5; i++)
+	//	spawn_enemy(&forest_rat_entity, BANK(forest_rat));
 	move_entities();
 	force_render_map();
 }

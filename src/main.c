@@ -1,26 +1,15 @@
 #include <gb/cgb.h>
-#include <gb/gb.h>
 #include <stdint.h>
-#include <stdio.h>
 #include <string.h>
 
 #include "include/entity.h"
 #include "include/game.h"
 #include "include/hardware.h"
-#include "include/hud.h"
 #include "include/item.h"
-#include "include/map.h"
 #include "include/rendering.h"
 #include "include/save.h"
-#include "include/vec.h"
-#include "include/world.h"
-#include "libs/vwf.h"
-#include "menus/title.h"
 
 #include "entities/luvui.h"
-#include "items/apple.h"
-#include "mapdata/debug_mapdata.h"
-#include "moves/lunge.h"
 
 void main()
 {

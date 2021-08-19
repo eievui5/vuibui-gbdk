@@ -5,6 +5,7 @@
 
 INCBIN_EXTERN(crater_graphics)
 INCBIN_EXTERN(crater_map)
+INCBIN_EXTERN(crater_attr)
 BANK_EXTERN(crater)
 
 extern const map_node crater_house;
