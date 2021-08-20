@@ -260,7 +260,7 @@ void game_loop() BANKED {
 		// Initiallize new game states.
 		if (prev_game_state != game_state) {
 			prev_game_state = game_state;
-			memset(shadow_OAM, 0, 160);
+			reset_oam();
 			switch (game_state) {
 			case DUNGEON_STATE:
 				init_dungeon();

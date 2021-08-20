@@ -55,7 +55,7 @@ bool use_item(uint8_t i, uint8_t t) BANKED
 	// Move the inventory down by one index and clear the last slot.
 	memmove(src_item, &inventory[i + 1], (INVENTORY_SIZE - 1u - i) * sizeof(item));
 	memset(&inventory[INVENTORY_SIZE - 1], 0, sizeof(item));
-	memset(shadow_OAM, 0, 160);
+	reset_oam();
 	return true;
 }
 

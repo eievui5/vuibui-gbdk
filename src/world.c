@@ -3,6 +3,7 @@
 #include <gb/cgb.h>
 #include <gb/incbin.h>
 #include <stdint.h>
+#include <string.h>
 
 #include "include/dir.h"
 #include "include/hud.h"
@@ -36,6 +37,7 @@ uint8_t worldmap_direction;
 
 void render_world_objects() NONBANKED
 {
+	reset_oam();
 	uint8_t *oam_pointer = (uint8_t *) shadow_OAM;
 
 	*oam_pointer++ = worldmap_pos.y + 8;
@@ -56,6 +58,7 @@ void render_world_objects() NONBANKED
 			continue;
 		*oam_pointer++ = current_worldmap->nodes[i]->y * 8 + 16;
 		*oam_pointer++ = current_worldmap->nodes[i]->x * 8 + 8;
+
 		if (!current_worldmap->nodes[i]->unlock_flag ||
 		    get_sram_flag(current_worldmap->nodes[i]->unlock_flag)) {
 			*oam_pointer++ = current_worldmap->nodes[i]->unlocked_marker;

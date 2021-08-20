@@ -29,6 +29,7 @@ void banked_vsetmap(uint8_t *vram_addr, uint8_t w, uint8_t h, const uint8_t *til
 		      uint8_t bank) NONBANKED;
 void vblank() NONBANKED;
 void clean_oam() BANKED;
+void reset_oam() BANKED;
 void fade_to_white(uint8_t fade_speed) BANKED;
 void render_palettes() BANKED;
 void swipe_left(bool render) BANKED;

@@ -98,6 +98,30 @@ void banked_vsetmap(uint8_t *vram_addr, uint8_t w, uint8_t h, const uint8_t *til
 	SWITCH_ROM_MBC1(temp_bank);
 }
 
+void reset_oam() BANKED
+{
+	//uint8_t *oam_ptr = (uint8_t *) shadow_OAM;
+	//while(oam_ptr != (shadow_OAM + 160) {
+	//	*oam_ptr = 0;
+	//	oam_ptr += 4;
+	//}
+
+	__asm
+		ld	hl, #_shadow_OAM
+	2$:
+		ld	a, l
+		cp	a, #160
+		ret	Z
+	
+		xor	a, a
+		ld	(hl+), a
+		inc	l
+		inc	l
+		inc	l
+		jr	2$
+	__endasm;
+}
+
 /**
  * Cleans leftover oam entries so that unused sprites are not rendered. Resets
  * oam_index, allowing a new set of sprites to be rendered. This function should
