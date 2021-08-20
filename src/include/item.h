@@ -3,7 +3,7 @@
 #include <stdint.h>
 
 #define NB_WORLD_ITEMS 4
-#define INVENTORY_SIZE 5
+#define INVENTORY_SIZE 10
 
 enum item_type {
 	NULL_ITEM,

@@ -712,24 +712,26 @@ bool detection_trace(uint8_t self_x, uint8_t self_y, uint8_t target_x,
 */
 void pursue(entity *self, uint8_t start, uint8_t stop) BANKED
 {
-	entity *ally = &entities[start];
+	entity *target = &entities[start];
 	int8_t closest = -1;
 	uint16_t dist = 65535;
-	for (uint8_t i = start; i < stop; i++, ally++) {
-		if (!*ally)
+	for (uint8_t i = start; i < stop; i++, target++) {
+		if (!target->data)
 			continue;
-		uint16_t cur_dist = abs(self->x_pos - ally->x_pos) +
-				    abs(self->y_pos - ally->y_pos);
+		uint16_t cur_dist = abs(self->x_pos - target->x_pos) +
+				    abs(self->y_pos - target->y_pos);
 		if (cur_dist < dist) {
 			dist = cur_dist;
 			closest = i;
 		}
 	}
-	ally = &entities[closest];
+	if (closest == -1)
+		return;
+	target = &entities[closest];
 	if (dist == 1) {
-		self->direction = get_direction(ally->x_pos - self->x_pos,
-						ally->y_pos - self->y_pos);
+		self->direction = get_direction(target->x_pos - self->x_pos,
+						target->y_pos - self->y_pos);
 		use_melee_move(self, &self->moves[0]);
 	} else
-		pathfind(self, ally->x_pos, ally->y_pos);
+		pathfind(self, target->x_pos, target->y_pos);
 }

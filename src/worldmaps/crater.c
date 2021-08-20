@@ -31,7 +31,7 @@ const map_node crater_woodland = {
 };
 const map_node crater_fields = {
 	.x = 2,
-	.y = 7,
+	.y = 5,
 	.type = DUNGEON_NODE,
 	.connections = {NULL, NULL, &crater_woodland, NULL},
 	.level = &field_mapdata,
