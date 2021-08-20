@@ -25,7 +25,7 @@ const mapdata debug_mapdata = {
 	.exit_tile = 5,
 	.item_table = item_table,
 	.completion_flag = FLAG_WORLD_1_1,
-	.final_floor = 4,
+	.final_floor = 0,
 	.enemy_list = {
 		{.ptr = &forest_rat_entity, .bank = BANK(forest_rat), .level = 1},
 		{.ptr = &forest_rat_entity, .bank = BANK(forest_rat), .level = 1},

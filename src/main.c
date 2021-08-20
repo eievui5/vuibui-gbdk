@@ -29,6 +29,7 @@ void main()
 	memset(entities, 0, sizeof(entities));
 	memset(world_items, 0, sizeof(world_items));
 	memset(inventory, 0, sizeof(inventory));
+	memset(&active_save_file, 0, sizeof(save_file));
 	new_entity(&luvui_entity, BANK(luvui), 0, 32, 32, 5);
 	//new_entity(&luvui_entity, BANK(luvui), 1, 33, 32, 5);
 	//new_entity(&luvui_entity, BANK(luvui), 2, 32, 33, 5);

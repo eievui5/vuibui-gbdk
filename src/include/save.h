@@ -11,6 +11,7 @@ enum SramFlag {
 	// Level completion flags.
 		// World 1 (Crater)
 			FLAG_WORLD_1_1,
+			FLAG_WORLD_1_2,
 	MAX_FLAGS
 };
 
@@ -29,6 +30,7 @@ typedef struct {
 	entity_save player;
 } save_file;
 
+extern save_file active_save_file;
 extern save_file sram_file_1;
 
 bool test_sram_corruption() BANKED;

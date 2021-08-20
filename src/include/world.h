@@ -5,6 +5,7 @@
 #include "include/save.h"
 
 typedef enum {DUNGEON_NODE, FORK_NODE, } NodeType;
+enum NodeMarker {LOCKED_MARKER = 0xF0, UNLOCKED_MARKER = 0xF2, STUB_MARKER = 0xF4};
 
 typedef struct {
 	uint8_t x;
@@ -16,6 +17,9 @@ typedef struct {
 	// A node can only be selected if this flag is set.
 	// If this flag is 0, the node can always be selected.
 	enum SramFlag unlock_flag;
+	enum SramFlag complete_flag;
+	enum NodeMarker locked_marker;
+	enum NodeMarker unlocked_marker;
 } map_node;
 
 typedef struct {

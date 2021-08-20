@@ -3,9 +3,10 @@
 #include <gb/cgb.h>
 #include <gb/incbin.h>
 
-#include "entities/forest_rat.h"
 #include "field_mapdata.h"
+#include "entities/forest_rat.h"
 #include "include/map.h"
+#include "include/save.h"
 #include "items/apple.h"
 
 #define TREE_PAL 0
@@ -21,7 +22,8 @@ const mapdata field_mapdata = {
 	.wall_palette = field_wall_palette,
 	.exit_tile = 5,
 	.item_table = field_item_table,
-	.final_floor = 4,
+	.completion_flag = FLAG_WORLD_1_2,
+	.final_floor = 0,
 	.enemy_list = {
 		{.ptr = &forest_rat_entity, .bank = BANK(forest_rat), .level = 1},
 		{.ptr = &forest_rat_entity, .bank = BANK(forest_rat), .level = 2},
