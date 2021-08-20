@@ -21,6 +21,22 @@ bool test_sram_corruption() BANKED
 	return false;
 }
 
+void save_entity(entity_save *dest, entity *src) BANKED
+{
+	strcpy(dest->name, src->name);
+	memcpy(dest->moves, src->moves, sizeof(move) * 4);
+}
+
+void save_data() BANKED
+{
+	// Construct the remaining portions of the save file using game
+	// information.
+	// Copy entity data.
+	ENABLE_RAM_MBC5;
+	memcpy(&sram_file_1, &active_save_file, sizeof(save_file));
+	DISABLE_RAM_MBC5;
+}
+
 bool get_sram_flag(uint8_t id) BANKED
 {
 	return active_save_file.flags[id >> 3] & (1 << (id & 0b111));
