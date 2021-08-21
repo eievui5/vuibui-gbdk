@@ -67,7 +67,7 @@ void draw_party(uint8_t x, uint8_t y, uint8_t font_tile, uint8_t spr_x,
 			*entry++ = ENTITY_TILE + i * 4 + 2;
 			*entry++ = ENTITY_PALETTE + i;
 			draw_static_entity(&entities[i], DIR_DOWN, IDLE_FRAME,
-					   (void *) 0x8040 + i * 64, i + 1);
+					   (void *) (0x8040 + i * 64), i + 1);
 			y++;
 		}
 	}

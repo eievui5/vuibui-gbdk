@@ -64,9 +64,9 @@ void draw_static_entity(entity *src, uint8_t dir, uint8_t frame, uint8_t* dest,
 {
 	uint8_t temp_bank = _current_bank;
 	SWITCH_ROM_MBC1(src->bank);
-	vmemcpy(dest, 64,&src->data->graphics[
+	vmemcpy(dest, 64, &src->data->graphics[
 		dir * NB_UNIQUE_TILES  * 16 + 64 * frame]);
-	if (_cpu == CGB_TYPE && pal == -1)
+	if (_cpu == CGB_TYPE && pal != -1)
 		set_sprite_palette(pal, 1, src->data->colors);
 	SWITCH_ROM_MBC1(temp_bank);
 }

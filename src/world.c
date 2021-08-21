@@ -24,6 +24,10 @@ INCBIN_EXTERN(worldmap_ui_gfx)
 INCBIN_EXTERN(worldmap_ui_map)
 INCBIN_EXTERN(worldmap_markers)
 
+#define PLAYER_MARKPAL 0
+#define COMPLETE_MARKPAL 1
+#define INCOMPLETE_MARKPAL 2
+
 const short marker_pals[] = {
 	RGB_WHITE, RGB_BLUE, RGB_DARKBLUE, RGB_BLACK,
 	RGB_WHITE, RGB_RED, RGB_DARKRED, RGB_BLACK,
@@ -33,21 +37,32 @@ uint8_t current_worldmap_bank = BANK(crater);
 world_map *current_worldmap = &crater_worldmap;
 map_node *current_mapnode = &crater_house;
 uvec8 worldmap_pos;
-uint8_t worldmap_direction;
+uint8_t worldmap_direction = DIR_DOWN;
 
 void render_world_objects() NONBANKED
 {
+	static uint8_t anim_timer = 0;
+	
+	if (worldmap_pos.x != current_mapnode->x * 8 ||
+	    worldmap_pos.y != current_mapnode->y * 8) {
+		draw_static_entity(&PLAYER, worldmap_direction,
+				   WALK_FRAME + (anim_timer++ & 0b10000 ? 1 : 0),
+				   (void *) 0x8000, PLAYER_MARKPAL);
+	} else {
+		draw_static_entity(&PLAYER, DIR_DOWN, anim_timer++ & 0b10000 ? 1 : 0,
+			(void *) 0x8000, PLAYER_MARKPAL);
+	}
 	reset_oam();
 	uint8_t *oam_pointer = (uint8_t *) shadow_OAM;
 
 	*oam_pointer++ = worldmap_pos.y + 8;
 	*oam_pointer++ = worldmap_pos.x + 4;
 	*oam_pointer++ = 0;
-	*oam_pointer++ = 0;
+	*oam_pointer++ = PLAYER_MARKPAL;
 	*oam_pointer++ = worldmap_pos.y + 8;
 	*oam_pointer++ = worldmap_pos.x + 12;
 	*oam_pointer++ = 2;
-	*oam_pointer++ = 0;
+	*oam_pointer++ = PLAYER_MARKPAL;
 
 	uint8_t temp_bank = _current_bank;
 	SWITCH_ROM_MBC1(current_worldmap_bank);
@@ -96,7 +111,7 @@ void render_world_objects() NONBANKED
 			if (!attr) {
 				switch (current_worldmap->nodes[i]->type) {
 				default:
-					attr = 1;
+					attr = COMPLETE_MARKPAL;
 					break;
 				}
 			}
@@ -107,7 +122,7 @@ void render_world_objects() NONBANKED
 			if (!attr) {
 				switch (current_worldmap->nodes[i]->type) {
 				default:
-					attr = 2 | OAM_DMG_PAL1;
+					attr = INCOMPLETE_MARKPAL | OAM_DMG_PAL1;
 					break;
 				}
 			}
@@ -138,7 +153,6 @@ void init_worldmap() NONBANKED
 	lcdc_buffer = \
 		LCDC_ENABLE | LCDC_BG_ENABLE | LCDC_WINDOW_ENABLE | \
 		LCDC_WINDOW_SCRN1 | LCDC_OBJ_ENABLE | LCDC_OBJ_16;
-	cgb_compatibility();
 	banked_vsetmap((void *) 0x9800, 20, 14, crater_map, BANK(crater_map));
 	if (_cpu == CGB_TYPE) {
 		set_bkg_palette(0, 7, current_worldmap->pals);
@@ -147,7 +161,6 @@ void init_worldmap() NONBANKED
 		VBK_REG = 0;
 	}
 	banked_vmemcpy((void *) 0x9000, 0x800, crater_graphics, BANK(crater_graphics));
-	banked_vmemcpy((void *) 0x8000, 64, &gfx_luvui[24 * 16 * DIR_DOWN], BANK(gfx_luvui));
 	worldmap_pos.x = current_mapnode->x * 8;
 	worldmap_pos.y = current_mapnode->y * 8;
 
@@ -169,8 +182,9 @@ void simulate_worldmap() NONBANKED
 	if (worldmap_pos.x != current_mapnode->x * 8 ||
 	    worldmap_pos.y != current_mapnode->y * 8) {
 		move_direction((vec8 *)&worldmap_pos, worldmap_direction);
-		move_direction((vec8 *)&worldmap_pos, worldmap_direction);
-	} else {
+	}
+	if (worldmap_pos.x == current_mapnode->x * 8 &&
+	    worldmap_pos.y == current_mapnode->y * 8) {
 		if (cur_keys & J_A && current_mapnode->type == DUNGEON_NODE) {
 			current_mapdata = current_mapnode->level;
 			current_mapdata_bank = current_mapnode->bank;

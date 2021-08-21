@@ -28,19 +28,19 @@ bool use_item(uint8_t i, uint8_t t) BANKED
 			else
 				target->health += heal_amnt;
 			draw_static_entity(target, DIR_LEFT, IDLE_FRAME,
-					   (void *) 0x8040 + i * 64, i + 1);
+					   (void *) (0x8040 + t * 64), t + 1);
 			for (uint8_t i = 0; i < 15; i++)
 				wait_vbl_done();
 			draw_static_entity(target, DIR_LEFT, HURT_FRAME,
-					   (void *) 0x8040 + i * 64, i + 1);
+					   (void *) (0x8040 + t * 64), t + 1);
 			for (uint8_t i = 0; i < 8; i++)
 				wait_vbl_done();
 			draw_static_entity(target, DIR_LEFT, ATTACK_FRAME,
-					   (void *) 0x8040 + i * 64, i + 1);
+					   (void *) (0x8040 + t * 64), t + 1);
 			for (uint8_t i = 0; i < 8; i++)
 				wait_vbl_done();
 			draw_static_entity(target, DIR_LEFT, IDLE_FRAME,
-					   (void *) 0x8040 + i * 64, i + 1);
+					   (void *) (0x8040 + t * 64), t + 1);
 			for (uint8_t i = 0; i < 15; i++)
 				wait_vbl_done();
 			shadow_OAM[0].y = 0;
