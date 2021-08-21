@@ -14,10 +14,13 @@ save_file active_save_file;
 
 bool test_sram_corruption() BANKED
 {
-	if (!strcmp(test_string, sram_corruption_check)) {
+	ENABLE_RAM_MBC5;
+	if (strcmp(test_string, sram_corruption_check) != 0) {
 		strcpy(sram_corruption_check, test_string);
+		DISABLE_RAM_MBC5;
 		return true;
 	}
+	DISABLE_RAM_MBC5;
 	return false;
 }
 
@@ -29,9 +32,7 @@ void save_entity(entity_save *dest, entity *src) BANKED
 
 void save_data() BANKED
 {
-	// Construct the remaining portions of the save file using game
-	// information.
-	// Copy entity data.
+	// Construct the save file.
 	ENABLE_RAM_MBC5;
 	memcpy(&sram_file_1, &active_save_file, sizeof(save_file));
 	DISABLE_RAM_MBC5;

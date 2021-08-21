@@ -257,10 +257,14 @@ void simulate_dungeon() BANKED {
 void game_loop() BANKED {
 	while (1) {
 		static enum GameState prev_game_state = 255;
-		// Initiallize new game states.
+		// Handle new game states.
 		if (prev_game_state != game_state) {
-			prev_game_state = game_state;
+			// Exit prev state.
+			switch (prev_game_state) {
+
+			}
 			reset_oam();
+			// Init new state.
 			switch (game_state) {
 			case DUNGEON_STATE:
 				init_dungeon();
@@ -272,6 +276,7 @@ void game_loop() BANKED {
 				init_title();
 				break;
 			}
+			prev_game_state = game_state;
 		}
 
 		// Run state logic.

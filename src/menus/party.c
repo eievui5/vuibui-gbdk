@@ -20,20 +20,6 @@ const char level_text[] = "Lvl: %u";
 const char health_text[] = "Hp: %u/%u";
 const char hunger_text[] = "Ftg: %u/%u";
 
-// Draws an entity with a static frame and direction.
-void draw_party_entity(uint8_t i, uint8_t dir, uint8_t frame) NONBANKED
-{
-	uint8_t temp_bank = _current_bank;
-	SWITCH_ROM_MBC1(entities[i].bank);
-	vmemcpy((void *)(0x8040 + i * 64), 64,
-		&entities[i].data->graphics[
-			dir * NB_UNIQUE_TILES  * 16 + 64 * frame]
-	);
-	if (_cpu == CGB_TYPE)
-		set_sprite_palette(i + 1, 1, entities[i].data->colors);
-	SWITCH_ROM_MBC1(temp_bank);
-}
-
 /**
  * Draws the party menu starting at a given tile. Can be used to show the party
  * or select who to use an item on.
@@ -80,7 +66,8 @@ void draw_party(uint8_t x, uint8_t y, uint8_t font_tile, uint8_t spr_x,
 			*entry++ = spr_x + 8;
 			*entry++ = ENTITY_TILE + i * 4 + 2;
 			*entry++ = ENTITY_PALETTE + i;
-			draw_party_entity(i, DIR_DOWN, IDLE_FRAME);
+			draw_static_entity(&entities[i], DIR_DOWN, IDLE_FRAME,
+					   (void *) 0x8040 + i * 64, i + 1);
 			y++;
 		}
 	}

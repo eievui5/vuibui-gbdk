@@ -27,16 +27,20 @@ bool use_item(uint8_t i, uint8_t t) BANKED
 				target->health = get_max_health(target);
 			else
 				target->health += heal_amnt;
-			draw_party_entity(t, DIR_LEFT, IDLE_FRAME);
+			draw_static_entity(target, DIR_LEFT, IDLE_FRAME,
+					   (void *) 0x8040 + i * 64, i + 1);
 			for (uint8_t i = 0; i < 15; i++)
 				wait_vbl_done();
-			draw_party_entity(t, DIR_LEFT, HURT_FRAME);
+			draw_static_entity(target, DIR_LEFT, HURT_FRAME,
+					   (void *) 0x8040 + i * 64, i + 1);
 			for (uint8_t i = 0; i < 8; i++)
 				wait_vbl_done();
-			draw_party_entity(t, DIR_LEFT, ATTACK_FRAME);
+			draw_static_entity(target, DIR_LEFT, ATTACK_FRAME,
+					   (void *) 0x8040 + i * 64, i + 1);
 			for (uint8_t i = 0; i < 8; i++)
 				wait_vbl_done();
-			draw_party_entity(t, DIR_LEFT, IDLE_FRAME);
+			draw_static_entity(target, DIR_LEFT, IDLE_FRAME,
+					   (void *) 0x8040 + i * 64, i + 1);
 			for (uint8_t i = 0; i < 15; i++)
 				wait_vbl_done();
 			shadow_OAM[0].y = 0;
