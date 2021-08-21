@@ -20,9 +20,6 @@ const map_node crater_house = {
 	.y = 12,
 	.type = FORK_NODE,
 	.connections = {NULL, NULL, NULL, &crater_woodland},
-
-	.locked_marker = STUB_MARKER,
-	.unlocked_marker = STUB_MARKER,
 };
 const map_node crater_woodland = { 
 	.x = 2,
@@ -33,8 +30,6 @@ const map_node crater_woodland = {
 	.bank = BANK(debug_mapdata),
 
 	.complete_flag = FLAG_WORLD_1_1,
-	.locked_marker = LOCKED_MARKER,
-	.unlocked_marker = UNLOCKED_MARKER,
 };
 const map_node crater_fields = {
 	.x = 2,
@@ -46,8 +41,6 @@ const map_node crater_fields = {
 
 	.unlock_flag = FLAG_WORLD_1_1,
 	.complete_flag = FLAG_WORLD_1_2,
-	.locked_marker = LOCKED_MARKER,
-	.unlocked_marker = UNLOCKED_MARKER,
 };
 const map_node crater_town_2 = {
 	.x = 2,
@@ -56,8 +49,6 @@ const map_node crater_town_2 = {
 	.connections = {NULL, NULL, &crater_fields, NULL},
 
 	.unlock_flag = FLAG_WORLD_1_2,
-	.locked_marker = STUB_MARKER,
-	.unlocked_marker = STUB_MARKER,
 };
 const map_node crater_lake = {
 	.x = 6,
@@ -67,17 +58,12 @@ const map_node crater_lake = {
 
 	.unlock_flag = FLAG_WORLD_1_2,
 	.complete_flag = FLAG_WORLD_1_2,
-	.locked_marker = LOCKED_MARKER,
-	.unlocked_marker = UNLOCKED_MARKER,
 };
 const map_node crater_lake_turn = {
 	.x = 9,
 	.y = 5,
 	.type = FORK_NODE,
 	.connections = {NULL, NULL, NULL, &crater_lake},
-	
-	.locked_marker = STUB_MARKER,
-	.unlocked_marker = STUB_MARKER,
 };
 
 const short crater_pals[] = {

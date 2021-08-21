@@ -61,15 +61,57 @@ void render_world_objects() NONBANKED
 
 		if (!current_worldmap->nodes[i]->unlock_flag ||
 		    get_sram_flag(current_worldmap->nodes[i]->unlock_flag)) {
-			*oam_pointer++ = current_worldmap->nodes[i]->unlocked_marker;
+			// Check for overrides.
+			uint8_t marker = current_worldmap->nodes[i]->unlocked_marker;
+			if (!marker) {
+				switch (current_worldmap->nodes[i]->type) {
+				case DUNGEON_NODE:
+					marker = UNLOCKED_MARKER;
+					break;
+				default:
+					marker = STUB_MARKER;
+					break;
+				}
+			}
+			*oam_pointer++ = marker;
 		} else {
-			*oam_pointer++ = current_worldmap->nodes[i]->locked_marker;
+			// Check for overrides.
+			uint8_t marker = current_worldmap->nodes[i]->locked_marker;
+			if (!marker) {
+				switch (current_worldmap->nodes[i]->type) {
+				case DUNGEON_NODE:
+					marker = LOCKED_MARKER;
+					break;
+				default:
+					marker = STUB_MARKER;
+					break;
+				}
+			}
+			*oam_pointer++ = marker;
 		}
 		if (!current_worldmap->nodes[i]->complete_flag ||
 		    get_sram_flag(current_worldmap->nodes[i]->complete_flag)) {
-			*oam_pointer++ = 1;
+			// Check for overrides.
+			uint8_t attr = current_worldmap->nodes[i]->complete_attr;
+			if (!attr) {
+				switch (current_worldmap->nodes[i]->type) {
+				default:
+					attr = 1;
+					break;
+				}
+			}
+			*oam_pointer++ = attr;
 		} else {
-			*oam_pointer++ = 2 | OAM_DMG_PAL1;
+			// Check for overrides.
+			uint8_t attr = current_worldmap->nodes[i]->incomplete_attr;
+			if (!attr) {
+				switch (current_worldmap->nodes[i]->type) {
+				default:
+					attr = 2 | OAM_DMG_PAL1;
+					break;
+				}
+			}
+			*oam_pointer++ = attr;
 		}
 	}
 	SWITCH_ROM_MBC1(temp_bank);
