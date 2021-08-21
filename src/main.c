@@ -9,6 +9,8 @@
 #include "include/rendering.h"
 #include "include/save.h"
 
+#include "entities/aris.h"
+#include "entities/forest_rat.h"
 #include "entities/luvui.h"
 
 void main()
@@ -31,9 +33,8 @@ void main()
 	memset(inventory, 0, sizeof(inventory));
 	memset(&active_save_file, 0, sizeof(save_file));
 	new_entity(&luvui_entity, BANK(luvui), 0, 32, 32, 5);
-	//new_entity(&luvui_entity, BANK(luvui), 1, 33, 32, 5);
-	//new_entity(&luvui_entity, BANK(luvui), 2, 32, 33, 5);
-	strcpy(PLAYER.name, "Eievui");
+	new_entity(&aris_entity, BANK(aris), 1, 33, 32, 5);
+	new_entity(&forest_rat_entity, BANK(forest_rat), 2, 32, 33, 5);
 
 	LCDC_REG = lcdc_buffer = LCDC_ENABLE;
 	game_state = TITLESCREEN_STATE;
