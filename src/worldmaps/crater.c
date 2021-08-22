@@ -21,7 +21,8 @@ const map_node crater_house = {
 	.type = FORK_NODE,
 	.connections = {NULL, NULL, NULL, &crater_woodland},
 };
-const map_node crater_woodland = { 
+const map_node crater_woodland = {
+	.name = "Crater Woodland",
 	.x = 2,
 	.y = 12,
 	.type = DUNGEON_NODE,
@@ -32,6 +33,7 @@ const map_node crater_woodland = {
 	.complete_flag = FLAG_WORLD_1_1,
 };
 const map_node crater_fields = {
+	.name = "Crater Fields",
 	.x = 2,
 	.y = 5,
 	.type = DUNGEON_NODE,

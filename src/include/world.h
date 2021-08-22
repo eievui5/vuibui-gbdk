@@ -15,6 +15,7 @@ typedef struct {
 	uint8_t x;
 	uint8_t y;
 	NodeType type;
+	char *name;
 	void *connections[4];
 	void *level;
 	uint8_t bank;

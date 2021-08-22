@@ -64,10 +64,10 @@ uint8_t vwf_print_render(const unsigned char ch) {
 	}
 }
 
-void vwf_draw_text(uint8_t x, uint8_t y, uint8_t base_tile, const unsigned char * str) {
+void vwf_draw_text(uint8_t x, uint8_t y, uint8_t* base_pointer, uint8_t base_tile, const unsigned char * str) {
 	static uint8_t * ui_dest_base, *ui_dest_ptr;
 	static const uint8_t * ui_text_ptr;
-	ui_dest_ptr = ui_dest_base = (uint8_t *)(0x9C00) + y * 32 + x;
+	ui_dest_ptr = ui_dest_base = base_pointer + y * 32 + x;
 	ui_text_ptr = str;
 
 	vwf_print_reset(base_tile);

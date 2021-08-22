@@ -142,13 +142,13 @@ void draw_move_window() NONBANKED
 	move *moves = PLAYER.moves;
 	if (moves->data) {
 		SWITCH_ROM_MBC1(moves->bank);
-		vwf_draw_text(2, 1, MOVE_TILE, moves->data->name);
+		vwf_draw_text(2, 1, (char*) 0x9C00, MOVE_TILE, moves->data->name);
 	}
 	moves++;
 	for (i = 1; i < 4; i++) {
 		if (moves->data) {
 			SWITCH_ROM_MBC1(moves->bank);
-			vwf_draw_text(2, i + 1, vwf_next_tile(), 
+			vwf_draw_text(2, i + 1, (char*) 0x9C00, vwf_next_tile(), 
 				      moves->data->name);
 		}
 		moves++;
@@ -252,7 +252,7 @@ void print_hud(const char *src) BANKED
 {
 	clear_print_hud();
 	vwf_activate_font(0);
-	vwf_draw_text(0x01, 0x1D, FONT_TILE, src);
+	vwf_draw_text(0x01, 0x1D, (char*) 0x9C00, FONT_TILE, src);
 }
 
 const char clock_string[] = "%u:%s";
@@ -267,7 +267,7 @@ void draw_clock() BANKED
 		sprintf(minute_buffer, minute_string, minutes);
 	char clock_buffer[6];
 	sprintf(clock_buffer, clock_string, hours, minute_buffer);
-	vwf_draw_text(15, 27, CLOCK_TILE, clock_buffer);
+	vwf_draw_text(15, 27, (char*) 0x9C00, CLOCK_TILE, clock_buffer);
 	vwf_activate_font(0);
 	vmemset((void *)(0x800Du + CLOCK_TILE * 16u), 0xFF, 3);
 	vmemset((void *)(0x801Du + CLOCK_TILE * 16u), 0xFF, 3);

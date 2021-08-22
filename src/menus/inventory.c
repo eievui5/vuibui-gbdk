@@ -72,7 +72,8 @@ void draw_inventory(uint8_t start) NONBANKED
 	for (uint8_t i = 0; (start < INVENTORY_SIZE) && (i < 8); i++, start++) {
 		if (inventory[start].data) {
 			SWITCH_ROM_MBC1(inventory[start].bank);
-			vwf_draw_text(24, 1 + i, SUBFONT_TILE + i * 8, 
+			vwf_draw_text(24, 1 + i, (char*) 0x9C00,
+				      SUBFONT_TILE + i * 8, 
 				      inventory[start].data->name);
 		}
 	}
@@ -178,7 +179,7 @@ void draw_description(uint8_t i) NONBANKED
 	}
 	uint8_t temp_bank = _current_bank;
 	SWITCH_ROM_MBC1(inventory[i].bank);
-	vwf_draw_text(21, 13, DESCFONT_TILE,
+	vwf_draw_text(21, 13, (char*) 0x9C00, DESCFONT_TILE,
 		      inventory[i].data->desc);
 	SWITCH_ROM_MBC1(temp_bank);
 }

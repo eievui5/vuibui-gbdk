@@ -28,7 +28,7 @@ void init_title() BANKED
 		LCDC_OBJ_ENABLE | LCDC_OBJ_16;
 	cgb_compatibility();
 	vwf_load_font(0, vwf_font, BANK(vwf_font));
-	vwf_draw_text(1, 1, 1, engine_splash);
+	vwf_draw_text(1, 1, (char*) 0x9C00, 1, engine_splash);
 }
 
 void simulate_title() BANKED

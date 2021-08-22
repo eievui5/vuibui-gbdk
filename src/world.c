@@ -13,6 +13,7 @@
 #include "include/save.h"
 #include "include/vec.h"
 #include "include/world.h"
+#include "libs/vwf.h"
 
 #include "entities/luvui.h"
 #include "worldmaps/crater.h"
@@ -28,6 +29,9 @@ INCBIN_EXTERN(worldmap_markers)
 #define COMPLETE_MARKPAL 1
 #define INCOMPLETE_MARKPAL 2
 
+#define FONT_PTR ((char*) 0x8900)
+#define FONT_TILE 0x90u
+
 const short marker_pals[] = {
 	RGB_WHITE, RGB_BLUE, RGB_DARKBLUE, RGB_BLACK,
 	RGB_WHITE, RGB_RED, RGB_DARKRED, RGB_BLACK,
@@ -38,6 +42,7 @@ world_map *current_worldmap = &crater_worldmap;
 map_node *current_mapnode = &crater_house;
 uvec8 worldmap_pos;
 uint8_t worldmap_direction = DIR_DOWN;
+bool redraw_text_flag;
 
 void render_world_objects() NONBANKED
 {
@@ -147,17 +152,23 @@ void init_worldmap() NONBANKED
 {
 	scr_pos.x = 0;
 	scr_pos.y = 0;
-	uint8_t temp_bank = _current_bank;
-	SWITCH_ROM_MBC1(current_worldmap_bank);
+	redraw_text_flag = true;
 	fx_mode = NO_UI;
 	lcdc_buffer = \
 		LCDC_ENABLE | LCDC_BG_ENABLE | LCDC_WINDOW_ENABLE | \
 		LCDC_WINDOW_SCRN1 | LCDC_OBJ_ENABLE | LCDC_OBJ_16;
+	// Wait for all FX to finish after changing UI mode & LCDC.
+	wait_vbl_done();
+	
+	uint8_t temp_bank = _current_bank;
+	SWITCH_ROM_MBC1(current_worldmap_bank);
 	banked_vsetmap((void *) 0x9800, 20, 14, crater_map, BANK(crater_map));
 	if (_cpu == CGB_TYPE) {
 		set_bkg_palette(0, 7, current_worldmap->pals);
+		set_bkg_palette(7, 1, current_ui_pal.colors);
 		VBK_REG = 1;
 		banked_vsetmap((void *) 0x9800, 20, 14, crater_attr, BANK(crater_map));
+		vmemset((char*) 0x99C0, 7, 0x74);
 		VBK_REG = 0;
 	}
 	banked_vmemcpy((void *) 0x9000, 0x800, crater_graphics, BANK(crater_graphics));
@@ -182,9 +193,19 @@ void simulate_worldmap() NONBANKED
 	if (worldmap_pos.x != current_mapnode->x * 8 ||
 	    worldmap_pos.y != current_mapnode->y * 8) {
 		move_direction((vec8 *)&worldmap_pos, worldmap_direction);
+		redraw_text_flag = true;
 	}
 	if (worldmap_pos.x == current_mapnode->x * 8 &&
 	    worldmap_pos.y == current_mapnode->y * 8) {
+		if (redraw_text_flag) {
+			vmemset(FONT_PTR, 0, 0x100);
+			if (current_mapnode->name) {
+				vwf_activate_font(0);
+				vwf_draw_text(1, 15, (char*) 0x9800, FONT_TILE,
+					current_mapnode->name);
+			}
+			redraw_text_flag = false;
+		}
 		if (cur_keys & J_A && current_mapnode->type == DUNGEON_NODE) {
 			current_mapdata = current_mapnode->level;
 			current_mapdata_bank = current_mapnode->bank;

@@ -90,7 +90,7 @@ bool pause_menu() BANKED
 	vmemcpy((void *)(0x8000), SIZE(paw_cursor), paw_cursor);
 	set_sprite_palette(0, 1, current_ui_pal.colors);
 	vwf_activate_font(0);
-	vwf_draw_text(3, 1, FONT_TILE, pause_text);
+	vwf_draw_text(3, 1, (char*) 0x9C00, FONT_TILE, pause_text);
 
 	shadow_OAM[0].x = 12;
 	shadow_OAM[1].x = 20;

@@ -38,24 +38,28 @@ void draw_party(uint8_t x, uint8_t y, uint8_t font_tile, uint8_t spr_x,
 	uint8_t spr_y, uint8_t spacing, uint8_t type) BANKED
 {
 	char buffer[16];
-	vwf_draw_text(0, 0, font_tile, "");
+	vwf_draw_text(0, 0, (char*) 0x9C00, font_tile, "");
 	for (uint8_t i = 0; i < NB_ALLIES; i++) {
 		if (entities[i].data) {
-			vwf_draw_text(x, y++, vwf_next_tile(), entities[i].name);
+			vwf_draw_text(x, y++, (char*) 0x9C00, vwf_next_tile(),
+				      entities[i].name);
 			if (type & PARTY_LEVEL) {
 				sprintf(buffer, level_text, entities[i].level);
-				vwf_draw_text(x, y++, vwf_next_tile(), buffer);
+				vwf_draw_text(x, y++, (char*) 0x9C00,
+					      vwf_next_tile(), buffer);
 			}
 			if (type & PARTY_HEALTH) {
 				sprintf(buffer, health_text, entities[i].health,
 					get_max_health(&entities[i]));
-				vwf_draw_text(x, y++, vwf_next_tile(), buffer);
+				vwf_draw_text(x, y++, (char*) 0x9C00,
+					      vwf_next_tile(), buffer);
 			}
 			if (type & PARTY_FATIGUE) {
 				sprintf(buffer, hunger_text,
 					entities[i].fatigue >> 4u,
 					get_max_fatigue(&entities[i]) >> 4u);
-				vwf_draw_text(x, y++, vwf_next_tile(), buffer);
+				vwf_draw_text(x, y++, (char*) 0x9C00,
+					      vwf_next_tile(), buffer);
 			}
 			char *entry = (char *)&shadow_OAM[2 + i * 2];
 			*entry++ = spr_y + i * spacing;

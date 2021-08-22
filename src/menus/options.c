@@ -8,7 +8,7 @@ const char options_list[] = "Return\n";
 
 void options_menu() BANKED
 {
-	vwf_draw_text(24, 1, SUBFONT_TILE, options_list);
+	vwf_draw_text(24, 1, (char*) 0x9C00, SUBFONT_TILE, options_list);
 	slide_into_submenu_x();
 	while (1) {
 		if (new_keys == J_B)
