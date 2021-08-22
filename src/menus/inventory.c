@@ -28,19 +28,19 @@ bool use_item(uint8_t i, uint8_t t) BANKED
 			else
 				target->health += heal_amnt;
 			draw_static_entity(target, DIR_LEFT, IDLE_FRAME,
-					   (void *) (0x8040 + t * 64), t + 1);
+					   (char*) (0x8040 + t * 64), t + 1);
 			for (uint8_t i = 0; i < 15; i++)
 				wait_vbl_done();
 			draw_static_entity(target, DIR_LEFT, HURT_FRAME,
-					   (void *) (0x8040 + t * 64), t + 1);
+					   (char*) (0x8040 + t * 64), t + 1);
 			for (uint8_t i = 0; i < 8; i++)
 				wait_vbl_done();
 			draw_static_entity(target, DIR_LEFT, ATTACK_FRAME,
-					   (void *) (0x8040 + t * 64), t + 1);
+					   (char*) (0x8040 + t * 64), t + 1);
 			for (uint8_t i = 0; i < 8; i++)
 				wait_vbl_done();
 			draw_static_entity(target, DIR_LEFT, IDLE_FRAME,
-					   (void *) (0x8040 + t * 64), t + 1);
+					   (char*) (0x8040 + t * 64), t + 1);
 			for (uint8_t i = 0; i < 15; i++)
 				wait_vbl_done();
 			shadow_OAM[0].y = 0;
@@ -68,7 +68,7 @@ void draw_inventory(uint8_t start) NONBANKED
 	uint8_t temp_bank = _current_bank;
 
 	for (uint8_t i = 0; i < 16; i++)
-		vmemset((void *)(0x9C35 + i * 32), BLANK_TILE, 10);
+		vmemset((char*) (0x9C35 + i * 32), BLANK_TILE, 10);
 	for (uint8_t i = 0; (start < INVENTORY_SIZE) && (i < 8); i++, start++) {
 		if (inventory[start].data) {
 			SWITCH_ROM_MBC1(inventory[start].bank);
@@ -85,10 +85,10 @@ void draw_item_cursor(uint8_t i) NONBANKED
 {
 	uint8_t temp_bank = _current_bank;
 	SWITCH_ROM_MBC1(inventory[i].bank);
-	vmemcpy((void *)(0x8000), 16, inventory[i].data->graphic);
-	vmemcpy((void *)(0x8010), 16, &inventory[i].data->graphic[32]);
-	vmemcpy((void *)(0x8020), 16, &inventory[i].data->graphic[16]);
-	vmemcpy((void *)(0x8030), 16, &inventory[i].data->graphic[48]);
+	vmemcpy((char*) (0x8000), 16, inventory[i].data->graphic);
+	vmemcpy((char*) (0x8010), 16, &inventory[i].data->graphic[32]);
+	vmemcpy((char*) (0x8020), 16, &inventory[i].data->graphic[16]);
+	vmemcpy((char*) (0x8030), 16, &inventory[i].data->graphic[48]);
 	if (_cpu == CGB_TYPE)
 		set_sprite_palette(0, 1, inventory[i].data->colors);
 	SWITCH_ROM_MBC1(temp_bank);
@@ -165,7 +165,7 @@ bool use_item_menu(uint8_t base_item, uint8_t i) BANKED
 	scr_pos.y = 0;
 	shadow_OAM[0].x = 10u * 8u + 4u;
 	shadow_OAM[1].x = 10u * 8u + 12u;
-	banked_vmemcpy((void *)(0x8000), SIZE(paw_cursor), paw_cursor, BANK(paw_cursor));
+	banked_vmemcpy((char*) (0x8000), SIZE(paw_cursor), paw_cursor, BANK(paw_cursor));
 	set_sprite_palette(0, 1, current_ui_pal.colors);
 	return false;
 }
@@ -174,7 +174,7 @@ void draw_description(uint8_t i) NONBANKED
 {
 	if (!inventory[i].data) {
 		for (uint8_t y = 0; y < 4; y++)
-			vmemset((void *)(0x9DB5 + y * 32), BLANK_TILE, 10);
+			vmemset((char*) (0x9DB5 + y * 32), BLANK_TILE, 10);
 		return;
 	}
 	uint8_t temp_bank = _current_bank;

@@ -46,10 +46,10 @@ void reload_entity_graphics(uint8_t i) NONBANKED
 
 	self->prev_dir = self->direction;
 	self->prev_frame = self->spr_frame;
-	vmemcpy((void *)(0x8000 + i * (16 * NB_ENTITY_TILES)),
+	vmemcpy((char*) (0x8000 + i * (16 * NB_ENTITY_TILES)),
 		16 * NB_SPECIAL_TILES, &self->data->graphics[
 			self->direction * 16 * NB_UNIQUE_TILES]);
-	vmemcpy((void *)(0x8000 + 16 * NB_SPECIAL_TILES + i * (16 * NB_ENTITY_TILES)),
+	vmemcpy((char*) (0x8000 + 16 * NB_SPECIAL_TILES + i * (16 * NB_ENTITY_TILES)),
 		16 * NB_SPECIAL_TILES, &self->data->graphics[
 			self->direction * 16 * NB_UNIQUE_TILES + 64 * self->spr_frame]);
 	if (_cpu == CGB_TYPE)

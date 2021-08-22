@@ -146,7 +146,7 @@ void vwf_wrap_str(uint8_t pixel_width, unsigned char * str)
 
 void vwf_load_font(uint8_t idx, const void * font, uint8_t bank) {
 	vwf_fonts[idx].bank = bank;
-	vwf_fonts[idx].ptr = (void *)font;
+	vwf_fonts[idx].ptr = (char*) font;
 	vwf_activate_font(idx); 
 }
 

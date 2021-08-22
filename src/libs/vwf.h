@@ -4,7 +4,7 @@
 #include <stdint.h>
 
 #define __VWF_BANK_PREFIX(A) __bank_##A
-#define TO_VWF_FARPTR(A) {.bank = (char)&(__VWF_BANK_PREFIX(A)), .ptr = (void *)&(A)}
+#define TO_VWF_FARPTR(A) {.bank = (char)&(__VWF_BANK_PREFIX(A)), .ptr = (char*) &(A)}
 
 #define RECODE_7BIT 1
 #define FONT_VWF 2

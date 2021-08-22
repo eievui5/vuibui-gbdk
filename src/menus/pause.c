@@ -86,8 +86,8 @@ bool pause_menu() BANKED
 
 	// Draw pause screen.
 	set_bkg_1bit_data(0x00, 0x3E, paw_print, 1);
-	vsetmap((void *) 0x9D09, 11, 10, paw_print_map);
-	vmemcpy((void *)(0x8000), SIZE(paw_cursor), paw_cursor);
+	vsetmap((char*) 0x9D09, 11, 10, paw_print_map);
+	vmemcpy((char*) (0x8000), SIZE(paw_cursor), paw_cursor);
 	set_sprite_palette(0, 1, current_ui_pal.colors);
 	vwf_activate_font(0);
 	vwf_draw_text(3, 1, (char*) 0x9C00, FONT_TILE, pause_text);
@@ -149,7 +149,7 @@ bool pause_menu() BANKED
 			reload_entity_graphics(i);
 		}
 	}
-	vmemset((void *)(0x9C00), 0x8E, 27 * 32);
+	vmemset((char*) (0x9C00), 0x8E, 27 * 32);
 	reload_mapdata();
 	load_item_graphics();
 

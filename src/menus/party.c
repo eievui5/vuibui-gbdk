@@ -71,7 +71,7 @@ void draw_party(uint8_t x, uint8_t y, uint8_t font_tile, uint8_t spr_x,
 			*entry++ = ENTITY_TILE + i * 4 + 2;
 			*entry++ = ENTITY_PALETTE + i;
 			draw_static_entity(&entities[i], DIR_DOWN, IDLE_FRAME,
-					   (void *) (0x8040 + i * 64), i + 1);
+					   (char*) (0x8040 + i * 64), i + 1);
 			y++;
 		}
 	}
@@ -83,7 +83,7 @@ void party_menu() BANKED
 	uint8_t cursor_spr = 20;
 
 	for (uint8_t i = 0; i < 16; i++)
-		vmemset((void *)(0x9C35 + i * 32), BLANK_TILE, 10);
+		vmemset((char*) (0x9C35 + i * 32), BLANK_TILE, 10);
 	draw_party(22, 1, PARTYFONT_TILE, 20u * 8u + 8u, 8u + 16u, 40,
 		PARTY_LEVEL | PARTY_HEALTH | PARTY_FATIGUE);
 	shadow_OAM[0].x = 19u * 8u;

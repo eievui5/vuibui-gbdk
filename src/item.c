@@ -75,7 +75,7 @@ void load_item_graphics()
 		if (!world_items[i].data)
 			continue;
 		SWITCH_ROM_MBC1(world_items[i].bank);
-		vmemcpy((void *)(0x9700 + i * 64), 64, world_items[i].data->graphic);
+		vmemcpy((char*) (0x9700 + i * 64), 64, world_items[i].data->graphic);
 	}
 	SWITCH_ROM_MBC1(temp_bank);
 }

@@ -52,10 +52,10 @@ void render_world_objects() NONBANKED
 	    worldmap_pos.y != current_mapnode->y * 8) {
 		draw_static_entity(&PLAYER, worldmap_direction,
 				   WALK_FRAME + (anim_timer++ & 0b10000 ? 1 : 0),
-				   (void *) 0x8000, PLAYER_MARKPAL);
+				   (char*) 0x8000, PLAYER_MARKPAL);
 	} else {
 		draw_static_entity(&PLAYER, DIR_DOWN, anim_timer++ & 0b10000 ? 1 : 0,
-			(void *) 0x8000, PLAYER_MARKPAL);
+			(char*) 0x8000, PLAYER_MARKPAL);
 	}
 	reset_oam();
 	uint8_t *oam_pointer = (uint8_t *) shadow_OAM;
@@ -162,23 +162,23 @@ void init_worldmap() NONBANKED
 	
 	uint8_t temp_bank = _current_bank;
 	SWITCH_ROM_MBC1(current_worldmap_bank);
-	banked_vsetmap((void *) 0x9800, 20, 14, crater_map, BANK(crater_map));
+	banked_vsetmap((char*) 0x9800, 20, 14, crater_map, BANK(crater_map));
 	if (_cpu == CGB_TYPE) {
 		set_bkg_palette(0, 7, current_worldmap->pals);
 		set_bkg_palette(7, 1, current_ui_pal.colors);
 		VBK_REG = 1;
-		banked_vsetmap((void *) 0x9800, 20, 14, crater_attr, BANK(crater_map));
+		banked_vsetmap((char*) 0x9800, 20, 14, crater_attr, BANK(crater_map));
 		vmemset((char*) 0x99C0, 7, 0x74);
 		VBK_REG = 0;
 	}
-	banked_vmemcpy((void *) 0x9000, 0x800, crater_graphics, BANK(crater_graphics));
+	banked_vmemcpy((char*) 0x9000, 0x800, crater_graphics, BANK(crater_graphics));
 	worldmap_pos.x = current_mapnode->x * 8;
 	worldmap_pos.y = current_mapnode->y * 8;
 
 	SWITCH_ROM_MBC1(BANK(worldmap_ui_gfx));
-	vmemcpy((void *) 0x8800, SIZE(worldmap_ui_gfx), worldmap_ui_gfx);
-	vsetmap((void *) 0x99C0, 20, 4, worldmap_ui_map);
-	vmemcpy((void *) 0x8F00, SIZE(worldmap_markers), worldmap_markers);
+	vmemcpy((char*) 0x8800, SIZE(worldmap_ui_gfx), worldmap_ui_gfx);
+	vsetmap((char*) 0x99C0, 20, 4, worldmap_ui_map);
+	vmemcpy((char*) 0x8F00, SIZE(worldmap_markers), worldmap_markers);
 	set_sprite_palette(1, 7, marker_pals);
 	SWITCH_ROM_MBC1(temp_bank);
 

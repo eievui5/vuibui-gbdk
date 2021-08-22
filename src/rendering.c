@@ -212,7 +212,7 @@ void fade_to_white(uint8_t fade_speed) BANKED
 
 void swipe_left(bool render) BANKED
 {
-	vmemset((void *)(0x9C00), 0x8E, 27 * 32);
+	vmemset((char*) (0x9C00), 0x8E, 27 * 32);
 
 	win_pos.y = 7;
 	while (win_pos.x >= 7) {
@@ -246,7 +246,7 @@ void swipe_left(bool render) BANKED
 
 void swipe_right() BANKED
 {
-	vmemset((void *)(0x9FA0), 0x8E, 3 * 32);
+	vmemset((char*) (0x9FA0), 0x8E, 3 * 32);
 
 	fx_mode = GAME_UI;
 	wait_vbl_done();
