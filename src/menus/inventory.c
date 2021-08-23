@@ -27,19 +27,19 @@ bool use_item(uint8_t i, uint8_t t) BANKED
 				target->health = get_max_health(target);
 			else
 				target->health += heal_amnt;
-			draw_static_entity(target, DIR_LEFT, IDLE_FRAME,
+			draw_static_entity(target->data, target->bank, DIR_LEFT, IDLE_FRAME,
 					   (char*) (0x8040 + t * 64), t + 1);
 			for (uint8_t i = 0; i < 15; i++)
 				wait_vbl_done();
-			draw_static_entity(target, DIR_LEFT, HURT_FRAME,
+			draw_static_entity(target->data, target->bank, DIR_LEFT, HURT_FRAME,
 					   (char*) (0x8040 + t * 64), t + 1);
 			for (uint8_t i = 0; i < 8; i++)
 				wait_vbl_done();
-			draw_static_entity(target, DIR_LEFT, ATTACK_FRAME,
+			draw_static_entity(target->data, target->bank, DIR_LEFT, ATTACK_FRAME,
 					   (char*) (0x8040 + t * 64), t + 1);
 			for (uint8_t i = 0; i < 8; i++)
 				wait_vbl_done();
-			draw_static_entity(target, DIR_LEFT, IDLE_FRAME,
+			draw_static_entity(target->data, target->bank, DIR_LEFT, IDLE_FRAME,
 					   (char*) (0x8040 + t * 64), t + 1);
 			for (uint8_t i = 0; i < 15; i++)
 				wait_vbl_done();

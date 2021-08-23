@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <string.h>
 
+#include "include/cutscene.h"
 #include "include/dir.h"
 #include "include/hud.h"
 #include "include/game.h"
@@ -50,11 +51,11 @@ void render_world_objects() NONBANKED
 	
 	if (worldmap_pos.x != current_mapnode->x * 8 ||
 	    worldmap_pos.y != current_mapnode->y * 8) {
-		draw_static_entity(&PLAYER, worldmap_direction,
+		draw_static_entity(PLAYER.data, PLAYER.bank, worldmap_direction,
 				   WALK_FRAME + (anim_timer++ & 0b10000 ? 1 : 0),
 				   (char*) 0x8000, PLAYER_MARKPAL);
 	} else {
-		draw_static_entity(&PLAYER, DIR_DOWN, anim_timer++ & 0b10000 ? 1 : 0,
+		draw_static_entity(PLAYER.data, PLAYER.bank, DIR_DOWN, anim_timer++ & 0b10000 ? 1 : 0,
 			(char*) 0x8000, PLAYER_MARKPAL);
 	}
 	reset_oam();
@@ -206,10 +207,19 @@ void simulate_worldmap() NONBANKED
 			}
 			redraw_text_flag = false;
 		}
-		if (cur_keys & J_A && current_mapnode->type == DUNGEON_NODE) {
-			current_mapdata = current_mapnode->level;
-			current_mapdata_bank = current_mapnode->bank;
-			game_state = DUNGEON_STATE;
+		if (cur_keys & J_A) {
+			switch (current_mapnode->type) {
+			case DUNGEON_NODE:
+				current_mapdata = current_mapnode->level;
+				current_mapdata_bank = current_mapnode->bank;
+				game_state = DUNGEON_STATE;
+				break;
+			case CUTSCENE_NODE:
+				cur_script = current_mapnode->level;
+				cur_script_bank = current_mapnode->bank;
+				game_state = CUTSCENE_STATE;
+				break;
+			}
 		} else if (cur_keys & J_UP) {
 			select_node(DIR_UP);
 		} else if (cur_keys & J_RIGHT) {

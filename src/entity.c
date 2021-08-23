@@ -59,15 +59,15 @@ void reload_entity_graphics(uint8_t i) NONBANKED
 }
 
 // Draws an entity with a static frame and direction.
-void draw_static_entity(entity *src, uint8_t dir, uint8_t frame, uint8_t* dest,
-			int8_t pal) NONBANKED
+void draw_static_entity(const entity_data *src, uint8_t bank, uint8_t dir,
+			uint8_t frame, uint8_t* dest, int8_t pal) NONBANKED
 {
 	uint8_t temp_bank = _current_bank;
-	SWITCH_ROM_MBC1(src->bank);
-	vmemcpy(dest, 64, &src->data->graphics[
+	SWITCH_ROM_MBC1(bank);
+	vmemcpy(dest, 64, &src->graphics[
 		dir * NB_UNIQUE_TILES  * 16 + 64 * frame]);
 	if (_cpu == CGB_TYPE && pal != -1)
-		set_sprite_palette(pal, 1, src->data->colors);
+		set_sprite_palette(pal, 1, src->colors);
 	SWITCH_ROM_MBC1(temp_bank);
 }
 

@@ -4,9 +4,13 @@
 #include <gb/incbin.h>
 
 #include "include/bank.h"
+#include "include/cutscene.h"
+#include "include/dir.h"
+#include "include/entity.h"
 #include "include/world.h"
 
 #include "crater.h"
+#include "entities/entity_list.h"
 #include "mapdata/debug_mapdata.h"
 #include "mapdata/field_mapdata.h"
 
@@ -15,10 +19,25 @@ INCBIN(crater_map, res/gfx/maps/crater.map)
 INCBIN(crater_attr, src/gfx/maps/crater.attr)
 DEF_BANK(crater)
 
+SCRIPT(debug_script) {
+	LOAD_ENTITY(0, BANK(aris), &aris_entity)
+	SET_ENTITY_POS(0, 32, 32)
+	SET_ENTITY_DIR(0, DIR_RIGHT)
+	RENDER_ENTITY(0)
+	JUMP(&debug_script_loop)
+}; SCRIPT(debug_script_loop) {
+	YIELD()
+	MOVE_ENTITY(0, 64, 64)
+	//ANIMATE_ENTITY(0, 0b10000, WALK_FRAME, WALK_FRAME_2)
+	JUMP(&debug_script_loop)
+};
+
 const map_node crater_house = {
 	.x = 10,
 	.y = 12,
-	.type = FORK_NODE,
+	.type = CUTSCENE_NODE,
+	.bank = BANK(crater),
+	.level = &debug_script,
 	.connections = {NULL, NULL, NULL, &crater_woodland},
 };
 const map_node crater_woodland = {

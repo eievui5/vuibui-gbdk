@@ -4,7 +4,7 @@
 
 #include "include/save.h"
 
-typedef enum {DUNGEON_NODE, FORK_NODE, } NodeType;
+typedef enum {DUNGEON_NODE, FORK_NODE, CUTSCENE_NODE, } NodeType;
 enum NodeMarker {
 	LOCKED_MARKER = 0xF0,
 	UNLOCKED_MARKER = 0xF2,

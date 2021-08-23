@@ -142,8 +142,8 @@ entity *spawn_enemy(const entity_data *data, uint8_t bank, uint8_t level) BANKED
 bool try_step(entity *self, uint8_t dir) BANKED;
 void use_melee_move(entity *self, move *self_move);
 void reload_entity_graphics(uint8_t i) NONBANKED;
-void draw_static_entity(entity *src, uint8_t dir, uint8_t frame, uint8_t* dest,
-			int8_t pal) NONBANKED;
+void draw_static_entity(const entity_data *src, uint8_t bank, uint8_t dir,
+			uint8_t frame, uint8_t* dest, int8_t pal) NONBANKED;
 
 inline uint16_t get_xp_threshold(uint8_t level) {
 	return level * 256;

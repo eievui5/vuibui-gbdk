@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "include/cutscene.h"
 #include "include/dir.h"
 #include "include/entity.h"
 #include "include/game.h"
@@ -275,6 +276,9 @@ void game_loop() BANKED {
 			case TITLESCREEN_STATE:
 				init_title();
 				break;
+			case CUTSCENE_STATE:
+				init_cutscene();
+				break;
 			}
 			prev_game_state = game_state;
 		}
@@ -289,6 +293,9 @@ void game_loop() BANKED {
 			break;
 		case TITLESCREEN_STATE:
 			simulate_title();
+			break;
+		case CUTSCENE_STATE:
+			simulate_cutscene();
 			break;
 		};
 		wait_vbl_done();

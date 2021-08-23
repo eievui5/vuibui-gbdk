@@ -68,3 +68,12 @@ uint8_t banked_get(uint8_t bank, const uint8_t *value) __naked
 		ret
 	__endasm;
 }
+
+uint16_t banked_get16(uint8_t bank, const uint16_t* value)
+{
+	uint8_t temp_bank = _current_bank;
+	SWITCH_ROM_MBC1(bank);
+	uint16_t ret_val = *value;
+	SWITCH_ROM_MBC1(temp_bank);
+	return ret_val;
+}
