@@ -22,14 +22,26 @@ DEF_BANK(crater)
 SCRIPT(debug_script) {
 	LOAD_ENTITY(0, BANK(aris), &aris_entity)
 	SET_ENTITY_POS(0, 32, 32)
-	SET_ENTITY_DIR(0, DIR_RIGHT)
+	SET_ENTITY_DIR(0, DIR_DOWN)
 	RENDER_ENTITY(0)
-	JUMP(&debug_script_loop)
+
+	LOAD_ENTITY(1, BANK(luvui), &luvui_entity)
+	SET_ENTITY_POS(1, 48, 16)
+	SET_ENTITY_DIR(1, DIR_DOWN)
+	RENDER_ENTITY(1)
+	
+	JUMP(&debug_script_loop) 
 }; SCRIPT(debug_script_loop) {
 	YIELD()
-	MOVE_ENTITY(0, 64, 64)
-	//ANIMATE_ENTITY(0, 0b10000, WALK_FRAME, WALK_FRAME_2)
+	MOVE_ENTITY(0, 32, 64)
+	MOVE_ENTITY(1, 48, 64)
+	JUMP_IF_TRUE(&debug_done)
+	ANIMATE_ENTITY(0, 16, WALK_FRAME, WALK_FRAME_2)
+	ANIMATE_ENTITY(1, 16, WALK_FRAME, WALK_FRAME_2)
 	JUMP(&debug_script_loop)
+}; SCRIPT(debug_done) {
+	YIELD()
+	JUMP(&debug_done)
 };
 
 const map_node crater_house = {
