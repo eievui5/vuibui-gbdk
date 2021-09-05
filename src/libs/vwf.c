@@ -6,7 +6,7 @@
 
 vwf_farptr_t vwf_fonts[4];
 
-static uint8_t vwf_current_offset;
+uint8_t vwf_current_offset;
 static uint8_t vwf_tile_data[16 * 2];
 uint8_t vwf_current_mask;
 uint8_t vwf_current_rotate;

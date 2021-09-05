@@ -12,7 +12,8 @@
 
 enum fx_modes {
 	NO_UI,
-	GAME_UI
+	GAME_UI,
+	DIALOGUE_UI,
 };
 
 extern uint8_t lcdc_buffer;

@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "include/dialogue.h"
 #include "include/entity.h"
 #include "include/game.h"
 #include "include/hardware.h"
@@ -22,6 +23,9 @@ uint8_t fx_mode = NO_UI;
 void vblank() NONBANKED
 {
 	switch(fx_mode) {
+	case DIALOGUE_UI:
+		LYC_REG = 144 - 32;
+		add_LCD(&show_dialogue);
 	case NO_UI:
 		SCX_REG = scr_pos.x;
 		SCY_REG = scr_pos.y;

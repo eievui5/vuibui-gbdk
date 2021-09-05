@@ -23,6 +23,8 @@ typedef struct font_desc_t {
 } font_desc_t;
 
 extern vwf_farptr_t vwf_fonts[4];
+extern uint8_t vwf_current_offset;
+extern uint8_t vwf_current_tile;
 
 void vwf_load_font(uint8_t idx, const void * font, uint8_t bank);
 void vwf_activate_font(uint8_t idx);
@@ -30,3 +32,5 @@ void vwf_draw_text(uint8_t x, uint8_t y, uint8_t* base_pointer,
 		   uint8_t base_tile, const unsigned char * str);
 void vwf_wrap_str(uint8_t pixel_width, unsigned char * str);
 uint8_t vwf_next_tile();
+void vwf_print_reset(uint8_t tile);
+uint8_t vwf_print_render(const unsigned char ch);

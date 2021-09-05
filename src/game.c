@@ -7,7 +7,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "include/bank.h"
 #include "include/cutscene.h"
+#include "include/dialogue.h"
 #include "include/dir.h"
 #include "include/entity.h"
 #include "include/game.h"
@@ -24,6 +26,9 @@
 #define TURNS_PER_MIN 15
 #define MINS_PER_SPAWN 5
 #define ALLY_DETECTION 6
+
+DEF_BANK(gamebank)
+BANK_EXTERN(gamebank)
 
 extern uint8_t ignore_ally;
 
