@@ -14,6 +14,7 @@ them.
 
 #include "include/bank.h"
 #include "include/cutscene.h"
+#include "include/dialogue.h"
 #include "include/dir.h"
 #include "include/entity.h"
 #include "include/rendering.h"
@@ -58,7 +59,7 @@ void run_script() BANKED
 			break;
 		}
 		case SCRIPT_JUMP: {
-			cur_script = (int*) NEXT_BYTE;
+			cur_script = (int*) CURR_BYTE;
 			break;
 		}
 		case SCRIPT_POSITION_ENTITY: {
@@ -127,7 +128,16 @@ void run_script() BANKED
 			if (script_return) {
 				cur_script = (int*) CURR_BYTE;
 			}
-			cur_script++;
+			break;
+		}
+		case SCRIPT_SAY: {
+			dialogue_bank = cur_script_bank;
+			dialogue_string = (char*) NEXT_BYTE;
+			print_dialogue();
+			break;
+		}
+		case SCRIPT_SET: {
+			*(char*) NEXT_BYTE = (char) NEXT_BYTE;
 			break;
 		}
 		}

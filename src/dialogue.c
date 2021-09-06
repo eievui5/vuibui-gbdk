@@ -35,7 +35,7 @@ void show_dialogue() NONBANKED
 	remove_LCD(&show_dialogue);
 	WAIT_VRAM;
 	SCX_REG = 0;
-	SCY_REG = 14 * 8 - 1;
+	SCY_REG = 14 * 8;
 	LCDC_REG = LCDC_ENABLE | LCDC_BG_ENABLE | LCDC_OBJ_16 | LCDC_BG_SCRN1;
 }
 
@@ -51,6 +51,9 @@ void render_char() NONBANKED
 	}
 	SWITCH_ROM_MBC1(temp_bank);
 }
+
+#include "worldmaps/crater.h"
+extern const char *string;
 
 // Used to display dialogue boxes; does not work during gameplay!
 void print_dialogue() BANKED

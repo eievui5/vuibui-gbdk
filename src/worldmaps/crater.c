@@ -7,6 +7,7 @@
 #include "include/cutscene.h"
 #include "include/dir.h"
 #include "include/entity.h"
+#include "include/game.h"
 #include "include/world.h"
 
 #include "crater.h"
@@ -19,6 +20,8 @@ INCBIN(crater_map, res/gfx/maps/crater.map)
 INCBIN(crater_attr, src/gfx/maps/crater.attr)
 DEF_BANK(crater)
 
+const char string[] = "Luvui: Hello World!";
+
 SCRIPT(debug_script) {
 	LOAD_ENTITY(0, BANK(aris), &aris_entity)
 	SET_ENTITY_POS(0, 32, 32)
@@ -30,18 +33,19 @@ SCRIPT(debug_script) {
 	SET_ENTITY_DIR(1, DIR_DOWN)
 	RENDER_ENTITY(1)
 	
-	JUMP(&debug_script_loop) 
+	JUMP(debug_script_loop) 
 }; SCRIPT(debug_script_loop) {
 	YIELD()
 	MOVE_ENTITY(0, 32, 64)
 	MOVE_ENTITY(1, 48, 64)
-	JUMP_IF_TRUE(&debug_done)
+	JUMP_IF_TRUE(debug_done)
 	ANIMATE_ENTITY(0, 16, WALK_FRAME, WALK_FRAME_2)
 	ANIMATE_ENTITY(1, 16, WALK_FRAME, WALK_FRAME_2)
-	JUMP(&debug_script_loop)
+	JUMP(debug_script_loop)
 }; SCRIPT(debug_done) {
-	YIELD()
-	JUMP(&debug_done)
+	SAY(string)
+	SET(game_state, WORLDMAP_STATE)
+	//JUMP(debug_done)
 };
 
 const map_node crater_house = {
