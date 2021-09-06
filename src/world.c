@@ -20,10 +20,8 @@
 #include "worldmaps/crater.h"
 
 INCBIN(worldmap_ui_gfx, res/gfx/maps/worldmap_ui.2bpp)
-INCBIN(worldmap_ui_map, res/gfx/maps/worldmap_ui.map)
 INCBIN(worldmap_markers, res/gfx/maps/worldmap_markers.2bpp)
 INCBIN_EXTERN(worldmap_ui_gfx)
-INCBIN_EXTERN(worldmap_ui_map)
 INCBIN_EXTERN(worldmap_markers)
 
 #define PLAYER_MARKPAL 0
@@ -178,7 +176,8 @@ void init_worldmap() NONBANKED
 
 	SWITCH_ROM_MBC1(BANK(worldmap_ui_gfx));
 	vmemcpy((char*) 0x8800, SIZE(worldmap_ui_gfx), worldmap_ui_gfx);
-	vsetmap((char*) 0x99C0, 20, 4, worldmap_ui_map);
+	vmemset((char*) 0x99C0, 0x80, 20);
+	vmemset((char*) 0x99E0, 0x81, 32 * 3);
 	vmemcpy((char*) 0x8F00, SIZE(worldmap_markers), worldmap_markers);
 	set_sprite_palette(1, 7, marker_pals);
 	SWITCH_ROM_MBC1(temp_bank);
@@ -207,7 +206,7 @@ void simulate_worldmap() NONBANKED
 			}
 			redraw_text_flag = false;
 		}
-		if (cur_keys & J_A) {
+		if (new_keys & J_A) {
 			switch (current_mapnode->type) {
 			case DUNGEON_NODE:
 				current_mapdata = current_mapnode->level;

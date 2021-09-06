@@ -51,4 +51,4 @@ BINSRC	:=
 GFXSRC	:= $(shell find $(SRCDIR) -name '*.png')
 
 # Other depedancies.
-DEPS 	:= res/gfx/ui/paw_mark.map res/gfx/maps/crater.map res/gfx/maps/worldmap_ui.map
+DEPS 	:= res/gfx/ui/paw_mark.map res/gfx/maps/crater.map

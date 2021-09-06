@@ -82,14 +82,6 @@ res/gfx/maps/crater.map res/gfx/maps/crater.2bpp: src/gfx/maps/crater.png
 		-m res/gfx/maps/crater.map \
 		-R -M gb
 
-res/gfx/maps/worldmap_ui.map res/gfx/maps/worldmap_ui.2bpp: src/gfx/maps/worldmap_ui.png
-	@mkdir -p $(@D)
-	$(SUPERFAMICONV) \
-		-i $< \
-		-t res/gfx/maps/worldmap_ui.2bpp \
-		-m res/gfx/maps/worldmap_ui.map \
-		-T 128 -R -M gb
-
 # Compile source code.
 $(OBJDIR)/%.o: $(SRCDIR)/%.c
 	@mkdir -p $(@D)

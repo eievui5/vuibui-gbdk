@@ -36,6 +36,7 @@ enum ScriptBytecode {
 
 extern int* cur_script;
 extern uint8_t cur_script_bank;
+extern int script_return;
 
 void init_cutscene() BANKED;
 void simulate_cutscene() BANKED;

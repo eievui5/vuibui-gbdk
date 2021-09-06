@@ -20,7 +20,7 @@ INCBIN(crater_map, res/gfx/maps/crater.map)
 INCBIN(crater_attr, src/gfx/maps/crater.attr)
 DEF_BANK(crater)
 
-const char string[] = "Luvui: Hello World!";
+const char string[] = "Luvui: %wHello World!%qYes?\nNo!";
 
 SCRIPT(debug_script) {
 	LOAD_ENTITY(0, BANK(aris), &aris_entity)
@@ -44,6 +44,7 @@ SCRIPT(debug_script) {
 	JUMP(debug_script_loop)
 }; SCRIPT(debug_done) {
 	SAY(string)
+	JUMP_IF_TRUE(debug_script)
 	SET(game_state, WORLDMAP_STATE)
 	//JUMP(debug_done)
 };

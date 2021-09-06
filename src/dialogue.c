@@ -1,13 +1,3 @@
-/*
-
-Control characters:
-Preceded by a %, like format characters.
-
-c - clear; Clear the text box.
-w - wait; Wait for the player to press A.
-
-*/
-
 #pragma bank 255
 
 #include <gb/gb.h>
@@ -15,16 +5,16 @@ w - wait; Wait for the player to press A.
 #include <gb/incbin.h>
 
 #include "include/bank.h"
+#include "include/cutscene.h"
 #include "include/game.h"
 #include "include/hud.h"
 #include "include/rendering.h"
 #include "libs/vwf.h"
 
-#define DIALOGUE_TEXT_START 0x82
+#define DIALOGUE_TEXT_START 0x83
 #define DIALOGUE_BOX_PTR ((char*) 0x9F80)
 
 INCBIN_EXTERN(worldmap_ui_gfx)
-INCBIN_EXTERN(worldmap_ui_map)
 
 uint8_t dialogue_bank;
 const char* dialogue_string;
@@ -61,7 +51,8 @@ void print_dialogue() BANKED
 	// Draw text box.
 	banked_vmemcpy((char*) 0x8800, SIZE(worldmap_ui_gfx), worldmap_ui_gfx, BANK(worldmap_ui_gfx));
 	vmemset((char*) 0x8800 + SIZE(worldmap_ui_gfx), 0, 16 * 32 * 3);
-	banked_vsetmap(DIALOGUE_BOX_PTR, 20, 4, worldmap_ui_map, BANK(worldmap_ui_map));
+	vmemset((char*) DIALOGUE_BOX_PTR, 0x80, 20);
+	vmemset((char*) DIALOGUE_BOX_PTR + 32, 0x81, 32 * 3);
 	if (_cpu == CGB_TYPE) {
 		set_bkg_palette(7, 1, current_ui_pal.colors);
 		VBK_REG = 1;
@@ -81,13 +72,63 @@ void print_dialogue() BANKED
 		switch (banked_get(dialogue_bank, dialogue_string)) {
 		case '%':
 			dialogue_string++;
-			switch (banked_get16(dialogue_bank, dialogue_string)) {
+			switch (banked_get(dialogue_bank, dialogue_string)) {
 			case 'c':
 				vmemset((char*) 0x8800 + SIZE(worldmap_ui_gfx), 0, 16 * 32 * 3);
-				vmemset(DIALOGUE_BOX_PTR + 32, 0, 32 * 3);
+				vmemset(DIALOGUE_BOX_PTR + 32, 0x81, 32 * 3);
 				vwf_print_reset(DIALOGUE_TEXT_START);
 				ui_dest_ptr = ui_dest_base = DIALOGUE_BOX_PTR + 32;
 				break;
+			case 'q':
+				ui_dest_base += 32;
+				ui_dest_ptr = ui_dest_base + 3;
+				if (vwf_current_offset) {
+					vwf_print_reset(vwf_current_tile + 1u);
+				}
+				while (1) {
+					dialogue_string++;
+					wait_vbl_done();
+					wait_vbl_done();
+					switch (banked_get(dialogue_bank, dialogue_string)) {
+					case '\n':
+						ui_dest_base += 32;
+						ui_dest_ptr = ui_dest_base + 3;
+						if (vwf_current_offset) {
+							vwf_print_reset(vwf_current_tile + 1u);
+						}
+						break;
+					case 0:
+						goto allow_response;
+					default:
+						render_char();
+						break;
+					}
+				}
+				allow_response: {
+					WAIT_VRAM;
+					*(uint8_t*) 0x9FC1 = 0x82;
+					*(uint8_t*) 0x9FE1 = 0x81;
+					bool choice = false;
+					while (1) {
+						if (new_keys & J_UP || new_keys & J_DOWN) {
+							choice = !choice;
+							if (choice) {
+								WAIT_VRAM;
+								*(uint8_t*) 0x9FC1 = 0x81;
+								*(uint8_t*) 0x9FE1 = 0x82;
+							} else {
+								WAIT_VRAM;
+								*(uint8_t*) 0x9FC1 = 0x82;
+								*(uint8_t*) 0x9FE1 = 0x81;
+							}
+						}
+						if (new_keys & J_A) {
+							script_return = choice;
+							goto exit;
+						}
+						wait_vbl_done();
+					}
+				}
 			case 'w':
 				while(1) {
 					if (new_keys & J_A)

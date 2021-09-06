@@ -87,16 +87,19 @@ const ui_pal default_ui_dmg = {
 	.gradient_start = {20, 26, 10}
 };
 
-ui_pal current_ui_pal;
+ui_pal current_ui_pal = {
+	.colors = {RGB(20, 20, 31), RGB_BLUE, RGB_DARKBLUE, RGB_BLACK},
+	.gradient_start = {8, 12, 31}
+};
 uint8_t status_position = 0;
 uint8_t text_position = 0;
 
 void init_hud() BANKED
 {
-	memcpy(&current_ui_pal, &default_ui_blue, sizeof(ui_pal));
 	uint8_t i;
 	vmemcpy((char*) TILEADDR(HUD_TILE), SIZE(hud_tiles), hud_tiles);
 	vmemcpy((char*) TILEADDR(ARROW_TILE), SIZE(arrow_tiles), arrow_tiles);
+	vmemset((char*) TILEADDR(ARROW_TILE) + SIZE(arrow_tiles), 0, 16);
 
 	// Load hud
 	vmemcpy((char*) (0x9F60), 20, hud);
